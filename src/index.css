@@ -1,0 +1,16 @@
+/*
+ * @conjureos/ui — index.css
+ *
+ * Public entry. Imports tokens + primitive classes in that order so
+ * primitives can read the variables defined upstream.
+ *
+ * Apps consuming this stylesheet should `<link>` to its built form
+ * (`dist/ui.css` after `npm run build`, or via ConjureOS's served
+ * `_conjureos/ui/v1.css`) — then wrap content in either:
+ *
+ *   <body class="cui-tokens">  (tokens only — bring your own classes)
+ *   <body class="cui-ui">      (tokens + primitive classes)
+ */
+
+@import "./tokens.css";
+@import "./ui.css";

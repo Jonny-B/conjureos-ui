@@ -1,0 +1,247 @@
+/*
+ * @conjureos/ui — ui.css
+ *
+ * Primitive component classes built on tokens.css. Wrap content in
+ * `.cui-ui` to pick up everything; tokens + primitives.
+ *
+ * Coverage is deliberately narrow: card, button, pill, chip, input,
+ * stack. Apps compose these into bigger components. The goal is
+ * "looks like ConjureOS with three classes," not "every possible
+ * component pre-built."
+ *
+ * Naming uses `.cui-<thing>` because the shell already owns
+ * `.conjureos-*` and we want zero collision risk.
+ */
+
+/* ---- Layout helpers ---- */
+
+.cui-ui .cui-stack-v {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cui-space-3);
+}
+
+.cui-ui .cui-stack-h {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--cui-space-3);
+}
+
+.cui-ui .cui-stack-h--between {
+  justify-content: space-between;
+}
+
+/* ---- Card ---- */
+
+.cui-ui .cui-card {
+  background: var(--cui-bg-1);
+  border: var(--cui-border-width) solid var(--cui-border);
+  border-radius: var(--cui-radius);
+  padding: var(--cui-space-4);
+  transition: border-color var(--cui-duration) var(--cui-ease),
+              background var(--cui-duration) var(--cui-ease),
+              transform var(--cui-duration) var(--cui-ease),
+              box-shadow var(--cui-duration) var(--cui-ease);
+}
+
+.cui-ui .cui-card--interactive {
+  cursor: pointer;
+}
+
+.cui-ui .cui-card--interactive:hover {
+  border-color: var(--cui-border-strong);
+  background: var(--cui-bg-2);
+  transform: translateY(-1px);
+  box-shadow: var(--cui-shadow-accent);
+}
+
+.cui-ui .cui-card--hero {
+  background: var(--cui-accent-gradient), var(--cui-bg-1);
+  background-blend-mode: normal;
+  border-color: var(--cui-accent-tint);
+}
+
+/* ---- Button ---- */
+
+.cui-ui .cui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cui-space-2);
+  padding: var(--cui-space-2) var(--cui-space-4);
+  background: var(--cui-bg-2);
+  border: var(--cui-border-width) solid var(--cui-border);
+  border-radius: var(--cui-radius);
+  color: var(--cui-fg);
+  font-family: inherit;
+  font-size: var(--cui-text-base);
+  font-weight: var(--cui-weight-medium);
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--cui-duration) var(--cui-ease),
+              border-color var(--cui-duration) var(--cui-ease),
+              transform var(--cui-duration-fast) var(--cui-ease);
+}
+
+.cui-ui .cui-button:hover {
+  background: var(--cui-bg-3);
+  border-color: var(--cui-border-strong);
+}
+
+.cui-ui .cui-button:active {
+  transform: translateY(1px);
+}
+
+.cui-ui .cui-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.cui-ui .cui-button--primary {
+  background: var(--cui-accent);
+  border-color: var(--cui-accent);
+  color: white;
+}
+
+.cui-ui .cui-button--primary:hover {
+  background: var(--cui-accent-soft);
+  border-color: var(--cui-accent-soft);
+  color: var(--cui-bg);
+}
+
+.cui-ui .cui-button--ghost {
+  background: transparent;
+  border-color: transparent;
+}
+
+.cui-ui .cui-button--ghost:hover {
+  background: var(--cui-accent-mute);
+  border-color: transparent;
+}
+
+.cui-ui .cui-button--pill {
+  border-radius: var(--cui-radius-pill);
+  padding: var(--cui-space-2) var(--cui-space-5);
+}
+
+/* ---- Pill (status / tag) ---- */
+
+.cui-ui .cui-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cui-space-1);
+  padding: 2px var(--cui-space-3);
+  background: var(--cui-accent-mute);
+  border: var(--cui-border-width) solid var(--cui-accent-tint);
+  border-radius: var(--cui-radius-pill);
+  color: var(--cui-accent-soft);
+  font-size: var(--cui-text-xs);
+  font-weight: var(--cui-weight-medium);
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cui-ui .cui-pill--success { background: rgba(52,211,153,0.14); border-color: rgba(52,211,153,0.35); color: var(--cui-success); }
+.cui-ui .cui-pill--warn    { background: rgba(251,191,36,0.14); border-color: rgba(251,191,36,0.35); color: var(--cui-warn); }
+.cui-ui .cui-pill--error   { background: rgba(248,113,113,0.14); border-color: rgba(248,113,113,0.35); color: var(--cui-error); }
+
+/* ---- Chip (interactive tag, e.g. filter selection) ---- */
+
+.cui-ui .cui-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cui-space-1);
+  padding: var(--cui-space-1) var(--cui-space-3);
+  background: var(--cui-bg-2);
+  border: var(--cui-border-width) solid var(--cui-border);
+  border-radius: var(--cui-radius-pill);
+  color: var(--cui-fg-mute);
+  font-size: var(--cui-text-sm);
+  cursor: pointer;
+  transition: background var(--cui-duration) var(--cui-ease),
+              color var(--cui-duration) var(--cui-ease);
+}
+
+.cui-ui .cui-chip:hover {
+  background: var(--cui-bg-3);
+  color: var(--cui-fg);
+}
+
+.cui-ui .cui-chip--active {
+  background: var(--cui-accent-mute);
+  border-color: var(--cui-accent-tint);
+  color: var(--cui-accent-soft);
+}
+
+/* ---- Input ---- */
+
+.cui-ui .cui-input {
+  display: block;
+  width: 100%;
+  padding: var(--cui-space-2) var(--cui-space-3);
+  background: var(--cui-bg);
+  border: var(--cui-border-width) solid var(--cui-border);
+  border-radius: var(--cui-radius-sm);
+  color: var(--cui-fg);
+  font-family: inherit;
+  font-size: var(--cui-text-base);  /* 14px — avoids iOS zoom on focus */
+  line-height: var(--cui-leading-normal);
+  outline: none;
+  transition: border-color var(--cui-duration) var(--cui-ease);
+}
+
+.cui-ui .cui-input:focus {
+  border-color: var(--cui-accent);
+}
+
+.cui-ui .cui-input::placeholder {
+  color: var(--cui-fg-dim);
+}
+
+/* Label paired with an input. */
+.cui-ui .cui-label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cui-space-1);
+  font-size: var(--cui-text-sm);
+  color: var(--cui-fg-mute);
+}
+
+/* ---- Heading ---- */
+
+.cui-ui .cui-heading {
+  margin: 0;
+  font-size: var(--cui-text-2xl);
+  font-weight: var(--cui-weight-semibold);
+  line-height: var(--cui-leading-tight);
+  color: var(--cui-fg);
+}
+
+.cui-ui .cui-subheading {
+  margin: 0;
+  font-size: var(--cui-text-sm);
+  color: var(--cui-fg-mute);
+}
+
+/* ---- Divider ---- */
+
+.cui-ui .cui-divider {
+  height: 1px;
+  background: var(--cui-border);
+  margin: var(--cui-space-3) 0;
+  border: 0;
+}
+
+/* ---- Muted helper text ---- */
+
+.cui-ui .cui-muted {
+  color: var(--cui-fg-mute);
+}
+
+.cui-ui .cui-dim {
+  color: var(--cui-fg-dim);
+}
