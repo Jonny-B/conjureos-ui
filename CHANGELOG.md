@@ -8,6 +8,8 @@ Documentation polish for the first public release. No code changes; the tokens, 
 
 ### Added
 
+- `demo.html`: a single static page at the repo root that renders every primitive class and color token, with copy-pasteable code snippets beside each example. Open in any browser after `npm run build`, no JS framework required. Doubles as a smoke-test page for verifying the published CSS.
+- README: a "See it live" section pointing at `demo.html`.
 - README: explicit `npm install @conjureos/ui` path for consumers outside the ConjureOS shell, alongside the existing `<link>` instructions for in-shell apps.
 - README: shields.io badges for the npm version and the MIT license.
 - README: a Stability section that flags pre-1.0 status and the no-silent-breakage versioning promise.
