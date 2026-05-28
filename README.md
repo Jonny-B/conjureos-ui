@@ -13,6 +13,10 @@ Open [`demo.html`](demo.html) in any browser. The page renders every primitive c
 
 To preview a local working copy of the library instead (e.g. while developing new tokens), swap `demo.html`'s `<link>` tag from `https://unpkg.com/@conjureos/ui/dist/ui.css` to `./dist/ui.css` and run `npm run build` first.
 
+## Style guide
+
+[MODERN_WHIMSY.md](MODERN_WHIMSY.md) is the canonical reference for the visual language: palette, type, motion, surface idioms, voice, and known drift. The final `## For agents` section is inline-imported by the ConjureOS Dev agent's system prompt, so edits to that section flow straight into AI-generated apps.
+
 ## Install
 
 There are two consumption paths depending on where your app lives.

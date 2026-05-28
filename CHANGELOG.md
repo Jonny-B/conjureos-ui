@@ -2,6 +2,16 @@
 
 All notable changes to `@conjureos/ui` are documented here. The format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.2 (2026-05-27)
+
+Modern Whimsy style guide moves into the library so the visual language has one canonical document instead of three drifting summaries (tokens.css, the Dev agent's hand-written prompt block, and scattered `// Modern-Whimsy facelift` comments in the ConjureOS shell).
+
+### Added
+
+- [`MODERN_WHIMSY.md`](MODERN_WHIMSY.md): the canonical style guide. Covers palette, type, space, motion, surface idioms (hero strip, translucent surface, pill active state, card hover lift, entrance rise), voice (wand-glyph errors, invitation empty states), how to consume, and known drift. Ends with a `## For agents` appendix that is inline-imported by the ConjureOS Dev agent's system prompt via Vite `?raw`, so future edits to the agent-facing spec only need to happen here.
+- `MODERN_WHIMSY.md` added to the package `files` array so the doc ships with the published package and is resolvable from consumers via `@conjureos/ui/MODERN_WHIMSY.md?raw`.
+- README: a "Style guide" section pointing at the new doc.
+
 ## 0.1.1 (2026-05-25)
 
 Documentation polish for the first public release. No code changes; the tokens, primitive classes, and build script are byte-identical to 0.1.0.
