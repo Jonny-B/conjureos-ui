@@ -23,12 +23,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Node 24 → npm >= 11.5.1, required for OIDC trusted publishing.
-      # NOTE: no `registry-url` — it would write an .npmrc auth token that npm
-      # uses instead of OIDC.
+      # Node 24 → npm >= 11.5.1 (does the OIDC handshake) + registry-url so npm
+      # knows the registry. Matches npm's official trusted-publishing recipe.
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+          registry-url: "https://registry.npmjs.org"
 
       - name: npm version (needs >= 11.5.1 for OIDC)
         run: npm -v
