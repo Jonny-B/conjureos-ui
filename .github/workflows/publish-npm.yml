@@ -1,11 +1,13 @@
 name: Publish to npm
 
-# Auto-publishes @conjureos/ui to npm on every push to `main` — but ONLY when
-# package.json's version isn't already on npm. So "doing a release" is just:
-# bump the version, push to main. Re-pushing without a bump is a no-op.
+# Auto-publishes @conjureos/ui to npm on push to `main`, but only when the
+# version in package.json isn't already on npm (re-pushes are no-ops). So a
+# release is just: bump version, push to main.
 #
-# Requires an `NPM_TOKEN` repo secret: an npm automation/granular token with
-# publish access to the @conjureos scope.
+# Auth: npm Trusted Publishing (OIDC) — NO token/secret. For this to work, the
+# package's Trusted Publisher on npmjs.com must point at THIS workflow file
+# (publish-npm.yml) with the environment field left blank. Publishes with
+# provenance (public repo).
 
 on:
   push:
@@ -14,7 +16,7 @@ on:
 
 permissions:
   contents: read
-  id-token: write # enables npm provenance
+  id-token: write # OIDC token for npm Trusted Publishing (+ provenance)
 
 jobs:
   publish:
@@ -26,6 +28,10 @@ jobs:
         with:
           node-version: 20
           registry-url: "https://registry.npmjs.org"
+
+      # Node 20 ships npm 10; Trusted Publishing (OIDC) needs npm >= 11.5.1.
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: npm install
@@ -48,8 +54,6 @@ jobs:
         if: steps.check.outputs.publish == 'true'
         run: npm run build
 
-      - name: Publish
+      - name: Publish (Trusted Publishing — no token)
         if: steps.check.outputs.publish == 'true'
         run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
