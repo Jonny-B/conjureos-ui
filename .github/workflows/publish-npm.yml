@@ -54,6 +54,9 @@ jobs:
         if: steps.check.outputs.publish == 'true'
         run: npm run build
 
-      - name: Publish (Trusted Publishing / OIDC — no token)
+      # Token auth (NPM_TOKEN). OIDC wouldn't engage on the runner; revisit later.
+      - name: Publish
         if: steps.check.outputs.publish == 'true'
-        run: npm publish --access public --provenance
+        run: npm publish --access public --no-provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
