@@ -21,6 +21,10 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # Must match the npm Trusted Publisher's "Environment" field so the OIDC
+    # token's environment claim is accepted. (GitHub auto-creates this env with
+    # no protection rules, so it doesn't gate the push.)
+    environment: Prod
     steps:
       - uses: actions/checkout@v4
 
@@ -31,7 +35,9 @@ jobs:
 
       # Node 20 ships npm 10; Trusted Publishing (OIDC) needs npm >= 11.5.1.
       - name: Upgrade npm for trusted publishing
-        run: npm install -g npm@latest
+        run: |
+          npm install -g npm@latest
+          npm -v
 
       - name: Install dependencies
         run: npm install
