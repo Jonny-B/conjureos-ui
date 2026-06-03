@@ -1,13 +1,11 @@
 name: Publish to npm
 
 # Auto-publishes @conjureos/ui to npm on push to `main`, but only when the
-# version in package.json isn't already on npm (re-pushes are no-ops). So a
-# release is just: bump version, push to main.
+# version in package.json isn't already on npm (re-pushes are no-ops). Release =
+# bump version, push to main.
 #
-# Auth: npm Trusted Publishing (OIDC) — NO token/secret. For this to work, the
-# package's Trusted Publisher on npmjs.com must point at THIS workflow file
-# (publish-npm.yml) with the environment field left blank. Publishes with
-# provenance (public repo).
+# Auth: an `NPM_TOKEN` repo secret. Create an npm **Automation** token (npmjs.com
+# → Access Tokens → Generate New Token → Automation).
 
 on:
   push:
@@ -16,31 +14,17 @@ on:
 
 permissions:
   contents: read
-  id-token: write # OIDC token for npm Trusted Publishing (+ provenance)
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    # Must match the npm Trusted Publisher's "Environment" field so the OIDC
-    # token's environment claim is accepted. (GitHub auto-creates this env with
-    # no protection rules, so it doesn't gate the push.)
-    environment: Prod
     steps:
       - uses: actions/checkout@v4
 
-      # NOTE: no `registry-url` — it makes setup-node write an .npmrc with a
-      # placeholder auth token, and npm then uses that token instead of OIDC
-      # (the publish then 404s). With no token configured, npm 11.5.1+ does the
-      # Trusted Publishing (OIDC) handshake against the default npm registry.
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      # Node 20 ships npm 10; Trusted Publishing (OIDC) needs npm >= 11.5.1.
-      - name: Upgrade npm for trusted publishing
-        run: |
-          npm install -g npm@latest
-          npm -v
+          registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
         run: npm install
@@ -63,6 +47,8 @@ jobs:
         if: steps.check.outputs.publish == 'true'
         run: npm run build
 
-      - name: Publish (Trusted Publishing — no token)
+      - name: Publish
         if: steps.check.outputs.publish == 'true'
-        run: npm publish --access public --provenance
+        run: npm publish --access public --no-provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
