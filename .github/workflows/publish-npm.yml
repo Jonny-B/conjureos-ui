@@ -1,0 +1,54 @@
+name: Publish to npm
+
+# Auto-publishes @conjureos/ui to npm on push to `main`, but only when the
+# version in package.json isn't already on npm (re-pushes are no-ops). Release =
+# bump version, push to main.
+#
+# Auth: an `NPM_TOKEN` repo secret. Create an npm **Automation** token (npmjs.com
+# → Access Tokens → Generate New Token → Automation).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Skip if this version is already published
+        id: check
+        run: |
+          name="$(node -p "require('./package.json').name")"
+          local="$(node -p "require('./package.json').version")"
+          remote="$(npm view "$name@$local" version 2>/dev/null || echo "")"
+          if [ "$remote" = "$local" ]; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "$name@$local is already on npm — nothing to do."
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "Publishing $name@$local."
+          fi
+
+      - name: Build
+        if: steps.check.outputs.publish == 'true'
+        run: npm run build
+
+      - name: Publish
+        if: steps.check.outputs.publish == 'true'
+        run: npm publish --access public --no-provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
