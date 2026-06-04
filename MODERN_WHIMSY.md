@@ -338,14 +338,23 @@ Key tokens (most-reached-for):
 - `var(--cui-accent-gradient)`, the purple/blue 135deg gradient on hero surfaces
 
 Primitive classes (compose these into your UI):
-- Layout: `cui-stack-v`, `cui-stack-h`, `cui-stack-h--between`
+<!-- AUTOGEN:primitives -->
+- Layout helpers: `cui-stack-v`, `cui-stack-h`, `cui-stack-h--between`
 - Card: `cui-card`, `cui-card--interactive`, `cui-card--hero`
 - Button: `cui-button`, `cui-button--primary`, `cui-button--ghost`, `cui-button--pill`
-- Pill (status): `cui-pill`, `cui-pill--success`, `cui-pill--warn`, `cui-pill--error`
-- Chip (filter): `cui-chip`, `cui-chip--active`
+- Pill (status / tag): `cui-pill`, `cui-pill--success`, `cui-pill--warn`, `cui-pill--error`
+- Chip (interactive tag, e.g. filter selection): `cui-chip`, `cui-chip--active`
 - Input: `cui-input`, `cui-label`
-- Type: `cui-heading`, `cui-subheading`, `cui-muted`, `cui-dim`
+- Heading: `cui-heading`, `cui-subheading`
 - Divider: `cui-divider`
+- Muted helper text: `cui-muted`, `cui-dim`
+- Select: `cui-select`
+- Slider: `cui-slider`
+- Toggle: `cui-toggle`, `cui-toggle__track`
+- Tabs: `cui-tabs`, `cui-tab`, `cui-tab--active`
+- Tooltip: `cui-tooltip`
+- Modal: `cui-modal-backdrop`, `cui-modal`
+<!-- /AUTOGEN -->
 
 Signature idioms (reach for these when the situation fits):
 - Hero strip: an accent-gradient bar at the top of a panel, bled edge-to-edge via negative margins on the header. Use for the top of any primary panel.

@@ -245,3 +245,243 @@
 .cui-ui .cui-dim {
   color: var(--cui-fg-dim);
 }
+
+/* ---- Select ---- */
+
+.cui-ui .cui-select {
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  width: 100%;
+  padding: var(--cui-space-2) calc(var(--cui-space-3) + 18px) var(--cui-space-2) var(--cui-space-3);
+  background: var(--cui-bg);
+  border: var(--cui-border-width) solid var(--cui-border);
+  border-radius: var(--cui-radius-sm);
+  color: var(--cui-fg);
+  font-family: inherit;
+  font-size: var(--cui-text-base);  /* 14px, avoids iOS zoom on focus */
+  line-height: var(--cui-leading-normal);
+  outline: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='none' stroke='%239ca3af' stroke-width='1.5' d='M3 4.5l3 3 3-3'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right var(--cui-space-3) center;
+  transition: border-color var(--cui-duration) var(--cui-ease);
+}
+
+.cui-ui .cui-select:focus {
+  border-color: var(--cui-accent);
+}
+
+.cui-ui .cui-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- Slider ---- */
+
+.cui-ui .cui-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--cui-bg-2);
+  border-radius: var(--cui-radius-pill);
+  outline: none;
+  cursor: pointer;
+}
+
+.cui-ui .cui-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--cui-accent);
+  border: 2px solid var(--cui-fg);
+  border-radius: var(--cui-radius-pill);
+  cursor: pointer;
+  transition: transform var(--cui-duration-fast) var(--cui-ease),
+              box-shadow var(--cui-duration-fast) var(--cui-ease);
+}
+
+.cui-ui .cui-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--cui-accent);
+  border: 2px solid var(--cui-fg);
+  border-radius: var(--cui-radius-pill);
+  cursor: pointer;
+}
+
+.cui-ui .cui-slider:hover::-webkit-slider-thumb { transform: scale(1.1); }
+.cui-ui .cui-slider:focus::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--cui-accent-tint); }
+
+/* ---- Toggle ---- */
+
+.cui-ui .cui-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cui-space-2);
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--cui-text-sm);
+  color: var(--cui-fg-mute);
+}
+
+.cui-ui .cui-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+}
+
+.cui-ui .cui-toggle__track {
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+  background: var(--cui-bg-3);
+  border: var(--cui-border-width) solid var(--cui-border);
+  border-radius: var(--cui-radius-pill);
+  position: relative;
+  transition: background var(--cui-duration) var(--cui-ease),
+              border-color var(--cui-duration) var(--cui-ease);
+}
+
+.cui-ui .cui-toggle__track::after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 16px;
+  height: 16px;
+  background: var(--cui-fg);
+  border-radius: var(--cui-radius-pill);
+  transition: transform var(--cui-duration) var(--cui-ease),
+              background var(--cui-duration) var(--cui-ease);
+}
+
+.cui-ui .cui-toggle input:checked + .cui-toggle__track {
+  background: var(--cui-accent);
+  border-color: var(--cui-accent);
+}
+
+.cui-ui .cui-toggle input:checked + .cui-toggle__track::after {
+  transform: translateX(16px);
+  background: white;
+}
+
+.cui-ui .cui-toggle input:focus-visible + .cui-toggle__track {
+  box-shadow: 0 0 0 2px var(--cui-accent-tint);
+}
+
+/* ---- Tabs ---- */
+
+.cui-ui .cui-tabs {
+  display: inline-flex;
+  gap: var(--cui-space-1);
+  background: var(--cui-bg-2);
+  border: var(--cui-border-width) solid var(--cui-border);
+  border-radius: var(--cui-radius-pill);
+  padding: 3px;
+}
+
+.cui-ui .cui-tab {
+  padding: var(--cui-space-2) var(--cui-space-4);
+  background: transparent;
+  border: 0;
+  border-radius: var(--cui-radius-pill);
+  color: var(--cui-fg-mute);
+  font-family: inherit;
+  font-size: var(--cui-text-sm);
+  font-weight: var(--cui-weight-medium);
+  cursor: pointer;
+  transition: color var(--cui-duration) var(--cui-ease),
+              background var(--cui-duration) var(--cui-ease);
+}
+
+.cui-ui .cui-tab:hover {
+  color: var(--cui-fg);
+}
+
+.cui-ui .cui-tab--active {
+  background: linear-gradient(135deg,
+    rgba(124, 106, 247, 0.55),
+    rgba(74, 158, 255, 0.4));
+  color: white;
+  box-shadow: 0 4px 12px rgba(124, 106, 247, 0.25);
+}
+
+.cui-ui .cui-tab--active:hover {
+  color: white;
+}
+
+/* ---- Tooltip ---- */
+
+.cui-ui .cui-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.cui-ui .cui-tooltip[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  background: var(--cui-bg-3);
+  border: var(--cui-border-width) solid var(--cui-border-strong);
+  border-radius: var(--cui-radius-sm);
+  color: var(--cui-fg);
+  font-size: var(--cui-text-xs);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--cui-duration) var(--cui-ease);
+  z-index: 10;
+}
+
+.cui-ui .cui-tooltip[data-tooltip]:hover::after,
+.cui-ui .cui-tooltip[data-tooltip]:focus-within::after {
+  opacity: 1;
+}
+
+/* ---- Modal ---- */
+
+.cui-ui .cui-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--cui-space-4);
+  z-index: 1000;
+  animation: cui-modal-backdrop-in var(--cui-duration) var(--cui-ease-out) both;
+}
+
+.cui-ui .cui-modal {
+  background: var(--cui-bg-2);
+  border: var(--cui-border-width) solid var(--cui-border);
+  border-radius: var(--cui-radius-lg);
+  padding: var(--cui-space-6);
+  max-width: 480px;
+  width: 100%;
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  box-shadow: var(--cui-shadow);
+  animation: cui-modal-in var(--cui-duration-slow) var(--cui-ease-out) both;
+}
+
+@keyframes cui-modal-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cui-modal-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
