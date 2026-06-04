@@ -1,12 +1,12 @@
 name: Publish to npm
 
-# Auto-publishes @conjureos/ui to npm on push to `main`, but only when the
-# version in package.json isn't already on npm (re-pushes are no-ops).
+# Auto-publishes @conjureos/ui to npm on push to `main`, only when the version in
+# package.json isn't already on npm (re-pushes are no-ops). Release = bump
+# version, push to main.
 #
-# Auth: npm Trusted Publishing (OIDC) — NO token. Requires the package's Trusted
-# Publisher on npmjs.com to point at THIS workflow file (publish-npm.yml).
-# Node 24 is used on purpose: its bundled npm (>= 11.5.1) performs the OIDC
-# handshake; Node 20's npm 10 does not. Publishes with provenance (public repo).
+# Auth: NPM_TOKEN — an npm **Automation** token (npmjs.com → Access Tokens →
+# Generate New Token → Automation). Automation tokens bypass 2FA, which a
+# package's publishing-access setting may require.
 
 on:
   push:
@@ -15,7 +15,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write # OIDC token for npm Trusted Publishing (+ provenance)
 
 jobs:
   publish:
@@ -23,15 +22,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Node 24 → npm >= 11.5.1 (does the OIDC handshake) + registry-url so npm
-      # knows the registry. Matches npm's official trusted-publishing recipe.
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 20
           registry-url: "https://registry.npmjs.org"
-
-      - name: npm version (needs >= 11.5.1 for OIDC)
-        run: npm -v
 
       - name: Install dependencies
         run: npm install
@@ -54,7 +48,6 @@ jobs:
         if: steps.check.outputs.publish == 'true'
         run: npm run build
 
-      # Token auth (NPM_TOKEN). OIDC wouldn't engage on the runner; revisit later.
       - name: Publish
         if: steps.check.outputs.publish == 'true'
         run: npm publish --access public --no-provenance
