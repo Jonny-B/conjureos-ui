@@ -1,11 +1,12 @@
 name: Publish to npm
 
-# Auto-publishes @conjureos/ui to npm on push to `main`, but only when the
-# version in package.json isn't already on npm (re-pushes are no-ops). Release =
-# bump version, push to main.
+# Auto-publishes @conjureos/ui to npm on push to `main`, only when the version in
+# package.json isn't already on npm (re-pushes are no-ops). Release = bump
+# version, push to main.
 #
-# Auth: an `NPM_TOKEN` repo secret. Create an npm **Automation** token (npmjs.com
-# → Access Tokens → Generate New Token → Automation).
+# Auth: NPM_TOKEN — an npm **Automation** token (npmjs.com → Access Tokens →
+# Generate New Token → Automation). Automation tokens bypass 2FA, which a
+# package's publishing-access setting may require.
 
 on:
   push:
