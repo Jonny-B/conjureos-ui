@@ -2,6 +2,16 @@
 
 All notable changes to `@conjureos/ui` are documented here. The format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.0 (2026-06-06)
+
+Semantic color + button vocabulary. The button primitive grows beyond `primary` / `ghost` into the full intent set so apps don't hand-roll a danger button.
+
+### Added
+
+- Semantic color tokens in `tokens.css`: `--cui-secondary`, `--cui-danger`, `--cui-warning`, `--cui-info-strong`, `--cui-link` (plus `-hover` variants). These are button-weight shades, a touch more saturated than the existing lighter pill tints (`--cui-success/warn/error`), so a filled button reads as solid with a legible label.
+- Button variants: `cui-button--secondary` (neutral slate fill), `cui-button--danger` (destructive red), `cui-button--warning` (amber, dark label), `cui-button--info` (blue), and `cui-button--link` (chrome-less, underline-on-hover, keeps button semantics). They sit beside the existing `--primary` / `--ghost` / `--pill`.
+- Pill parity: `cui-pill--danger` (alias of `--error` for naming consistency) and `cui-pill--info`, rounding out the `--success` / `--warn` / `--error` set.
+
 ## 0.1.3 (2026-05-25)
 
 Six new CSS primitives (`select`, `slider`, `toggle`, `tabs`, `tooltip`, `modal`) and a build-time autogen for the agent appendix.
