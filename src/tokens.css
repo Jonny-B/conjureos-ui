@@ -25,12 +25,21 @@
   --cui-accent-soft:      #a5b4fc;            /* secondary accent — icons, captions */
   --cui-accent-mute:      rgba(124,106,247,0.18);
   --cui-accent-tint:      rgba(124,106,247,0.28);
+  --cui-accent-hover:     #8e7df8;            /* accent, one notch lighter — :hover fills (distinct from -soft, which is a lighter SECONDARY role) */
+  --cui-accent-pink:      #c780f7;            /* third brand accent (magenta) — gradient stop + playful flourishes */
 
   /* Backgrounds — layered from deepest to highest. */
   --cui-bg:               #0b0e14;            /* root canvas */
   --cui-bg-1:             #11151d;            /* primary surface (cards) */
   --cui-bg-2:             #1a1f2b;            /* raised surface (hover, modal) */
   --cui-bg-3:             #232938;            /* highest — popovers, selected rows */
+
+  /* Translucent "glass" surfaces — alpha so a blurred desktop/wallpaper shows
+     through (floating shell panels, menus). Distinct from the opaque --cui-bg-*
+     layers above; reach for these when the panel sits over live content. */
+  --cui-surface:          rgba(20,22,30,0.85);    /* primary glass panel */
+  --cui-surface-2:        rgba(28,30,40,0.75);    /* raised glass panel */
+  --cui-surface-hover:    rgba(255,255,255,0.06); /* additive white wash for hover over any surface */
 
   /* Foregrounds. */
   --cui-fg:               #e5e9f0;            /* primary text */
@@ -69,6 +78,15 @@
   --cui-accent-gradient:  linear-gradient(135deg,
                             rgba(124,106,247,0.28),
                             rgba(74,158,255,0.18));
+
+  /* The full-saturation brand sweep (opaque, 4-stop) — for animated accent bars,
+     primary-button fills, hero spans. Distinct from --cui-accent-gradient above,
+     which is a translucent OVERLAY tint meant to blend over a surface. */
+  --cui-brand-gradient:   linear-gradient(120deg,
+                            var(--cui-accent) 0%,
+                            var(--cui-info-strong) 35%,
+                            var(--cui-accent-pink) 70%,
+                            var(--cui-accent) 100%);
 
   /* ---- 2. Typography ---- */
 
@@ -117,6 +135,7 @@
   --cui-shadow-sm:        0 1px 2px rgba(0,0,0,0.3);
   --cui-shadow:           0 4px 12px rgba(0,0,0,0.4);
   --cui-shadow-accent:    0 6px 20px rgba(124,106,247,0.25);
+  --cui-shadow-lg:        0 10px 40px rgba(0,0,0,0.45);  /* large ambient drop — floating popovers / menus / overlay panels */
 
   /* ---- 4. Motion ---- */
 

@@ -216,6 +216,13 @@
    variants; `--info` rounds out the set (uses the soft accent tint). */
 .cui-ui .cui-pill--danger  { background: rgba(239,68,68,0.14);  border-color: rgba(239,68,68,0.4);   color: var(--cui-error); }
 .cui-ui .cui-pill--info    { background: var(--cui-accent-mute); border-color: var(--cui-accent-tint); color: var(--cui-info); }
+/* Neutral / quiet variant — a grey label pill with no accent, for calm metadata
+   tags (categories, "Advanced", counts) that shouldn't shout. */
+.cui-ui .cui-pill--neutral { background: var(--cui-surface-hover); border-color: var(--cui-border); color: var(--cui-fg-mute); }
+/* Plain variant — drops the uppercase + letter-spacing so mixed-case or numeric
+   content (e.g. "v3 -> v4") reads naturally; tabular figures keep numbers aligned.
+   Composable with --neutral. */
+.cui-ui .cui-pill--plain   { text-transform: none; letter-spacing: normal; font-variant-numeric: tabular-nums; }
 
 /* ---- Chip (interactive tag, e.g. filter selection) ---- */
 
@@ -277,6 +284,33 @@
   gap: var(--cui-space-1);
   font-size: var(--cui-text-sm);
   color: var(--cui-fg-mute);
+}
+
+/* ---- Field (labeled control with an optional hint) ---- */
+
+/* cui-label above is label+control only; cui-field adds the muted hint slot that
+   real forms need. Compose:
+     <label class="cui-field">
+       <span class="cui-field__label">Name</span>
+       <span class="cui-field__hint">Shown on the card</span>
+       <input class="cui-input" />
+     </label> */
+.cui-ui .cui-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cui-space-1);
+}
+
+.cui-ui .cui-field__label {
+  font-size: var(--cui-text-sm);
+  font-weight: var(--cui-weight-medium);
+  color: var(--cui-fg);
+}
+
+.cui-ui .cui-field__hint {
+  font-size: var(--cui-text-xs);
+  color: var(--cui-fg-dim);
+  line-height: var(--cui-leading-normal);
 }
 
 /* ---- Heading ---- */

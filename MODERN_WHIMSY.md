@@ -342,9 +342,10 @@ Primitive classes (compose these into your UI):
 - Layout helpers: `cui-stack-v`, `cui-stack-h`, `cui-stack-h--between`
 - Card: `cui-card`, `cui-card--interactive`, `cui-card--hero`
 - Button: `cui-button`, `cui-button--primary`, `cui-button--ghost`, `cui-button--pill`, `cui-button--secondary`, `cui-button--danger`, `cui-button--warning`, `cui-button--info`, `cui-button--link`
-- Pill (status / tag): `cui-pill`, `cui-pill--success`, `cui-pill--warn`, `cui-pill--error`, `cui-pill--danger`, `cui-pill--info`
+- Pill (status / tag): `cui-pill`, `cui-pill--success`, `cui-pill--warn`, `cui-pill--error`, `cui-pill--danger`, `cui-pill--info`, `cui-pill--neutral`, `cui-pill--plain`
 - Chip (interactive tag, e.g. filter selection): `cui-chip`, `cui-chip--active`
 - Input: `cui-input`, `cui-label`
+- Field (labeled control with an optional hint): `cui-field`, `cui-field__label`, `cui-field__hint`
 - Heading: `cui-heading`, `cui-subheading`
 - Divider: `cui-divider`
 - Muted helper text: `cui-muted`, `cui-dim`

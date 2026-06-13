@@ -2,6 +2,16 @@
 
 All notable changes to `@conjureos/ui` are documented here. The format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.3.0 (2026-06-13)
+
+Form-field wrapper, quiet/plain pill variants, and the surface + brand tokens the ConjureOS shell needs to stop hand-rolling them. Purely additive — no existing class or token changes, so it's drop-in for every consumer.
+
+### Added
+
+- `cui-field` (+ `cui-field__label`, `cui-field__hint`): a vertical labeled-control wrapper with a muted hint slot. `cui-label` is label+control only; `cui-field` is what real forms reach for (label, optional hint, then a `cui-input` / `cui-select`).
+- Pill variants: `cui-pill--neutral` (grey, no accent — for calm metadata tags) and `cui-pill--plain` (drops uppercase + letter-spacing and uses tabular figures, so mixed-case / numeric content like "v3 -> v4" reads naturally). `--plain` composes with `--neutral`.
+- Tokens: `--cui-accent-hover` (#8e7df8, the accent one notch lighter for hover fills), `--cui-accent-pink` (#c780f7, the third brand accent), `--cui-brand-gradient` (the opaque 4-stop brand sweep, distinct from the translucent `--cui-accent-gradient` overlay), translucent glass surfaces `--cui-surface` / `--cui-surface-2` / `--cui-surface-hover` (alpha, so a blurred backdrop shows through), and `--cui-shadow-lg` (the large ambient drop for floating panels).
+
 ## 0.2.0 (2026-06-06)
 
 Semantic color + button vocabulary. The button primitive grows beyond `primary` / `ghost` into the full intent set so apps don't hand-roll a danger button.
