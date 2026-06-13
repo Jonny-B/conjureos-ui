@@ -127,6 +127,70 @@
   padding: var(--cui-space-2) var(--cui-space-5);
 }
 
+/* Semantic filled variants. Each is a solid fill with a white label and
+   a darken-on-hover; they share the base button's shape, padding, and
+   motion. Use them by altitude of intent: secondary for the quiet
+   alternative next to primary, danger for destructive actions, warning
+   for "are you sure," info for neutral-positive callouts. */
+.cui-ui .cui-button--secondary {
+  background: var(--cui-secondary);
+  border-color: var(--cui-secondary);
+  color: var(--cui-fg);
+}
+.cui-ui .cui-button--secondary:hover {
+  background: var(--cui-secondary-hover);
+  border-color: var(--cui-secondary-hover);
+}
+
+.cui-ui .cui-button--danger {
+  background: var(--cui-danger);
+  border-color: var(--cui-danger);
+  color: white;
+}
+.cui-ui .cui-button--danger:hover {
+  background: var(--cui-danger-hover);
+  border-color: var(--cui-danger-hover);
+  color: white;
+}
+
+.cui-ui .cui-button--warning {
+  background: var(--cui-warning);
+  border-color: var(--cui-warning);
+  color: #1a1206;
+}
+.cui-ui .cui-button--warning:hover {
+  background: var(--cui-warning-hover);
+  border-color: var(--cui-warning-hover);
+}
+
+.cui-ui .cui-button--info {
+  background: var(--cui-info-strong);
+  border-color: var(--cui-info-strong);
+  color: white;
+}
+.cui-ui .cui-button--info:hover {
+  background: var(--cui-info-strong-hover);
+  border-color: var(--cui-info-strong-hover);
+  color: white;
+}
+
+/* Link-style button: no chrome, reads as inline text but keeps button
+   semantics (focusable, keyboard-activatable). Underline appears on
+   hover so it's distinguishable from a plain label at rest. */
+.cui-ui .cui-button--link {
+  background: transparent;
+  border-color: transparent;
+  color: var(--cui-link);
+  padding-left: var(--cui-space-1);
+  padding-right: var(--cui-space-1);
+}
+.cui-ui .cui-button--link:hover {
+  background: transparent;
+  border-color: transparent;
+  color: var(--cui-link-hover);
+  text-decoration: underline;
+}
+
 /* ---- Pill (status / tag) ---- */
 
 .cui-ui .cui-pill {
@@ -148,6 +212,10 @@
 .cui-ui .cui-pill--success { background: rgba(52,211,153,0.14); border-color: rgba(52,211,153,0.35); color: var(--cui-success); }
 .cui-ui .cui-pill--warn    { background: rgba(251,191,36,0.14); border-color: rgba(251,191,36,0.35); color: var(--cui-warn); }
 .cui-ui .cui-pill--error   { background: rgba(248,113,113,0.14); border-color: rgba(248,113,113,0.35); color: var(--cui-error); }
+/* `--danger` is an alias of `--error` for naming parity with the button
+   variants; `--info` rounds out the set (uses the soft accent tint). */
+.cui-ui .cui-pill--danger  { background: rgba(239,68,68,0.14);  border-color: rgba(239,68,68,0.4);   color: var(--cui-error); }
+.cui-ui .cui-pill--info    { background: var(--cui-accent-mute); border-color: var(--cui-accent-tint); color: var(--cui-info); }
 
 /* ---- Chip (interactive tag, e.g. filter selection) ---- */
 

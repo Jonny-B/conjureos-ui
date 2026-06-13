@@ -41,11 +41,28 @@
   --cui-border:           rgba(255,255,255,0.08);
   --cui-border-strong:    rgba(255,255,255,0.16);
 
-  /* Status colors. Used by .cui-pill variants + level chips. */
+  /* Status colors. Used by .cui-pill variants + level chips. These are
+     the lighter "on dark surface" tints, readable as text/pill fills. */
   --cui-success:          #34d399;
   --cui-warn:             #fbbf24;
   --cui-error:            #f87171;
   --cui-info:             var(--cui-accent-soft);
+
+  /* Semantic button colors. Button-weight shades, deliberately a touch
+     stronger/more saturated than the pill tints above so a filled
+     button reads as solid and its white label keeps contrast. The
+     button variants in ui.css consume these; `--cui-accent` already
+     serves "primary". */
+  --cui-secondary:        #3b4252;            /* neutral slate fill */
+  --cui-secondary-hover:  #474f63;
+  --cui-danger:           #ef4444;            /* destructive red */
+  --cui-danger-hover:     #dc2626;
+  --cui-warning:          #f59e0b;
+  --cui-warning-hover:    #d97706;
+  --cui-info-strong:      #4a9eff;            /* button-weight info blue */
+  --cui-info-strong-hover:#2f8aee;
+  --cui-link:             var(--cui-accent-soft);
+  --cui-link-hover:       var(--cui-accent);
 
   /* The signature gradient. Use as background-image on hero
      surfaces (header tiles, icon badges). */
