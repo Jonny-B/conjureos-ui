@@ -256,7 +256,7 @@
   border-radius: var(--cui-radius-sm);
   color: var(--cui-fg);
   font-family: inherit;
-  font-size: var(--cui-text-base);  /* 14px — avoids iOS zoom on focus */
+  font-size: var(--cui-text-base);  /* 14px base; bumped to 16px on touch (see the pointer:coarse rule below) so iOS does not zoom on focus */
   line-height: var(--cui-leading-normal);
   outline: none;
   transition: border-color var(--cui-duration) var(--cui-ease);
@@ -327,7 +327,7 @@
   border-radius: var(--cui-radius-sm);
   color: var(--cui-fg);
   font-family: inherit;
-  font-size: var(--cui-text-base);  /* 14px, avoids iOS zoom on focus */
+  font-size: var(--cui-text-base);  /* 14px base; bumped to 16px on touch (see the pointer:coarse rule below) so iOS does not zoom on focus */
   line-height: var(--cui-leading-normal);
   outline: none;
   cursor: pointer;
@@ -344,6 +344,18 @@
 .cui-ui .cui-select:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* iOS Safari zooms the viewport on focus when a form control is under 16px.
+   14px does NOT avoid that (an earlier comment claimed it did). Bump inputs and
+   selects to 16px on touch only, so desktop keeps its denser 14px and pinch-zoom
+   stays available (no user-scalable=no, which would fail WCAG). Placed after both
+   base rules so it wins on source order without !important. */
+@media (pointer: coarse) {
+  .cui-ui .cui-input,
+  .cui-ui .cui-select {
+    font-size: 16px;
+  }
 }
 
 /* ---- Slider ---- */
