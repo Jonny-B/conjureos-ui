@@ -1,6 +1,6 @@
 # @conjureos/ui
 
-ConjureOS design tokens and primitive UI classes. The **Modern Whimsy** visual language packaged as a versioned CSS bundle.
+ConjureOS design tokens and primitive UI classes. The **Mystical Fall** visual language packaged as a versioned CSS bundle.
 
 This is the design library AI-generated ConjureOS apps consume so they visually feel like ConjureOS by default. Lives in its own repo so the visual language can evolve on its own cadence; built into ConjureOS as a dependency.
 
@@ -77,16 +77,16 @@ Apps that want to go off-brand entirely just omit the wrapper class.
 
 | Token | Value | Use |
 |---|---|---|
-| `--cui-accent` | `#7c6af7` | Primary accent (buttons, focus rings) |
-| `--cui-accent-soft` | `#a5b4fc` | Secondary accent (icons, captions) |
-| `--cui-bg` | `#0b0e14` | Root canvas |
-| `--cui-bg-1` | `#11151d` | Cards |
-| `--cui-bg-2` | `#1a1f2b` | Hover / modal surface |
-| `--cui-fg` | `#e5e9f0` | Primary text |
-| `--cui-fg-mute` | `#9ca3af` | Secondary text |
+| `--cui-accent` | `#7d4bb3` | Primary accent (buttons, focus rings) — mystic purple |
+| `--cui-accent-soft` | `#c9a6ec` | Secondary accent (icons, captions) — light lavender |
+| `--cui-bg` | `#130f19` | Root canvas — warm aubergine near-black |
+| `--cui-bg-1` | `#1c1626` | Cards |
+| `--cui-bg-2` | `#251d31` | Hover / modal surface |
+| `--cui-fg` | `#ece5dd` | Primary text — warm parchment-white |
+| `--cui-fg-mute` | `#a99f97` | Secondary text |
 | `--cui-radius` | `10px` | Default corner |
 | `--cui-radius-pill` | `999px` | Pill shapes |
-| `--cui-accent-gradient` | `linear-gradient(135deg, ...)` | Hero surface backing |
+| `--cui-accent-gradient` | `linear-gradient(135deg, ...)` | Hero surface backing (mystic → ember) |
 
 Full set in `src/tokens.css`.
 

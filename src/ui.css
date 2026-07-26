@@ -156,7 +156,7 @@
 .cui-ui .cui-button--warning {
   background: var(--cui-warning);
   border-color: var(--cui-warning);
-  color: #1a1206;
+  color: #241505;
 }
 .cui-ui .cui-button--warning:hover {
   background: var(--cui-warning-hover);
@@ -209,12 +209,12 @@
   letter-spacing: 0.04em;
 }
 
-.cui-ui .cui-pill--success { background: rgba(52,211,153,0.14); border-color: rgba(52,211,153,0.35); color: var(--cui-success); }
-.cui-ui .cui-pill--warn    { background: rgba(251,191,36,0.14); border-color: rgba(251,191,36,0.35); color: var(--cui-warn); }
-.cui-ui .cui-pill--error   { background: rgba(248,113,113,0.14); border-color: rgba(248,113,113,0.35); color: var(--cui-error); }
+.cui-ui .cui-pill--success { background: rgba(79,180,119,0.14); border-color: rgba(79,180,119,0.35); color: var(--cui-success); }
+.cui-ui .cui-pill--warn    { background: rgba(216,161,85,0.14); border-color: rgba(216,161,85,0.35); color: var(--cui-warn); }
+.cui-ui .cui-pill--error   { background: rgba(224,85,95,0.14);  border-color: rgba(224,85,95,0.35);  color: var(--cui-error); }
 /* `--danger` is an alias of `--error` for naming parity with the button
    variants; `--info` rounds out the set (uses the soft accent tint). */
-.cui-ui .cui-pill--danger  { background: rgba(239,68,68,0.14);  border-color: rgba(239,68,68,0.4);   color: var(--cui-error); }
+.cui-ui .cui-pill--danger  { background: rgba(201,65,74,0.14);  border-color: rgba(201,65,74,0.4);   color: var(--cui-error); }
 .cui-ui .cui-pill--info    { background: var(--cui-accent-mute); border-color: var(--cui-accent-tint); color: var(--cui-info); }
 /* Neutral / quiet variant — a grey label pill with no accent, for calm metadata
    tags (categories, "Advanced", counts) that shouldn't shout. */
@@ -365,7 +365,7 @@
   line-height: var(--cui-leading-normal);
   outline: none;
   cursor: pointer;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='none' stroke='%239ca3af' stroke-width='1.5' d='M3 4.5l3 3 3-3'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='none' stroke='%23a99f97' stroke-width='1.5' d='M3 4.5l3 3 3-3'/></svg>");
   background-repeat: no-repeat;
   background-position: right var(--cui-space-3) center;
   transition: border-color var(--cui-duration) var(--cui-ease);
@@ -520,10 +520,10 @@
 
 .cui-ui .cui-tab--active {
   background: linear-gradient(135deg,
-    rgba(124, 106, 247, 0.55),
-    rgba(74, 158, 255, 0.4));
+    rgba(125, 75, 179, 0.55),
+    rgba(200, 104, 0, 0.4));
   color: white;
-  box-shadow: 0 4px 12px rgba(124, 106, 247, 0.25);
+  box-shadow: 0 4px 12px rgba(125, 75, 179, 0.25);
 }
 
 .cui-ui .cui-tab--active:hover {

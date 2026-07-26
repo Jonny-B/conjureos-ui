@@ -2,6 +2,19 @@
 
 All notable changes to `@conjureos/ui` are documented here. The format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.4.0 (2026-07-26)
+
+**Mystical Fall palette.** The visual language moves off the indigo/blue-purple "Modern Whimsy" scheme (which had become the generic AI-generated look) to a warm autumn palette with mystic purple retained. Token *names* and primitive classes are unchanged — this is a pure value swap, so it's drop-in for consumers, served at the same `v1.css` URL.
+
+### Changed
+
+- **Accent** is now mystic purple: `--cui-accent` `#7c6af7` → `#7d4bb3`, `--cui-accent-soft` `#a5b4fc` → `#c9a6ec` (light lavender), `--cui-accent-pink` `#c780f7` → `#a83d63` (Spellbound berry). Accent mute/tint/hover/shadow retuned to match.
+- **Backgrounds** shift from blue-black to warm aubergine near-black: `--cui-bg` `#0b0e14` → `#130f19` (and `--cui-bg-1/2/3`, glass surfaces to match).
+- **Foreground** warms to parchment-white: `--cui-fg` `#e5e9f0` → `#ece5dd` (mute/dim to match); hairline borders are now parchment-tinted.
+- **Status/semantic** retuned to the palette: `--cui-warn` → Wandgold `#d8a155`, `--cui-warning` → Phoenix `#c86800`; `--cui-info-strong` drops the blue `#4a9eff` for a dusty mystic `#6f5a93`; success/error/danger warmed.
+- **Gradients**: `--cui-accent-gradient` is now mystic → ember; `--cui-brand-gradient` is the full autumn arc (Mystic → Spellbound → Phoenix → Wandgold).
+- The `MODERN_WHIMSY.md` style guide is retitled **Mystical Fall** (filename kept so existing imports don't break).
+
 ## 0.3.0 (2026-06-13)
 
 Form-field wrapper, quiet/plain pill variants, and the surface + brand tokens the ConjureOS shell needs to stop hand-rolling them. Purely additive — no existing class or token changes, so it's drop-in for every consumer.

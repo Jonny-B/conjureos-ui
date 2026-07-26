@@ -20,41 +20,43 @@
 .cui-ui {
   /* ---- 1. Color ---- */
 
-  /* Accent: the purple/blue gradient that defines Modern Whimsy. */
-  --cui-accent:           #7c6af7;            /* primary accent — buttons, focus rings */
-  --cui-accent-soft:      #a5b4fc;            /* secondary accent — icons, captions */
-  --cui-accent-mute:      rgba(124,106,247,0.18);
-  --cui-accent-tint:      rgba(124,106,247,0.28);
-  --cui-accent-hover:     #8e7df8;            /* accent, one notch lighter — :hover fills (distinct from -soft, which is a lighter SECONDARY role) */
-  --cui-accent-pink:      #c780f7;            /* third brand accent (magenta) — gradient stop + playful flourishes */
+  /* Accent: the mystic-purple + warm-autumn palette (Mystical Fall). Purple
+     stays the primary; the gradients carry it into wine, ember, and gold. */
+  --cui-accent:           #7d4bb3;            /* primary accent (brightened Mystic #552e75) — buttons, focus rings */
+  --cui-accent-soft:      #c9a6ec;            /* secondary accent (light lavender) — icons, captions */
+  --cui-accent-mute:      rgba(125,75,179,0.18);
+  --cui-accent-tint:      rgba(125,75,179,0.30);
+  --cui-accent-hover:     #8d5cc6;            /* accent, one notch lighter — :hover fills (distinct from -soft, which is a lighter SECONDARY role) */
+  --cui-accent-pink:      #a83d63;            /* third brand accent (Spellbound berry #83224c, lifted) — gradient stop + playful flourishes */
 
-  /* Backgrounds — layered from deepest to highest. */
-  --cui-bg:               #0b0e14;            /* root canvas */
-  --cui-bg-1:             #11151d;            /* primary surface (cards) */
-  --cui-bg-2:             #1a1f2b;            /* raised surface (hover, modal) */
-  --cui-bg-3:             #232938;            /* highest — popovers, selected rows */
+  /* Backgrounds — layered from deepest to highest. Warm aubergine near-black
+     (a purple undertone instead of the old blue-black). */
+  --cui-bg:               #130f19;            /* root canvas */
+  --cui-bg-1:             #1c1626;            /* primary surface (cards) */
+  --cui-bg-2:             #251d31;            /* raised surface (hover, modal) */
+  --cui-bg-3:             #30243f;            /* highest — popovers, selected rows */
 
   /* Translucent "glass" surfaces — alpha so a blurred desktop/wallpaper shows
      through (floating shell panels, menus). Distinct from the opaque --cui-bg-*
      layers above; reach for these when the panel sits over live content. */
-  --cui-surface:          rgba(20,22,30,0.85);    /* primary glass panel */
-  --cui-surface-2:        rgba(28,30,40,0.75);    /* raised glass panel */
+  --cui-surface:          rgba(26,20,32,0.85);    /* primary glass panel */
+  --cui-surface-2:        rgba(34,26,42,0.75);    /* raised glass panel */
   --cui-surface-hover:    rgba(255,255,255,0.06); /* additive white wash for hover over any surface */
 
-  /* Foregrounds. */
-  --cui-fg:               #e5e9f0;            /* primary text */
-  --cui-fg-mute:          #9ca3af;            /* secondary / placeholder */
-  --cui-fg-dim:           #6b7280;            /* tertiary / disabled */
+  /* Foregrounds. Warm parchment-white rather than cool blue-white. */
+  --cui-fg:               #ece5dd;            /* primary text */
+  --cui-fg-mute:          #a99f97;            /* secondary / placeholder */
+  --cui-fg-dim:           #786f68;            /* tertiary / disabled */
 
-  /* Borders + dividers. */
-  --cui-border:           rgba(255,255,255,0.08);
-  --cui-border-strong:    rgba(255,255,255,0.16);
+  /* Borders + dividers. Parchment-tinted hairlines tie them to the palette. */
+  --cui-border:           rgba(216,177,136,0.10);
+  --cui-border-strong:    rgba(216,177,136,0.20);
 
   /* Status colors. Used by .cui-pill variants + level chips. These are
      the lighter "on dark surface" tints, readable as text/pill fills. */
-  --cui-success:          #34d399;
-  --cui-warn:             #fbbf24;
-  --cui-error:            #f87171;
+  --cui-success:          #4fb477;            /* warm-leaning green (semantics kept) */
+  --cui-warn:             #d8a155;            /* Wandgold */
+  --cui-error:            #e0555f;            /* warm red */
   --cui-info:             var(--cui-accent-soft);
 
   /* Semantic button colors. Button-weight shades, deliberately a touch
@@ -62,31 +64,32 @@
      button reads as solid and its white label keeps contrast. The
      button variants in ui.css consume these; `--cui-accent` already
      serves "primary". */
-  --cui-secondary:        #3b4252;            /* neutral slate fill */
-  --cui-secondary-hover:  #474f63;
-  --cui-danger:           #ef4444;            /* destructive red */
-  --cui-danger-hover:     #dc2626;
-  --cui-warning:          #f59e0b;
-  --cui-warning-hover:    #d97706;
-  --cui-info-strong:      #4a9eff;            /* button-weight info blue */
-  --cui-info-strong-hover:#2f8aee;
+  --cui-secondary:        #3a3040;            /* neutral warm-plum fill */
+  --cui-secondary-hover:  #473a4f;
+  --cui-danger:           #c9414a;            /* destructive red */
+  --cui-danger-hover:     #a8323a;
+  --cui-warning:          #c86800;            /* Phoenix ember */
+  --cui-warning-hover:    #a85700;
+  --cui-info-strong:      #6f5a93;            /* button-weight info — dusty mystic (was a blue) */
+  --cui-info-strong-hover:#5d4a7e;
   --cui-link:             var(--cui-accent-soft);
   --cui-link-hover:       var(--cui-accent);
 
   /* The signature gradient. Use as background-image on hero
-     surfaces (header tiles, icon badges). */
+     surfaces (header tiles, icon badges). Mystic → Phoenix ember overlay. */
   --cui-accent-gradient:  linear-gradient(135deg,
-                            rgba(124,106,247,0.28),
-                            rgba(74,158,255,0.18));
+                            rgba(125,75,179,0.30),
+                            rgba(200,104,0,0.16));
 
   /* The full-saturation brand sweep (opaque, 4-stop) — for animated accent bars,
      primary-button fills, hero spans. Distinct from --cui-accent-gradient above,
-     which is a translucent OVERLAY tint meant to blend over a surface. */
+     which is a translucent OVERLAY tint meant to blend over a surface. The full
+     autumn arc: Mystic → Spellbound → Phoenix → Wandgold. */
   --cui-brand-gradient:   linear-gradient(120deg,
-                            var(--cui-accent) 0%,
-                            var(--cui-info-strong) 35%,
-                            var(--cui-accent-pink) 70%,
-                            var(--cui-accent) 100%);
+                            #552e75 0%,
+                            #83224c 30%,
+                            #c86800 65%,
+                            #d8a155 100%);
 
   /* ---- 2. Typography ---- */
 
@@ -131,10 +134,10 @@
 
   --cui-border-width:     1px;
 
-  /* Shadows. Accent-tinted for the Modern Whimsy lift on hover. */
+  /* Shadows. Accent-tinted for the Mystical Fall lift on hover. */
   --cui-shadow-sm:        0 1px 2px rgba(0,0,0,0.3);
   --cui-shadow:           0 4px 12px rgba(0,0,0,0.4);
-  --cui-shadow-accent:    0 6px 20px rgba(124,106,247,0.25);
+  --cui-shadow-accent:    0 6px 20px rgba(125,75,179,0.28);
   --cui-shadow-lg:        0 10px 40px rgba(0,0,0,0.45);  /* large ambient drop — floating popovers / menus / overlay panels */
 
   /* ---- 4. Motion ---- */

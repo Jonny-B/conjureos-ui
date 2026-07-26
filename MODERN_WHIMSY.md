@@ -1,12 +1,12 @@
-# Modern Whimsy
+# Mystical Fall
 
 The design language of ConjureOS, packaged as `@conjureos/ui`.
 
-This doc is the single source of truth for what Modern Whimsy is, what it looks like, and how to apply it. The human-readable sections come first; an agent-ready appendix lives at the bottom and is inline-imported by the ConjureOS Dev agent's system prompt.
+This doc is the single source of truth for what Mystical Fall is, what it looks like, and how to apply it. The human-readable sections come first; an agent-ready appendix lives at the bottom and is inline-imported by the ConjureOS Dev agent's system prompt.
 
 ## The brief
 
-Modern Whimsy is dark, accent-led, and lightly playful. The signature is a purple-to-blue gradient (`#7c6af7` to `#a5b4fc`) applied as soft accent strips on hero surfaces, pill-shaped affordances on active states, translucent surfaces sitting on hairline borders, and 120ms lifts on hover. It avoids heavy chrome (no thick borders, no drop shadows on every card), favors generous radii (10px default, 999px for pills), and reserves personality for the moments that warrant it (a wand glyph instead of a warning triangle on error banners; gentle bounce-in entrances on empty states). It is a dark theme by canon; light theme is deferred to v2.
+Mystical Fall is dark, accent-led, and lightly playful — a warm autumn palette with mystic purple at its heart, deliberately steering clear of the generic indigo-500 gradient that reads as AI-generated. The signature is a mystic-purple accent (`#7d4bb3`) that spills into a wine → ember → gold arc on hero surfaces, pill-shaped affordances on active states, translucent surfaces sitting on hairline borders, and 120ms lifts on hover. Backgrounds are a warm aubergine near-black (a purple undertone, not blue-black); text is a warm parchment-white. It avoids heavy chrome (no thick borders, no drop shadows on every card), favors generous radii (10px default, 999px for pills), and reserves personality for the moments that warrant it (a wand glyph instead of a warning triangle on error banners; gentle bounce-in entrances on empty states). It is a dark theme by canon; light theme is deferred to v2.
 
 ## Palette
 
@@ -18,39 +18,41 @@ The brand color and its supporting tints.
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--cui-accent` | `#7c6af7` | Primary buttons, focus rings, the dominant brand color |
-| `--cui-accent-soft` | `#a5b4fc` | Icons, captions, "big number" displays, secondary highlights |
-| `--cui-accent-mute` | `rgba(124,106,247,0.18)` | Soft tinted backgrounds (chip-active, pill backing, hover wash) |
-| `--cui-accent-tint` | `rgba(124,106,247,0.28)` | Soft tinted borders for accent surfaces |
-| `--cui-accent-gradient` | `linear-gradient(135deg, rgba(124,106,247,0.28), rgba(74,158,255,0.18))` | The signature wash on hero surfaces and hero cards |
+| `--cui-accent` | `#7d4bb3` | Primary buttons, focus rings, the dominant brand color (mystic purple) |
+| `--cui-accent-soft` | `#c9a6ec` | Icons, captions, "big number" displays, secondary highlights (light lavender) |
+| `--cui-accent-mute` | `rgba(125,75,179,0.18)` | Soft tinted backgrounds (chip-active, pill backing, hover wash) |
+| `--cui-accent-tint` | `rgba(125,75,179,0.30)` | Soft tinted borders for accent surfaces |
+| `--cui-accent-pink` | `#a83d63` | Third accent (Spellbound berry) — gradient stop, playful flourishes |
+| `--cui-accent-gradient` | `linear-gradient(135deg, rgba(125,75,179,0.30), rgba(200,104,0,0.16))` | The signature mystic → ember wash on hero surfaces and hero cards |
+| `--cui-brand-gradient` | `linear-gradient(120deg, #552e75, #83224c, #c86800, #d8a155)` | Full autumn arc (Mystic → Spellbound → Phoenix → Wandgold) for accent bars and primary fills |
 
 ### Surfaces
 
-Layered dark backgrounds, deepest to highest.
+Layered dark backgrounds, deepest to highest. Warm aubergine near-black.
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--cui-bg` | `#0b0e14` | Root canvas; behind everything |
-| `--cui-bg-1` | `#11151d` | Primary card surface |
-| `--cui-bg-2` | `#1a1f2b` | Raised surface (hovered cards, modals) |
-| `--cui-bg-3` | `#232938` | Highest tier (popovers, selected rows) |
+| `--cui-bg` | `#130f19` | Root canvas; behind everything |
+| `--cui-bg-1` | `#1c1626` | Primary card surface |
+| `--cui-bg-2` | `#251d31` | Raised surface (hovered cards, modals) |
+| `--cui-bg-3` | `#30243f` | Highest tier (popovers, selected rows) |
 
 ### Foreground
 
-Three text tiers. Don't introduce a fourth.
+Three text tiers. Don't introduce a fourth. Warm parchment-white.
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--cui-fg` | `#e5e9f0` | Body text, headings |
-| `--cui-fg-mute` | `#9ca3af` | Secondary text, placeholders, labels |
-| `--cui-fg-dim` | `#6b7280` | Tertiary text, disabled states |
+| `--cui-fg` | `#ece5dd` | Body text, headings |
+| `--cui-fg-mute` | `#a99f97` | Secondary text, placeholders, labels |
+| `--cui-fg-dim` | `#786f68` | Tertiary text, disabled states |
 
 ### Borders
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--cui-border` | `rgba(255,255,255,0.08)` | The default hairline. Surfaces define edges by light tinting, not heavy lines. |
-| `--cui-border-strong` | `rgba(255,255,255,0.16)` | Hover/active state for interactive surfaces |
+| `--cui-border` | `rgba(216,177,136,0.10)` | The default parchment-tinted hairline. Surfaces define edges by light tinting, not heavy lines. |
+| `--cui-border-strong` | `rgba(216,177,136,0.20)` | Hover/active state for interactive surfaces |
 
 ### Status
 
@@ -58,9 +60,9 @@ For pills, level chips, and error banners. Pair the color with `cui-pill--*` var
 
 | Token | Value |
 | --- | --- |
-| `--cui-success` | `#34d399` |
-| `--cui-warn` | `#fbbf24` |
-| `--cui-error` | `#f87171` |
+| `--cui-success` | `#4fb477` |
+| `--cui-warn` | `#d8a155` |
+| `--cui-error` | `#e0555f` |
 | `--cui-info` | `var(--cui-accent-soft)` |
 
 ## Type
@@ -124,7 +126,7 @@ Three steps plus pill.
 
 ### Border
 
-`--cui-border-width: 1px`. Modern Whimsy doesn't use thicker borders. If you need more separation, use background contrast or a soft inner shadow, not a thicker line.
+`--cui-border-width: 1px`. Mystical Fall doesn't use thicker borders. If you need more separation, use background contrast or a soft inner shadow, not a thicker line.
 
 ### Shadows
 
@@ -134,9 +136,9 @@ Three tiers, accent-tinted on the heaviest.
 | --- | --- | --- |
 | `--cui-shadow-sm` | `0 1px 2px rgba(0,0,0,0.3)` | Subtle elevation on small elements |
 | `--cui-shadow` | `0 4px 12px rgba(0,0,0,0.4)` | Cards, dropdowns |
-| `--cui-shadow-accent` | `0 6px 20px rgba(124,106,247,0.25)` | The signature lift on hover for interactive cards |
+| `--cui-shadow-accent` | `0 6px 20px rgba(125,75,179,0.28)` | The signature lift on hover for interactive cards |
 
-`--cui-shadow-accent` is the one that makes interactive surfaces feel *Whimsy*: the lift is colored, not neutral.
+`--cui-shadow-accent` is the one that makes interactive surfaces feel *mystical*: the lift is colored (mystic purple), not neutral.
 
 ## Motion
 
@@ -167,7 +169,7 @@ These are the named patterns that show up over and over in the shell. When gener
 
 ### Accent-gradient hero strip
 
-A soft accent gradient (`linear-gradient(180deg, rgba(124,106,247,0.12), rgba(74,158,255,0.04) 60%, transparent)`) extending edge-to-edge across the top of a panel via negative margins on the header element. Used by the Launcher header, the App Store hero, the Settings hero, and the File Explorer topbar.
+A soft accent gradient (`linear-gradient(180deg, rgba(125,75,179,0.14), rgba(200,104,0,0.05) 60%, transparent)`) extending edge-to-edge across the top of a panel via negative margins on the header element. Used by the Launcher header, the App Store hero, the Settings hero, and the File Explorer topbar.
 
 Pattern:
 
@@ -264,7 +266,7 @@ Reference: `@keyframes conjureos-wm-empty-rise` at [src/shell/ui/app.css:1716](.
 
 ## Voice
 
-What Modern Whimsy sounds and *feels* like, beyond the palette.
+What Mystical Fall sounds and *feels* like, beyond the palette.
 
 **Wand glyph, not warning triangle.** Errors surface as soft rounded cards with a gentle bounce-in and a small wand icon, not a triangle/exclamation. The comment at [src/shell/ui/app.css:1609](../ConjureOS/src/shell/ui/app.css) puts it plainly: "Style is 'modern whimsy': soft rounded card, gentle bounce-in, wand glyph instead of a warning triangle, dismissible." The error is still legible and dismissible; the framing is "something went sideways" rather than "DANGER."
 
@@ -274,7 +276,7 @@ What Modern Whimsy sounds and *feels* like, beyond the palette.
 
 **Hover is a wink, not a flash.** 120ms is fast enough to feel responsive but slow enough to read as deliberate. Transitions that go from 0 to full-opacity in a single frame feel cheap; transitions that take 300ms feel sluggish. Stick to 120ms for the dominant case.
 
-## Consuming Modern Whimsy
+## Consuming Mystical Fall
 
 The library ships a built CSS bundle at `dist/ui.css`. ConjureOS serves it at `/_conjureos/ui/v1.css`. Apps opt in by linking the stylesheet and wrapping their content.
 
@@ -314,7 +316,7 @@ These are documented as follow-up, not blocking. Don't add to the list; do prefe
 
 This section is inline-imported into the ConjureOS Dev agent's system prompt. Keep it self-contained, prescriptive, and dense; don't depend on prose from the sections above.
 
-CONJUREOS UI TOKENS, default visual language (Modern Whimsy):
+CONJUREOS UI TOKENS, default visual language (Mystical Fall):
 
 Generated apps should LOOK like ConjureOS unless the user explicitly asks for a different style ("make it look like a Game Boy", "retro typewriter feel", "all hot pink", etc.). The shell serves a stylesheet at `/_conjureos/ui/v1.css` with semantic CSS variables + primitive classes.
 
@@ -331,11 +333,11 @@ To opt in (default for almost every app), add this `<link>` to <head> and wrap <
 
 Key tokens (most-reached-for):
 - `var(--cui-accent)` purple primary, buttons, focus, links
-- `var(--cui-accent-soft)` indigo secondary, icons, captions
+- `var(--cui-accent-soft)` light-lavender secondary, icons, captions
 - `var(--cui-bg)` / `var(--cui-bg-1)` / `var(--cui-bg-2)`, root / card / hover
 - `var(--cui-fg)` / `var(--cui-fg-mute)` / `var(--cui-fg-dim)`, text tiers
 - `var(--cui-border)` hairline; `var(--cui-radius)` 10px; `var(--cui-radius-pill)` 999px
-- `var(--cui-accent-gradient)`, the purple/blue 135deg gradient on hero surfaces
+- `var(--cui-accent-gradient)`, the mystic → ember 135deg gradient on hero surfaces
 
 Primitive classes (compose these into your UI):
 <!-- AUTOGEN:primitives -->
@@ -349,7 +351,7 @@ Primitive classes (compose these into your UI):
 - Heading: `cui-heading`, `cui-subheading`
 - Divider: `cui-divider`
 - Muted helper text: `cui-muted`, `cui-dim`
-- Select: `cui-select`
+- Select: `cui-select`, `cui-input`
 - Slider: `cui-slider`
 - Toggle: `cui-toggle`, `cui-toggle__track`
 - Tabs: `cui-tabs`, `cui-tab`, `cui-tab--active`
@@ -360,7 +362,7 @@ Primitive classes (compose these into your UI):
 Signature idioms (reach for these when the situation fits):
 - Hero strip: an accent-gradient bar at the top of a panel, bled edge-to-edge via negative margins on the header. Use for the top of any primary panel.
 - Translucent surface + hairline border: `background: rgba(255,255,255,0.025); border: 1px solid var(--cui-border)`. Use for cards, sidebars, preview panes. Avoid solid filled boxes.
-- Pill-shaped active state: when an option is selected, switch its border-radius to `var(--cui-radius-pill)` and back it with `linear-gradient(135deg, rgba(124,106,247,0.55), rgba(74,158,255,0.4))`. Use for tabs, filter chips, segmented controls.
+- Pill-shaped active state: when an option is selected, switch its border-radius to `var(--cui-radius-pill)` and back it with `linear-gradient(135deg, rgba(125,75,179,0.55), rgba(200,104,0,0.4))`. Use for tabs, filter chips, segmented controls.
 - Card hover lift: `transform: translateY(-1px)` plus `box-shadow: var(--cui-shadow-accent)` plus an optional 3px accent-gradient left stripe via `::before`. The lift is gentle; the stripe is bold.
 - Hover and focus transitions: 120ms with `var(--cui-ease)`. Faster feels cheap; slower feels sluggish.
 
