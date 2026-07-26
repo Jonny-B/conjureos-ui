@@ -307,7 +307,7 @@ For the full distribution model (how the bundle is built, served, and versioned)
 The ConjureOS shell predates parts of the token system and deviates from the canonical palette in known ways. Listed here so contributors don't propagate the patterns:
 
 - **Hard-coded dark hex** (`#14161e`, `#16161c`, `#0a0a0c`) appears in older shell components instead of `--cui-bg-1` / `--cui-bg-2`. See [src/shell/ui/app.css:621, :1326, :5918](../ConjureOS/src/shell/ui/app.css). Newer components correctly use `var(--cui-bg-1)` etc.
-- **Hand-rolled `rgba(124,106,247,X)` opacities** appear 50+ times across the shell instead of `--cui-accent-mute` / `--cui-accent-tint` / `--cui-accent-gradient`. Functionally equivalent, but a future palette retune would need to chase every literal.
+- **Hand-rolled accent opacities** appear 50+ times across the shell instead of `--cui-accent-mute` / `--cui-accent-tint` / `--cui-accent-gradient`. The Mystical Fall retune (0.4.0) chased every literal to the current values (`rgba(125,75,179,X)`), so they're no longer stale — but they're still hand-rolled rather than tokenized, so a future retune would again have to chase them. Prefer the token in new code.
 - **Hero negative-margin magic number** (`-24px -24px 16px`) is repeated across at least three hero headers. A future `--cui-hero-inset` token would let the inset adapt to a panel's actual padding.
 
 These are documented as follow-up, not blocking. Don't add to the list; do prefer the tokenized equivalent in new code.
