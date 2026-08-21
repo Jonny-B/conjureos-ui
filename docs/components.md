@@ -189,10 +189,14 @@ Intent guide (from `MODERN_WHIMSY.md`): `primary` for the one main action,
 `warning` for "are you sure", `info` for neutral-positive, `ghost` for
 cancel/dismiss, `link` for inline navigation that still needs button semantics.
 
-> **No focus ring.** `cui-button` defines no `:focus` or `:focus-visible` style, so
-> keyboard users get the browser default outline (which some resets kill). If you
-> care about keyboard accessibility, add your own:
+> **No focus ring — a known defect, not a design choice**
+> ([conjureos-ui#4](https://github.com/Jonny-B/conjureos-ui/issues/4)). `cui-button`
+> defines no `:focus` or `:focus-visible` style, so keyboard users get the browser
+> default outline, which any consumer reset kills. Until the package ships a fix,
+> add your own — e.g.
 > `.cui-ui .cui-button:focus-visible { box-shadow: 0 0 0 3px var(--cui-accent-tint); }`
+> — and read [Accessibility status](#accessibility-status) first for the
+> `box-shadow` caveats.
 
 ---
 
@@ -302,10 +306,24 @@ Wrap a label and its control in it.
 > **Known defect:** `outline: none` (`src/ui.css:268`) removes the browser's focus
 > indicator and replaces it with a 1px border-color change. That is very likely
 > below the 3:1 non-text contrast WCAG 2.4.11 asks for, and it is the package's
-> problem, not yours. Until it is fixed, put the ring back — the ConjureOS shell
-> does exactly this:
-> `.cui-ui .cui-input:focus { box-shadow: 0 0 0 3px var(--cui-accent-tint); }`.
-> See [Accessibility status](#accessibility-status).
+> problem, not yours ([conjureos-ui#4](https://github.com/Jonny-B/conjureos-ui/issues/4)).
+> Until it is fixed, put a ring back. The ConjureOS shell does this on both controls
+> at `ConjureOS/src/shell/ui/app.css:1192-1200` — note it uses the **fainter**
+> `--cui-accent-mute` (0.18 alpha), not `--cui-accent-tint` (0.28), and adds a
+> `background-color` shift:
+>
+> ```css
+> .cui-ui .cui-input:focus,
+> .cui-ui .cui-select:focus {
+>   border-color: var(--cui-accent);
+>   background-color: var(--cui-surface-hover);
+>   box-shadow: 0 0 0 3px var(--cui-accent-mute);
+> }
+> ```
+>
+> `--cui-accent-tint` is the higher-contrast choice if you are copying this for
+> accessibility rather than for visual parity with the shell. See
+> [Accessibility status](#accessibility-status).
 
 ---
 
@@ -611,6 +629,16 @@ Until the package fixes this, the safe consumer mitigation is one rule:
   outline-offset: 2px;
 }
 ```
+
+Two caveats on that snippet, since it uses `box-shadow` rather than `outline` to get
+a ring with the package's rounded corners: `box-shadow` is a single property, so
+while focused it **replaces** the two decorative shadows the library paints —
+`.cui-card--interactive`'s hover lift (`--cui-shadow-accent`, `:56`) and
+`.cui-tab--active`'s glow (`:526`). Re-state those in the focus rule if you care
+about the combination. And if you consume the package through the ConjureOS shell,
+the shell already layers its own glow on `.cui-ui .cui-input:focus` /
+`.cui-select:focus` (`ConjureOS/src/shell/ui/app.css:1192-1195`) — check before you
+double it.
 
 Nothing else about accessibility is handled either: the classes carry no ARIA, no
 roles, no keyboard handlers, no focus trap on `cui-modal`, no `prefers-contrast`

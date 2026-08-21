@@ -346,7 +346,7 @@ Seven of those are colors; three of the seven break a light theme outright:
 
 | Source | Literal | What you get on a light surface |
 |---|---|---|
-| `.cui-pill--success/--warn/--error/--danger` (`src/ui.css:212-217`) | 8 literals — `rgba(52,211,153,0.14)` fill + `rgba(52,211,153,0.35)` border, and the equivalents for warn/error/danger | Status pills tuned for a dark card. A 0.14-alpha tint on white is close to invisible, and the text colors (`--cui-success` `#34d399`, `--cui-warn` `#fbbf24`) are low-contrast on white |
+| `.cui-pill--success/--warn/--error/--danger` (`src/ui.css:212-217`) | 8 literals — `rgba(52,211,153,0.14)` fill + `rgba(52,211,153,0.35)` border, and the equivalents for warn/error/danger | Status pills tuned for a dark card. A 0.14-alpha tint on white is close to invisible, and the label colors are far below AA on it — measured against `#ffffff`: `--cui-success` `#34d399` **1.92:1**, `--cui-warn` `#fbbf24` **1.67:1**, `--cui-error` `#f87171` **2.77:1** (all ≥6.9:1 on the dark `--cui-bg` they were designed for) |
 | `.cui-tab--active` (`:522-527`) | `linear-gradient(135deg, rgba(124,106,247,0.55), rgba(74,158,255,0.4))`, `box-shadow: 0 4px 12px rgba(124,106,247,0.25)`, `color: white` | A saturated purple/blue pill with a white label sitting in a light tab bar. Legible, but off-palette and visually louder than everything around it |
 | `.cui-modal-backdrop` (`:569`) | `rgba(0, 0, 0, 0.6)` + `blur(4px)` | A 60%-black scrim over light chrome — correct for dark, heavy-handed for light |
 

@@ -79,7 +79,7 @@ Consequences you must respect when editing `ui.css`:
 - The parser is **not** CSS-aware: it does not know about `@media` blocks. A selector
   nested inside a media query still counts, and it is filed under whichever
   `/* ---- … ---- */` header precedes it. This is currently a live wart — see
-  [the 0.3.1 note below](#031-2026-06-24--the-ios-touch-zoom-fix).
+  [the 0.3.1 note below](#release-0-3-1).
 
 **Always run `npm run build` and commit the resulting `MODERN_WHIMSY.md` diff** —
 with one live exception, below. That file is the AI Dev agent's prompt: ConjureOS
@@ -97,11 +97,11 @@ know your new primitive exists.
 > ```
 >
 > That is the pre-existing bug described in
-> [Known gap 2](#known-gap-2--the-committed-modern_whimsymd-is-stale), not your
+> [Known gap 2](#known-gap-2), not your
 > change. Do not commit it blind, and do not hand-edit it back either (the next
 > build re-adds it). Fix the cause first, then rebuild, so the diff you commit is
 > your work plus a corrected Select line — see
-> [Known gap 2](#known-gap-2--the-committed-modern_whimsymd-is-stale) for the two
+> [Known gap 2](#known-gap-2) for the two
 > candidate fixes and why the obvious one is not quite right.
 
 <a id="verifying-a-change"></a>
@@ -174,7 +174,7 @@ retroactively restyles apps nobody is maintaining. Adding is safe; changing is n
 8. Document it in [components.md](components.md) and the `CHANGELOG.md`.
 9. `npm run build` and commit the `MODERN_WHIMSY.md` autogen diff — check it for the
    known stale `Select` line first
-   ([Known gap 2](#known-gap-2--the-committed-modern_whimsymd-is-stale)), which a
+   ([Known gap 2](#known-gap-2)), which a
    build today re-adds whether or not you touched anything near it.
 
 ### The compatibility contract
@@ -269,6 +269,7 @@ newer variants. Bumping them is a per-app decision.
 Full detail in [`../CHANGELOG.md`](../CHANGELOG.md); this is the "things that bit
 someone" list.
 
+<a id="release-0-3-1"></a>
 ### 0.3.1 (2026-06-24) — the iOS touch-zoom fix
 
 `.cui-input` and `.cui-select` were 14px, with a source comment claiming that
@@ -289,12 +290,14 @@ on source order without `!important`. Pinch-zoom stays available — no
 `user-scalable=no`, which would fail WCAG 1.4.4. Both misleading comments were
 corrected.
 
+<a id="known-gap-1"></a>
 #### Known gap 1 — no 0.3.1 changelog entry
 
 `CHANGELOG.md` has no `## 0.3.1` entry. The fix landed in commit
 `9e6f148` and the version bump in `83d4dcc`, but the changelog was never updated.
 Worth adding retroactively.
 
+<a id="known-gap-2"></a>
 #### Known gap 2 — the committed `MODERN_WHIMSY.md` is stale
 
 `npm run build` was not
@@ -375,7 +378,8 @@ three drifting summaries. Note the changelog dates 0.1.2 (2026-05-27) *after* 0.
 Initial release: tokens, primitives, the two-mode wrapper contract, the build script,
 `demo.html`, MIT license.
 
-### Standing defect: focus indicators
+<a id="standing-defect-focus-indicators"></a>
+## Standing defect: focus indicators
 
 Not tied to any one release, and the thing to fix first if you want a
 correctness-flavored contribution. Filed as
@@ -403,10 +407,13 @@ documented there as a package defect, not as a design decision, and the docs sho
 keep saying so until it is fixed. A fix is a candidate for the next minor: adding a
 `:focus-visible` ring is additive for the four primitives that have nothing, but
 changing the input/select focus treatment is a visible restyle — and note the
-ConjureOS shell already layers its own glow ring on `.cui-ui .cui-input:focus`, so
-coordinate before touching that one.
+ConjureOS shell already layers its own glow ring on `.cui-ui .cui-input:focus` (and
+`.cui-select:focus`) at `src/shell/ui/app.css:1192-1200`, using `--cui-accent-mute`
+— so a package-side ring on the same selectors stacks with, or is masked by, the
+shell's. Coordinate before touching those two.
 
-### Other things to know
+<a id="other-things-to-know"></a>
+## Other things to know
 
 - **Exported projects pin `"latest"`**, not a semver range (a deliberate ConjureOS
   call). A bad publish therefore reaches first-time installers of every exported

@@ -185,6 +185,8 @@ Rules if you edit these files:
 - **Never change an existing id**, even when you reword its heading — inbound links
   and any ported copy key off it. Add a second anchor above the first if a new name
   is genuinely needed.
-- `###` sub-headings have no explicit anchors and rely on GitHub's auto-slug, so
-  links to them are the fragile ones. Two such links exist today, both inside
-  `contributing.md`'s release history.
+- Most `###` sub-headings have no explicit anchor and rely on GitHub's auto-slug.
+  Where a link points at one — the 0.3.1 release note and the two known gaps in
+  `contributing.md` — an explicit anchor was added, so **no cross-reference in these
+  docs depends on an auto-generated slug.** Keep it that way: if you link to a
+  sub-heading, give it an anchor first.
