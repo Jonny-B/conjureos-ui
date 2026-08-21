@@ -1,0 +1,320 @@
+# Design token reference
+
+Every CSS custom property defined by `@conjureos/ui` 0.3.1. Source of truth:
+[`../src/tokens.css`](../src/tokens.css) (165 lines). **73 tokens**, in four
+buckets: color, typography, space/radius/border, motion.
+
+## How the tokens are scoped
+
+They are **not** on `:root`. The declaration block is:
+
+```css
+.cui-tokens,
+.cui-ui {
+  --cui-accent: #7c6af7;
+  /* …71 more… */
+
+  /* plus a baseline applied to the wrapper element itself: */
+  font-family: var(--cui-font-sans);
+  font-size: var(--cui-text-base);   /* 14px */
+  line-height: var(--cui-leading-normal);  /* 1.5 */
+  color: var(--cui-fg);
+  background: var(--cui-bg);
+}
+```
+
+Two consequences worth internalizing:
+
+1. **A custom property is only readable on the element that declares it or on its
+   descendants.** If your wrapper class is on `<body>`, then `:root { --x: var(--cui-accent) }`
+   resolves to *nothing* — `html` is the parent of `body`, not a descendant. This
+   is a real bug both anchor apps hit; see [usage.md → Gotchas](usage.md#gotchas).
+   Redefine your aliases on `.cui-ui` instead, or put the wrapper class on `<html>`
+   (which is what the ConjureOS shell does).
+2. **Opting in changes your base type.** The wrapper element gets 14px/1.5. If your
+   app assumes a 16px base, neutralize it (the shell does exactly that with
+   `html.cui-tokens { font-size: 16px; line-height: normal; }`).
+
+---
+
+## 1. Color
+
+### Accent
+
+The purple/blue brand. Six tokens.
+
+| Token | Value | Use |
+|---|---|---|
+| `--cui-accent` | `#7c6af7` | Primary accent — buttons, focus rings, the dominant brand color |
+| `--cui-accent-soft` | `#a5b4fc` | Secondary accent — icons, captions, "big number" displays |
+| `--cui-accent-mute` | `rgba(124,106,247,0.18)` | Soft tinted **background** (chip-active, pill backing, ghost-button hover) |
+| `--cui-accent-tint` | `rgba(124,106,247,0.28)` | Soft tinted **border** for accent surfaces; also the slider's focus ring |
+| `--cui-accent-hover` | `#8e7df8` | The accent one notch lighter, for `:hover` fills. Distinct from `-soft`, which is a lighter *secondary* role. Added 0.3.0 |
+| `--cui-accent-pink` | `#c780f7` | Third brand accent (magenta) — a gradient stop, playful flourishes. Added 0.3.0 |
+
+> `--cui-accent-hover` and `--cui-accent-pink` are **declared but not consumed** by
+> any primitive in `ui.css`. They exist because the ConjureOS shell needed them
+> tokenized. Both are yours to use.
+
+### Backgrounds (opaque, layered deepest → highest)
+
+| Token | Value | Use |
+|---|---|---|
+| `--cui-bg` | `#0b0e14` | Root canvas |
+| `--cui-bg-1` | `#11151d` | Primary surface — cards |
+| `--cui-bg-2` | `#1a1f2b` | Raised surface — hovered cards, modals, base buttons |
+| `--cui-bg-3` | `#232938` | Highest — popovers, selected rows, tooltips, toggle track |
+
+### Translucent "glass" surfaces
+
+Alpha values, so a blurred backdrop or live content shows through. Reach for these
+when a panel floats *over* something. Added 0.3.0.
+
+| Token | Value | Use |
+|---|---|---|
+| `--cui-surface` | `rgba(20,22,30,0.85)` | Primary glass panel |
+| `--cui-surface-2` | `rgba(28,30,40,0.75)` | Raised glass panel |
+| `--cui-surface-hover` | `rgba(255,255,255,0.06)` | Additive white wash for hover over any surface. Also the fill of `.cui-pill--neutral` |
+
+### Foreground (three text tiers — do not invent a fourth)
+
+| Token | Value | Use |
+|---|---|---|
+| `--cui-fg` | `#e5e9f0` | Primary text, headings |
+| `--cui-fg-mute` | `#9ca3af` | Secondary text, labels, placeholders |
+| `--cui-fg-dim` | `#6b7280` | Tertiary text, disabled, input placeholders, field hints |
+
+### Borders
+
+| Token | Value | Use |
+|---|---|---|
+| `--cui-border` | `rgba(255,255,255,0.08)` | The default hairline. Surfaces define edges by light tinting, not heavy lines |
+| `--cui-border-strong` | `rgba(255,255,255,0.16)` | Hover/active edge for interactive surfaces; tooltip border |
+
+### Status colors (pill-weight tints)
+
+Lighter "on dark surface" shades — readable as *text* on a low-alpha fill. Consumed
+by the `.cui-pill--*` variants.
+
+| Token | Value |
+|---|---|
+| `--cui-success` | `#34d399` |
+| `--cui-warn` | `#fbbf24` |
+| `--cui-error` | `#f87171` |
+| `--cui-info` | `var(--cui-accent-soft)` → `#a5b4fc` |
+
+### Semantic button colors (button-weight fills)
+
+Deliberately more saturated than the pill tints above, so a solid fill keeps its
+label legible. Added 0.2.0. `--cui-accent` already serves "primary", so there is no
+`--cui-primary`.
+
+| Token | Value | Use |
+|---|---|---|
+| `--cui-secondary` | `#3b4252` | Neutral slate fill |
+| `--cui-secondary-hover` | `#474f63` | …its hover |
+| `--cui-danger` | `#ef4444` | Destructive red |
+| `--cui-danger-hover` | `#dc2626` | …its hover |
+| `--cui-warning` | `#f59e0b` | Amber, "are you sure" |
+| `--cui-warning-hover` | `#d97706` | …its hover |
+| `--cui-info-strong` | `#4a9eff` | Button-weight info blue (also the second stop of both gradients) |
+| `--cui-info-strong-hover` | `#2f8aee` | …its hover |
+| `--cui-link` | `var(--cui-accent-soft)` | Link-style button text |
+| `--cui-link-hover` | `var(--cui-accent)` | …its hover |
+
+> Note the deliberate split: `--cui-warn` (`#fbbf24`, pill) vs `--cui-warning`
+> (`#f59e0b`, button); `--cui-error` (`#f87171`, pill) vs `--cui-danger`
+> (`#ef4444`, button); `--cui-info` (soft indigo) vs `--cui-info-strong` (blue).
+> These name pairs are one letter apart and mean different weights. Don't
+> "consolidate" them.
+
+### Gradients
+
+| Token | Value | Use |
+|---|---|---|
+| `--cui-accent-gradient` | `linear-gradient(135deg, rgba(124,106,247,0.28), rgba(74,158,255,0.18))` | **Translucent overlay** tint. Layer it over a surface — hero cards, header tiles, icon badges. Used by `.cui-card--hero` |
+| `--cui-brand-gradient` | `linear-gradient(120deg, var(--cui-accent) 0%, var(--cui-info-strong) 35%, var(--cui-accent-pink) 70%, var(--cui-accent) 100%)` | **Opaque 4-stop brand sweep.** Animated accent bars, primary-button fills, hero spans. Added 0.3.0; not consumed by any primitive |
+
+The two are easy to confuse. Rule of thumb: `-accent-gradient` sits *on top of*
+something and lets it show through; `-brand-gradient` *is* the fill.
+
+---
+
+## 2. Typography
+
+### Font stacks
+
+| Token | Value |
+|---|---|
+| `--cui-font-sans` | `-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "Helvetica Neue", Arial, sans-serif` |
+| `--cui-font-mono` | `ui-monospace, SFMono-Regular, "JetBrains Mono", Consolas, "Liberation Mono", monospace` |
+
+System fonts only. The package loads no web fonts and makes no network requests.
+
+### Size scale (7 steps)
+
+| Token | Value | Typical use |
+|---|---|---|
+| `--cui-text-xs` | `11px` | Pills, field hints, tooltips |
+| `--cui-text-sm` | `12px` | Secondary text, labels, chips, tabs, subheadings |
+| `--cui-text-base` | `14px` | **Body default.** Buttons, inputs, selects |
+| `--cui-text-lg` | `16px` | Emphasized body |
+| `--cui-text-xl` | `20px` | Section headings |
+| `--cui-text-2xl` | `24px` | `.cui-heading` |
+| `--cui-text-3xl` | `32px` | "Big number" moments (a counter, a hero metric) — not page headings |
+
+### Weight (4 steps)
+
+| Token | Value | Convention |
+|---|---|---|
+| `--cui-weight-regular` | `400` | Body |
+| `--cui-weight-medium` | `500` | Labels, buttons, tabs, pills |
+| `--cui-weight-semibold` | `600` | Headings |
+| `--cui-weight-bold` | `700` | "Big number" displays only — avoid elsewhere |
+
+### Leading (3 steps)
+
+| Token | Value | Use |
+|---|---|---|
+| `--cui-leading-tight` | `1.2` | Headings |
+| `--cui-leading-normal` | `1.5` | Body (and the wrapper's baseline) |
+| `--cui-leading-loose` | `1.7` | Long-form reading |
+
+---
+
+## 3. Space, radius, border, shadow
+
+### Spacing ladder (9 steps)
+
+Powers of 4. The numeric suffix is the multiple of 4px, so `--cui-space-6` is 24px.
+Note the gaps: there is no `-7`, `-9`, `-10`, `-11`.
+
+| Token | Value |
+|---|---|
+| `--cui-space-0` | `0` |
+| `--cui-space-1` | `4px` |
+| `--cui-space-2` | `8px` |
+| `--cui-space-3` | `12px` |
+| `--cui-space-4` | `16px` |
+| `--cui-space-5` | `20px` |
+| `--cui-space-6` | `24px` |
+| `--cui-space-8` | `32px` |
+| `--cui-space-12` | `48px` |
+
+Defaults worth knowing: stacks gap at `-3` (12px), `.cui-card` pads at `-4` (16px),
+`.cui-modal` pads at `-6` (24px).
+
+### Radius (4 steps)
+
+| Token | Value | Use |
+|---|---|---|
+| `--cui-radius-sm` | `6px` | Inputs, selects, tooltips |
+| `--cui-radius` | `10px` | Default — cards, buttons, panels |
+| `--cui-radius-lg` | `14px` | Hero cards, modals |
+| `--cui-radius-pill` | `999px` | Pills, pill-buttons, chips, tabs, toggle, slider track |
+
+### Border width
+
+| Token | Value |
+|---|---|
+| `--cui-border-width` | `1px` |
+
+Modern Whimsy does not use thicker borders. If you need more separation, use
+background contrast, not a heavier line.
+
+### Shadows (4 tiers)
+
+| Token | Value | Use |
+|---|---|---|
+| `--cui-shadow-sm` | `0 1px 2px rgba(0,0,0,0.3)` | Subtle elevation on small elements |
+| `--cui-shadow` | `0 4px 12px rgba(0,0,0,0.4)` | Cards, dropdowns; `.cui-modal` |
+| `--cui-shadow-accent` | `0 6px 20px rgba(124,106,247,0.25)` | The signature **colored** hover lift on interactive cards |
+| `--cui-shadow-lg` | `0 10px 40px rgba(0,0,0,0.45)` | Large ambient drop for floating popovers/menus/overlay panels. Added 0.3.0; not consumed by any primitive |
+
+---
+
+## 4. Motion
+
+### Durations
+
+| Token | Value | Use |
+|---|---|---|
+| `--cui-duration-fast` | `120ms` | Hover color shifts, focus rings, chip toggles, button press |
+| `--cui-duration` | `180ms` | Background changes, layout shifts — the default in `ui.css` |
+| `--cui-duration-slow` | `320ms` | Entrance animations (modal rise) |
+
+### Easings
+
+| Token | Value | Use |
+|---|---|---|
+| `--cui-ease` | `cubic-bezier(0.2, 0.7, 0.3, 1)` | General-purpose. Default to this |
+| `--cui-ease-out` | `cubic-bezier(0.16, 1, 0.3, 1)` | Decelerating motion — entrances, lifts |
+
+`MODERN_WHIMSY.md` also names a bouncy curve `cubic-bezier(0.34, 1.56, 0.64, 1)`
+for moments that should *land* with character (error banners). It is **not a
+token** — it is hand-rolled at its call sites in the ConjureOS shell. If you use it,
+you type the literal.
+
+### Reduced motion
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  .cui-tokens,
+  .cui-ui {
+    --cui-duration-fast: 0ms;
+    --cui-duration: 0ms;
+    --cui-duration-slow: 0ms;
+  }
+}
+```
+
+Every primitive's `transition` reads a duration token, so this zeroes them all. It
+does **not** disable the two `@keyframes` animations on the modal — those pass a
+duration token too (`var(--cui-duration)` / `var(--cui-duration-slow)`), so they
+also collapse to 0ms. Custom animations you write outside the token system should
+check `prefers-reduced-motion` themselves.
+
+---
+
+## Light and dark
+
+**There is only dark.** As of 0.3.1:
+
+- No `@media (prefers-color-scheme: light)` block exists anywhere in the package.
+- No `[data-theme]` / `.cui-light` / theme-attribute hook exists.
+- The token file header states the position explicitly: *"Dark is the canonical
+  theme; light-theme work lives in v2."* The `README.md` Roadmap lists "light theme
+  support" as upcoming, tracked on the ConjureOS UI project board.
+
+If you need a light surface today, redefine the tokens yourself on a scope inside
+the wrapper. Because every primitive reads tokens (nothing hardcodes a hex except
+five deliberate cases — see [components.md → Hardcoded values](components.md#hardcoded-values-not-tokenized)),
+this mostly works:
+
+```css
+/* Your app's stylesheet, loaded AFTER ui.css */
+@media (prefers-color-scheme: light) {
+  .cui-ui {
+    --cui-bg: #f7f8fa;
+    --cui-bg-1: #ffffff;
+    --cui-bg-2: #eef0f4;
+    --cui-bg-3: #e3e6ec;
+    --cui-fg: #11151d;
+    --cui-fg-mute: #4b5563;
+    --cui-fg-dim: #9ca3af;
+    --cui-border: rgba(0,0,0,0.10);
+    --cui-border-strong: rgba(0,0,0,0.20);
+    --cui-surface: rgba(255,255,255,0.85);
+    --cui-surface-2: rgba(255,255,255,0.75);
+    --cui-surface-hover: rgba(0,0,0,0.05);
+  }
+}
+```
+
+Known rough edges if you do: `.cui-button--primary:hover` sets
+`color: var(--cui-bg)` (fine — it follows the token), but
+`.cui-button--primary/--danger/--info` and `.cui-toggle` thumb-when-checked use a
+literal `white`, `.cui-button--warning` uses a literal `#1a1206` label, and the
+`.cui-select` chevron is a data-URI SVG with `#9ca3af` baked into the stroke. Those
+five will not follow your overrides. Treat a real light theme as a package change
+(v2), not an app-side hack.

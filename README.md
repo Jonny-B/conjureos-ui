@@ -7,6 +7,14 @@ This is the design library AI-generated ConjureOS apps consume so they visually 
 [![npm](https://img.shields.io/npm/v/@conjureos/ui.svg)](https://www.npmjs.com/package/@conjureos/ui)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+## Documentation
+
+Full technical documentation lives in [`docs/`](docs/README.md): the complete
+[token reference](docs/tokens.md), the complete [primitive class reference](docs/components.md),
+[how to consume it](docs/usage.md) (in-shell, npm, the ConjureOS shell itself, anchor
+apps), and the [maintainer guide](docs/contributing.md) (build, compatibility rules,
+release runbook, history).
+
 ## See it live
 
 Open [`demo.html`](demo.html) in any browser. The page renders every primitive class and color token in one place with copy-pasteable code snippets beside each example. No build step, no JS framework, no dependencies; the file pulls the published CSS from the unpkg CDN at load time so a fresh `git clone` works immediately.
