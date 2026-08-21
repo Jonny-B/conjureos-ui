@@ -1,6 +1,6 @@
 # Consuming `@conjureos/ui`
 
-Four real consumption paths exist today, and they are genuinely different. Find
+Five real consumption paths exist today, and they are genuinely different. Find
 yours, then read [Gotchas](#gotchas) — most of them bite regardless of path.
 
 | You are… | Path |
@@ -261,15 +261,44 @@ with `user-scalable=no` — that fails WCAG 1.4.4.
 **8. Dark only.**
 No light theme in 0.3.1. See [tokens.md → Light and dark](tokens.md#light-and-dark).
 
-**9. The classes carry no semantics or behavior.**
-No focus rings on buttons/chips/cards/tabs, no ARIA, no modal focus trap, no tooltip
-screen-reader text, no keyboard handling anywhere. You own accessibility.
+**9. Focus indicators are a known defect; the rest of accessibility is your job.**
+Four of the eight interactive primitives (`cui-button`, `cui-chip`, `cui-tab`,
+`cui-card--interactive`) have no focus rule at all, and `cui-input` / `cui-select` /
+`cui-slider` actively set `outline: none` — inputs and selects replacing it with only
+a 1px border-color change, which will not meet WCAG 2.4.11. Treat that as a package
+bug to compensate for, not as a design choice: paste the mitigation rule in
+[components.md → Accessibility status](components.md#accessibility-status). ARIA,
+roles, keyboard handling, and the modal focus trap genuinely are yours to supply.
 
-**10. `dist/` is gitignored.**
-A fresh clone of this repo has no built CSS. Run `npm run build` first — otherwise
-`demo.html` pointed at `./dist/ui.css` shows an unstyled page, and the ConjureOS
-Vite plugin logs its "not found" warning.
+**10. `dist/` is gitignored — and `demo.html` does not use it.**
+A fresh clone of this repo has no built CSS until you run `npm run build`. Two
+separate consequences, and one is a trap:
 
-**11. `.json` imports and the store bundler.**
+- The ConjureOS Vite plugin reads `node_modules/@conjureos/ui/dist/ui.css`. Missing
+  → it logs `[conjureos-ui] dist/ui.css not found` and the shell builds without the
+  design library.
+- **`demo.html:14` links `https://unpkg.com/@conjureos/ui/dist/ui.css`, not
+  `./dist/ui.css`.** That is deliberate (a fresh clone renders with no build step),
+  but it means the demo shows the **published, unpinned** package from the CDN. Edit
+  `src/ui.css`, run `npm run build`, open `demo.html` — and you see **no change**,
+  because you are looking at npm's copy of 0.3.1. To review a local change you must
+  temporarily repoint that `<link>` to `./dist/ui.css`, and not commit the edit. See
+  [contributing.md → Verifying a change](contributing.md#verifying-a-change).
+
+**11. The wrapper class and a primitive class can never share an element.**
+Every rule in `src/ui.css` is a descendant selector (`.cui-ui .cui-thing`); there is
+no `.cui-ui.cui-thing` rule anywhere. `<body class="cui-ui cui-stack-v">` gets no
+stack; `<div class="cui-ui cui-card">` gets no card. The wrapper element is not its
+own descendant. Wrapper on `<html>`/`<body>`, primitives inside.
+
+**12. The wrapper paints its own background, and nothing else's.**
+`src/tokens.css:149-154` applies `color` and `background: var(--cui-bg)` to the
+element carrying `.cui-tokens` / `.cui-ui`. Put that class on a nested `<div>` and
+the page canvas around it keeps the UA default white — white gutters beside your
+layout, a white flash before paint, and white overscroll rubber-banding on iOS. Put
+the wrapper on `<html>` or `<body>` (the shell uses `<html>`), or set
+`background: var(--cui-bg)` on `html, body` yourself.
+
+**13. `.json` imports and the store bundler.**
 Unrelated to this package directly, but adjacent: `@conjureos/pack`'s store bundler
 has no `.json` loader. Ship data as `.ts`. (From `conjureos-app-recipes/CLAUDE.md`.)

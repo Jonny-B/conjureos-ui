@@ -9,11 +9,11 @@ to know before you touch anything.
 ```
 conjureos-ui/
   src/tokens.css        73 --cui-* custom properties on `.cui-tokens, .cui-ui`
-  src/ui.css            ~40 primitive classes, all scoped `.cui-ui .cui-thing`
+  src/ui.css            45 primitive classes, all scoped `.cui-ui .cui-thing`
   src/index.css         @imports tokens.css then ui.css (the public entry)
   scripts/build.mjs     concatenate → dist/ui.css; regenerate the MODERN_WHIMSY autogen block
   MODERN_WHIMSY.md      canonical style guide; its `## For agents` tail is the Dev agent's prompt
-  demo.html             static page rendering every primitive (pulls the CSS from unpkg)
+  demo.html             static page rendering the primitives — loads the PUBLISHED CSS from unpkg, not dist/
   docs/                 this documentation
   CHANGELOG.md          per-release notes
   .github/workflows/publish-npm.yml   version-gated publish on push to main (see caveat below)
@@ -79,22 +79,42 @@ Consequences you must respect when editing `ui.css`:
   `/* ---- … ---- */` header precedes it. This is currently a live wart — see
   [the 0.3.1 note below](#031-2026-06-24--the-ios-touch-zoom-fix).
 
-**Always run `npm run build` and commit the resulting `MODERN_WHIMSY.md` diff.**
-That file is the AI Dev agent's prompt: ConjureOS imports it with
-`import modernWhimsyGuide from "@conjureos/ui/MODERN_WHIMSY.md?raw"` (in both
-`src/ai/agents/dev.ts` and `src/ai/generation/devPromptV2.ts`) and slices it at the
-`## For agents` header. If the autogen block is stale, the agent doesn't know your
-new primitive exists.
+**Always run `npm run build` and commit the resulting `MODERN_WHIMSY.md` diff** —
+with one live exception, below. That file is the AI Dev agent's prompt: ConjureOS
+imports it with `import modernWhimsyGuide from "@conjureos/ui/MODERN_WHIMSY.md?raw"`
+(in both `src/ai/agents/dev.ts` and `src/ai/generation/devPromptV2.ts`) and slices
+it at the `## For agents` header. If the autogen block is stale, the agent doesn't
+know your new primitive exists.
+
+> **Exception, as of 0.3.1 — read this before you commit that diff.** A build today
+> produces one line you did **not** cause:
+>
+> ```diff
+> -- Select: `cui-select`
+> +- Select: `cui-select`, `cui-input`
+> ```
+>
+> That is the pre-existing bug described in
+> [Known gap 2](#known-gap-2--the-committed-modern_whimsymd-is-stale), not your
+> change. Do not commit it blind, and do not hand-edit it back either (the next
+> build re-adds it). Fix the cause first — give the `@media (pointer: coarse)` block
+> its own `/* ---- … ---- */` section header so the parser stops filing `.cui-input`
+> under Select — then rebuild, and the diff you commit contains only your work plus
+> the corrected Select line. That fix is a one-line change to `src/ui.css` with **no
+> rendering effect**, so it is safe to make in the same commit.
 
 ## Verifying a change
 
 There is no test suite. The manual gate:
 
 1. `npm run build`.
-2. Edit `demo.html`'s `<link>` from `https://unpkg.com/@conjureos/ui/dist/ui.css` to
-   `./dist/ui.css`, open it in a browser, confirm every section still renders. **Do
-   not commit that edit** — the committed file points at unpkg so a fresh clone works
-   with no build step.
+2. **Repoint `demo.html`'s `<link>` before you look at it.** As committed,
+   `demo.html:14` loads `https://unpkg.com/@conjureos/ui/dist/ui.css` — the
+   *published* package from the CDN. Open it without editing and you are reviewing
+   npm's 0.3.1, not your working tree: your change appears to have done nothing.
+   Swap the href to `./dist/ui.css`, reload, confirm every section still renders,
+   then **revert the edit before committing** (the committed file points at unpkg on
+   purpose, so a fresh clone renders with no build step).
 3. Add a demo section for anything new (every primitive added in 0.1.3 got one).
    **`demo.html` is currently behind:** it has no examples of the 0.2.0 semantic
    button variants (`--secondary`/`--danger`/`--warning`/`--info`/`--link`), the
@@ -254,11 +274,15 @@ on source order without `!important`. Pinch-zoom stays available — no
 `user-scalable=no`, which would fail WCAG 1.4.4. Both misleading comments were
 corrected.
 
-**Known gap 1:** `CHANGELOG.md` has no `## 0.3.1` entry. The fix landed in commit
+#### Known gap 1 — no 0.3.1 changelog entry
+
+`CHANGELOG.md` has no `## 0.3.1` entry. The fix landed in commit
 `9e6f148` and the version bump in `83d4dcc`, but the changelog was never updated.
 Worth adding retroactively.
 
-**Known gap 2 — the committed `MODERN_WHIMSY.md` is stale.** `npm run build` was not
+#### Known gap 2 — the committed `MODERN_WHIMSY.md` is stale
+
+`npm run build` was not
 run (or its output not committed) with the 0.3.1 fix, and re-running it now produces
 a diff:
 
@@ -317,6 +341,31 @@ three drifting summaries. Note the changelog dates 0.1.2 (2026-05-27) *after* 0.
 
 Initial release: tokens, primitives, the two-mode wrapper contract, the build script,
 `demo.html`, MIT license.
+
+### Standing defect: focus indicators
+
+Not tied to any one release, and the thing to fix first if you want a
+correctness-flavored contribution. Audited across all of `src/ui.css`:
+
+- `.cui-button`, `.cui-chip`, `.cui-tab` and `.cui-card--interactive` have **no**
+  `:focus` or `:focus-visible` rule. They stay keyboard-visible only because nothing
+  happens to set `outline: none` on them — an accident, not a decision, and one that
+  any consumer reset erases.
+- `.cui-input` (`:268`) and `.cui-select` (`:366`) **do** set `outline: none` and
+  replace it with a 1px `border-color` change on `:focus` — a contrast delta that
+  will not satisfy WCAG 2.4.11 non-text contrast on its own.
+- `.cui-slider` (`:404`) sets `outline: none` and restores a ring only through
+  `::-webkit-slider-thumb` (`:430`), so Firefox gets no focus indicator at all.
+- `.cui-toggle` (`:488`) is the one primitive that handles this properly.
+
+The consumer-side mitigation and the per-primitive table live in
+[components.md → Accessibility status](components.md#accessibility-status); it is
+documented there as a package defect, not as a design decision, and the docs should
+keep saying so until it is fixed. A fix is a candidate for the next minor: adding a
+`:focus-visible` ring is additive for the four primitives that have nothing, but
+changing the input/select focus treatment is a visible restyle — and note the
+ConjureOS shell already layers its own glow ring on `.cui-ui .cui-input:focus`, so
+coordinate before touching that one.
 
 ### Other things to know
 

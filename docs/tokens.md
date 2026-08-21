@@ -52,9 +52,10 @@ The purple/blue brand. Six tokens.
 | `--cui-accent-hover` | `#8e7df8` | The accent one notch lighter, for `:hover` fills. Distinct from `-soft`, which is a lighter *secondary* role. Added 0.3.0 |
 | `--cui-accent-pink` | `#c780f7` | Third brand accent (magenta) — a gradient stop, playful flourishes. Added 0.3.0 |
 
-> `--cui-accent-hover` and `--cui-accent-pink` are **declared but not consumed** by
-> any primitive in `ui.css`. They exist because the ConjureOS shell needed them
-> tokenized. Both are yours to use.
+> `--cui-accent-hover` and `--cui-accent-pink` are **not consumed by any primitive**
+> in `ui.css` — they exist because the ConjureOS shell needed them tokenized. Both
+> are yours to use. Note `--cui-accent-pink` *is* consumed one level up, inside
+> `tokens.css` itself, as the third stop of `--cui-brand-gradient`; it is not dead.
 
 ### Backgrounds (opaque, layered deepest → highest)
 
@@ -117,7 +118,7 @@ label legible. Added 0.2.0. `--cui-accent` already serves "primary", so there is
 | `--cui-danger-hover` | `#dc2626` | …its hover |
 | `--cui-warning` | `#f59e0b` | Amber, "are you sure" |
 | `--cui-warning-hover` | `#d97706` | …its hover |
-| `--cui-info-strong` | `#4a9eff` | Button-weight info blue (also the second stop of both gradients) |
+| `--cui-info-strong` | `#4a9eff` | Button-weight info blue. Also the second stop of `--cui-brand-gradient`. **Not** referenced by `--cui-accent-gradient`, which hardcodes the same hue as `rgba(74,158,255,0.18)` — overriding this token moves one gradient and not the other |
 | `--cui-info-strong-hover` | `#2f8aee` | …its hover |
 | `--cui-link` | `var(--cui-accent-soft)` | Link-style button text |
 | `--cui-link-hover` | `var(--cui-accent)` | …its hover |
@@ -162,6 +163,10 @@ System fonts only. The package loads no web fonts and makes no network requests.
 | `--cui-text-xl` | `20px` | Section headings |
 | `--cui-text-2xl` | `24px` | `.cui-heading` |
 | `--cui-text-3xl` | `32px` | "Big number" moments (a counter, a hero metric) — not page headings |
+
+`--cui-text-lg`, `--cui-text-xl` and `--cui-text-3xl` are consumed by **no primitive**
+in `ui.css` (the primitives only use `xs`/`sm`/`base`/`2xl`). They are there for your
+CSS.
 
 ### Weight (4 steps)
 
@@ -210,7 +215,7 @@ Defaults worth knowing: stacks gap at `-3` (12px), `.cui-card` pads at `-4` (16p
 |---|---|---|
 | `--cui-radius-sm` | `6px` | Inputs, selects, tooltips |
 | `--cui-radius` | `10px` | Default — cards, buttons, panels |
-| `--cui-radius-lg` | `14px` | Hero cards, modals |
+| `--cui-radius-lg` | `14px` | Modals. `.cui-modal` is its **only** consumer — `.cui-card--hero` sets no radius of its own and keeps `.cui-card`'s 10px |
 | `--cui-radius-pill` | `999px` | Pills, pill-buttons, chips, tabs, toggle, slider track |
 
 ### Border width
@@ -239,7 +244,7 @@ background contrast, not a heavier line.
 
 | Token | Value | Use |
 |---|---|---|
-| `--cui-duration-fast` | `120ms` | Hover color shifts, focus rings, chip toggles, button press |
+| `--cui-duration-fast` | `120ms` | The button press (`transform`) and the slider thumb's hover/focus. `MODERN_WHIMSY.md` names 120ms the dominant value for hover/focus generally, but in `ui.css` most hovers — chips included — actually transition at `--cui-duration` |
 | `--cui-duration` | `180ms` | Background changes, layout shifts — the default in `ui.css` |
 | `--cui-duration-slow` | `320ms` | Entrance animations (modal rise) |
 
@@ -268,11 +273,15 @@ you type the literal.
 }
 ```
 
-Every primitive's `transition` reads a duration token, so this zeroes them all. It
-does **not** disable the two `@keyframes` animations on the modal — those pass a
-duration token too (`var(--cui-duration)` / `var(--cui-duration-slow)`), so they
-also collapse to 0ms. Custom animations you write outside the token system should
-check `prefers-reduced-motion` themselves.
+The media query only reassigns three variables — it touches no `transition` or
+`animation` property directly. It works because everything in `ui.css` reads those
+variables: every primitive's `transition` does, and so do the modal's two
+`animation` shorthands (`cui-modal-backdrop-in var(--cui-duration)` and
+`cui-modal-in var(--cui-duration-slow)`). So transitions *and* the modal entrance
+both collapse to 0ms.
+
+The corollary: any animation of yours that hardcodes its duration keeps running.
+Read the tokens, or check `prefers-reduced-motion` yourself.
 
 ---
 
@@ -286,10 +295,10 @@ check `prefers-reduced-motion` themselves.
   theme; light-theme work lives in v2."* The `README.md` Roadmap lists "light theme
   support" as upcoming, tracked on the ConjureOS UI project board.
 
-If you need a light surface today, redefine the tokens yourself on a scope inside
-the wrapper. Because every primitive reads tokens (nothing hardcodes a hex except
-five deliberate cases — see [components.md → Hardcoded values](components.md#hardcoded-values-not-tokenized)),
-this mostly works:
+If you need a light surface today, you can redefine the tokens on a scope inside the
+wrapper — but read the limits below **before** you ship it. Most of the library
+follows a token override; a specific, enumerable set of rules does not, and two of
+them are user-facing enough to sink the attempt.
 
 ```css
 /* Your app's stylesheet, loaded AFTER ui.css */
@@ -311,10 +320,29 @@ this mostly works:
 }
 ```
 
-Known rough edges if you do: `.cui-button--primary:hover` sets
-`color: var(--cui-bg)` (fine — it follows the token), but
-`.cui-button--primary/--danger/--info` and `.cui-toggle` thumb-when-checked use a
-literal `white`, `.cui-button--warning` uses a literal `#1a1206` label, and the
-`.cui-select` chevron is a data-URI SVG with `#9ca3af` baked into the stroke. Those
-five will not follow your overrides. Treat a real light theme as a package change
-(v2), not an app-side hack.
+**What follows the override:** every background, foreground, and border on cards,
+stacks, base buttons, chips, inputs, selects, fields, headings, dividers, the toggle
+track, the tabs container, and the tooltip. Also `.cui-button--primary:hover`, which
+sets `color: var(--cui-bg)` and therefore tracks your value.
+
+**What does NOT follow the override.** `src/ui.css` hardcodes values in **12 places**,
+catalogued in full at
+[components.md → Hardcoded values](components.md#hardcoded-values-not-tokenized).
+Seven of those are colors; three of the seven break a light theme outright:
+
+| Source | Literal | What you get on a light surface |
+|---|---|---|
+| `.cui-pill--success/--warn/--error/--danger` (`src/ui.css:212-217`) | 8 literals — `rgba(52,211,153,0.14)` fill + `rgba(52,211,153,0.35)` border, and the equivalents for warn/error/danger | Status pills tuned for a dark card. A 0.14-alpha tint on white is close to invisible, and the text colors (`--cui-success` `#34d399`, `--cui-warn` `#fbbf24`) are low-contrast on white |
+| `.cui-tab--active` (`:522-527`) | `linear-gradient(135deg, rgba(124,106,247,0.55), rgba(74,158,255,0.4))`, `box-shadow: 0 4px 12px rgba(124,106,247,0.25)`, `color: white` | A saturated purple/blue pill with a white label sitting in a light tab bar. Legible, but off-palette and visually louder than everything around it |
+| `.cui-modal-backdrop` (`:569`) | `rgba(0, 0, 0, 0.6)` + `blur(4px)` | A 60%-black scrim over light chrome — correct for dark, heavy-handed for light |
+
+Four more will not follow it either, though they degrade gracefully rather than
+break: `color: white` on `--primary`/`--danger`/`--info` buttons (`:106,148,153,169,174`),
+`color: #1a1206` on `--warning` (`:159`), `background: white` on the checked toggle
+thumb (`:485`), and the `.cui-select` chevron, whose stroke `#9ca3af` is baked into a
+data-URI SVG (`:368`) and cannot read a `var()`. The remaining literals in that table
+are geometry and z-index, not color, and are theme-neutral.
+
+**So:** backgrounds, foregrounds and borders follow; **status pills, the active tab,
+and the modal scrim do not.** If you go ahead anyway, plan on hand-overriding those
+three yourself. A real light theme is a package change (v2), not an app-side hack.

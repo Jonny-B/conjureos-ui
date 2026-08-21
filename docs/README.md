@@ -28,9 +28,10 @@ integration, no dependencies. It ships:
 
 1. **`src/tokens.css`** — 73 semantic CSS custom properties (`--cui-*`): colors,
    typography, spacing, radii, shadows, motion.
-2. **`src/ui.css`** — ~40 primitive classes (`.cui-*`): card, button, pill, chip,
+2. **`src/ui.css`** — **45** primitive classes (`.cui-*`): card, button, pill, chip,
    input, field, select, slider, toggle, tabs, tooltip, modal, stacks, typography
-   helpers, divider.
+   helpers, divider. (46 `.cui-*` names appear in the file; the 46th is the `.cui-ui`
+   wrapper itself, which is not a primitive.)
 3. **`src/index.css`** — a public entry that `@import`s both, in that order.
 4. **`scripts/build.mjs`** — concatenates `tokens.css` + `ui.css` into `dist/ui.css`
    with a version header, and regenerates the primitive list inside `MODERN_WHIMSY.md`.
@@ -67,8 +68,12 @@ Two things widened the audience after Phase 21:
   `<html lang="en" class="cui-tokens cui-ui">`. The shell's own `:root` tokens are
   aliases onto `--cui-*`. This **reversed** an earlier decision where the shell
   mirrored the library with parallel `.conjureos-*` classes.
-- **Anchor apps consume it** (`conjureos-app-recipes`, `conjureos-fitness`) as an
-  ordinary npm dependency.
+- **Anchor apps consume it**, but not identically. `conjureos-fitness` takes it as an
+  ordinary runtime npm dependency (`^0.1.1`) and imports `@conjureos/ui/dist/ui.css`.
+  `conjureos-app-recipes` keeps it as a **devDependency** (`^0.1.2`) and imports a
+  **vendored copy** committed at `src/conjureos-ui.css`, because the store bundler
+  externalizes bare imports to a CDN that cannot serve a CSS-only package. Details in
+  [usage.md path 4](usage.md#4-anchor-apps).
 
 So the library is now the design system for *the whole platform*, not just
 generated apps.
@@ -145,6 +150,10 @@ Putting both on one element (as the shell does) is harmless.
 - **Touch** is handled for form controls: `@media (pointer: coarse)` bumps
   `.cui-input` / `.cui-select` to 16px so iOS Safari doesn't zoom on focus (the
   0.3.1 fix).
+- **Focus indicators are incomplete** — four interactive primitives have no focus
+  rule and three suppress the UA outline. Tracked as a package defect, with a
+  consumer mitigation, in
+  [components.md → Accessibility status](components.md#accessibility-status).
 - Modern-CSS features used: custom properties, `inset`, `backdrop-filter`
   (`-webkit-` prefixed too), `appearance`, `::-webkit-slider-thumb` /
   `::-moz-range-thumb`, `:focus-within`, `:focus-visible`, `font-variant-numeric`.

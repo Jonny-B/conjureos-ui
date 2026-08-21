@@ -7,7 +7,19 @@ Every `cui-*` class shipped by `@conjureos/ui` 0.3.1. Source of truth:
 is written as `.cui-ui .cui-thing { … }`. `class="cui-tokens"` gives you variables
 only — the classes below will do nothing under it.
 
-To see them all rendered, open [`../demo.html`](../demo.html) in a browser.
+> **The wrapper class and a primitive class can never sit on the same element.**
+> Every rule in `src/ui.css` uses the descendant combinator — there is not a single
+> `.cui-ui.cui-thing` (no-space) rule in the file. So
+> `<body class="cui-ui cui-stack-v">` applies **no stack**, and
+> `<div class="cui-ui cui-card">` renders **no card**: the element carrying `.cui-ui`
+> is never its own descendant. Put the wrapper on `<html>` or `<body>`, the
+> primitives on elements inside it. This is the most common way an adoption on a
+> sub-tree goes silently wrong.
+
+To see them rendered, open [`../demo.html`](../demo.html) in a browser — but note
+that page has not been updated since 0.1.3, so it has **no** examples of the 0.2.0
+semantic button/pill variants or the 0.3.0 `cui-field` family. This page is the
+complete list; the demo is not.
 
 ## The whole surface at a glance
 
@@ -257,8 +269,10 @@ semantics, and defines no focus style.
 ### `cui-input`
 
 A full-width block form control: 8px/12px padding, `--cui-bg` fill, hairline
-border, 6px radius, `--cui-fg` text, `font-family: inherit`, 14px, `outline: none`,
-with a border-color transition. `:focus` turns the border `--cui-accent`.
+border, 6px radius, `--cui-fg` text, `font-family: inherit`, **14px on desktop but
+16px under `@media (pointer: coarse)`** (the iOS focus-zoom guard — read
+[usage.md gotcha 7](usage.md#gotchas) before overriding `font-size`),
+`outline: none`, with a border-color transition. `:focus` turns the border `--cui-accent`.
 `::placeholder` is `--cui-fg-dim`.
 
 Because it is `display: block; width: 100%`, drop it in a stack rather than trying
@@ -278,10 +292,13 @@ Wrap a label and its control in it.
 </label>
 ```
 
-> `outline: none` plus a border-only focus state is a low-contrast focus indicator.
-> The ConjureOS shell deliberately layers a 3px accent glow ring on top of it
-> (`.cui-ui .cui-input:focus { box-shadow: 0 0 0 3px var(--cui-accent-tint); }`).
-> Consider doing the same.
+> **Known defect:** `outline: none` (`src/ui.css:268`) removes the browser's focus
+> indicator and replaces it with a 1px border-color change. That is very likely
+> below the 3:1 non-text contrast WCAG 2.4.11 asks for, and it is the package's
+> problem, not yours. Until it is fixed, put the ring back — the ConjureOS shell
+> does exactly this:
+> `.cui-ui .cui-input:focus { box-shadow: 0 0 0 3px var(--cui-accent-tint); }`.
+> See [Accessibility status](#accessibility-status).
 
 ---
 
@@ -320,8 +337,9 @@ Order matters only for how it reads; the CSS does not care. The canonical order
 
 `cui-select` styles a native `<select>`: `appearance: none` (and `-webkit-`), full
 width, 8px/12px padding with extra right padding for the chevron, `--cui-bg` fill,
-6px radius, 14px, accent border on `:focus`, `opacity: 0.5` + not-allowed on
-`:disabled`.
+6px radius, **14px on desktop but 16px under `@media (pointer: coarse)`** (same
+iOS focus-zoom guard as `cui-input`), accent border on `:focus`, `opacity: 0.5` +
+not-allowed on `:disabled`.
 
 The chevron is an inline `data:image/svg+xml` background image, positioned right
 with a `no-repeat`, stroked in `#9ca3af`.
@@ -404,6 +422,10 @@ A pill-shaped segmented control.
   `linear-gradient(135deg, rgba(124,106,247,0.55), rgba(74,158,255,0.4))`, white
   text, and a `0 4px 12px rgba(124,106,247,0.25)` glow. (These are literals in the
   source, not tokens — see below.)
+- `cui-tab--active:hover` — a fourth rule you don't write but should know about
+  (`src/ui.css:529-531`): it re-pins the label to `white` so the base
+  `.cui-tab:hover` (which sets `color: var(--cui-fg)`) can't dim the active tab.
+  Your own `.cui-tab:hover` override will collide with it.
 
 ```html
 <div class="cui-tabs" role="tablist">
@@ -505,27 +527,74 @@ Reach for the tokens in your own CSS instead.
 Places where `ui.css` writes a literal instead of a token. Useful to know when you
 retheme, and a checklist for anyone extending the package:
 
-| Where | Literal | Why |
+Twelve places in `src/ui.css`. **Seven are colors** (marked ●) and will not follow a
+token override — that is the constraint behind
+[tokens.md → Light and dark](tokens.md#light-and-dark). The other five are geometry
+or z-index and are theme-neutral.
+
+| | Where (`src/ui.css`) | Literal | Why |
+|---|---|---|---|
+| ● | `.cui-button--primary`, `--danger`, `--info` (`:106,148,153,169,174`) | `color: white` | White label on a saturated fill |
+| ● | `.cui-button--warning` (`:159`) | `color: #1a1206` | Dark label for contrast on amber |
+| ● | `.cui-pill--success/--warn/--error/--danger` (`:212-217`) | 8 literals: `rgba(...)` fills **and** borders derived from the status hexes | No alpha-of-token mechanism in plain CSS |
+| ● | `.cui-select` chevron (`:368`) | data-URI SVG stroked `%239ca3af` | Can't put a `var()` inside a `url()` data URI |
+| | `.cui-slider` thumb (`:408-427`) | `16px`, `2px` border | Fixed control geometry |
+| | `.cui-toggle__track` (`:453-486`) | `36px` x `20px`, `16px` thumb, `translateX(16px)` | Fixed control geometry |
+| ● | `.cui-toggle input:checked + .cui-toggle__track::after` (`:485`) | `background: white` | Contrast on the accent fill |
+| ● | `.cui-tab--active` (`:522-527`) | `linear-gradient(135deg, rgba(124,106,247,0.55), rgba(74,158,255,0.4))`, `box-shadow: 0 4px 12px rgba(124,106,247,0.25)`, `color: white` | The active-state gradient is not a token; `--cui-accent-gradient` is a different (weaker) mix |
+| ● | `.cui-modal-backdrop` (`:569`) | `rgba(0,0,0,0.6)` (plus `blur(4px)`, `z-index: 1000`) | — |
+| | `.cui-tooltip::after` (`:546-556`) | `4px 10px` padding, `6px` offset, `z-index: 10` | — |
+| | `.cui-modal` (`:585-587`) | `max-width: 480px`, `calc(100vh - 64px)` | — |
+| | `@media (pointer: coarse)` (`:388-393`) | `font-size: 16px` | The iOS zoom threshold is literally 16px; a token would invite someone to change it |
+
+## Accessibility status
+
+Not a non-goal — a **known defect of the package**, recorded here so consumers can
+compensate and so nobody documents it as intentional. Audited against every
+`:focus` / `:focus-visible` / `outline` occurrence in `src/ui.css`.
+
+Of the eight interactive primitives:
+
+| Primitive | Focus indicator | Verdict |
 |---|---|---|
-| `.cui-button--primary`, `--danger`, `--info` | `color: white` | White label on a saturated fill |
-| `.cui-button--warning` | `color: #1a1206` | Dark label for contrast on amber |
-| `.cui-pill--success/--warn/--error/--danger` | `rgba(...)` fills and borders derived from the status hexes | No alpha-of-token mechanism in plain CSS |
-| `.cui-select` chevron | data-URI SVG stroked `#9ca3af` | Can't put a `var()` inside a `url()` data URI |
-| `.cui-slider` thumb | `16px`, `2px` border | Fixed control geometry |
-| `.cui-toggle__track` | `36px` x `20px`, `16px` thumb, `translateX(16px)` | Fixed control geometry |
-| `.cui-toggle input:checked + .cui-toggle__track::after` | `background: white` | Contrast on the accent fill |
-| `.cui-tab--active` | `linear-gradient(135deg, rgba(124,106,247,0.55), rgba(74,158,255,0.4))`, `box-shadow: 0 4px 12px rgba(124,106,247,0.25)` | The active-state gradient is not a token; `--cui-accent-gradient` is a different (weaker) mix |
-| `.cui-modal-backdrop` | `rgba(0,0,0,0.6)`, `blur(4px)`, `z-index: 1000` | — |
-| `.cui-tooltip::after` | `4px 10px` padding, `6px` offset, `z-index: 10` | — |
-| `.cui-modal` | `max-width: 480px`, `calc(100vh - 64px)` | — |
-| `@media (pointer: coarse)` | `font-size: 16px` | The iOS zoom threshold is literally 16px; a token would invite someone to change it |
+| `cui-input` | `:focus` → `border-color: var(--cui-accent)` only, **after** `outline: none` (`:268`, `:272`) | **Defect.** A 1px border-color shift replacing the UA outline; unlikely to meet WCAG 2.4.11 (3:1 non-text contrast) |
+| `cui-select` | Same pattern (`:366`, `:374`) | **Defect.** Same reasoning |
+| `cui-slider` | `outline: none` (`:404`), then `:focus::-webkit-slider-thumb` → `0 0 0 4px var(--cui-accent-tint)` (`:430`) | **Partial.** A real ring in WebKit/Blink. In Firefox the `-webkit-` hook never matches, so the outline is suppressed and nothing replaces it |
+| `cui-toggle` | `input:focus-visible + .cui-toggle__track` → 2px accent-tint ring (`:488`) | **OK.** The genuinely well-handled one |
+| `cui-button` | none | **Missing.** Keyboard visibility survives only because nothing sets `outline: none` on it — i.e. by accident, and any consumer reset kills it |
+| `cui-chip` | none | **Missing.** Same accident. The examples on this page render it as a `<button>` |
+| `cui-tab` | none | **Missing.** Same |
+| `cui-card--interactive` | none | **Missing.** Also has no keyboard activation at all |
+
+`cui-tooltip` is a separate case: `:focus-within` reveals the tip (`:560`), which is
+good, but the tip is a `::after` with no accessible name, so screen readers never
+get it. Add `aria-label` / `title` yourself.
+
+Until the package fixes this, the safe consumer mitigation is one rule:
+
+```css
+/* your stylesheet, loaded after ui.css */
+.cui-ui .cui-button:focus-visible,
+.cui-ui .cui-chip:focus-visible,
+.cui-ui .cui-tab:focus-visible,
+.cui-ui .cui-card--interactive:focus-visible,
+.cui-ui .cui-input:focus-visible,
+.cui-ui .cui-select:focus-visible {
+  box-shadow: 0 0 0 3px var(--cui-accent-tint);
+  outline: 2px solid transparent;  /* keeps a visible ring in forced-colors mode */
+  outline-offset: 2px;
+}
+```
+
+Nothing else about accessibility is handled either: the classes carry no ARIA, no
+roles, no keyboard handlers, no focus trap on `cui-modal`, no `prefers-contrast`
+support. Those are legitimately the consumer's job; the focus indicators are not.
 
 ## Deliberate non-goals
 
-Things people look for and won't find in 0.3.1, so you can stop searching:
+Things people look for and won't find in 0.3.1, so you can stop searching. (Focus
+rings are **not** in this list — see [Accessibility status](#accessibility-status).)
 
-- No focus-visible styling on buttons, chips, cards, or tabs (inputs/selects get a
-  border color change; toggle and slider get rings).
 - No table, list, avatar, badge-with-count, breadcrumb, accordion, dropdown menu,
   popover, toast, spinner, skeleton, or progress bar.
 - No textarea-specific class (use `cui-input`), no checkbox/radio class (use
