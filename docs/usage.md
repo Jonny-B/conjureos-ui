@@ -13,6 +13,7 @@ yours, then read [Gotchas](#gotchas) — most of them bite regardless of path.
 
 ---
 
+<a id="1-inside-conjureos-link-the-served-url"></a>
 ## 1. Inside ConjureOS: link the served URL
 
 The shell serves the built stylesheet at a stable path. Nothing to install.
@@ -40,6 +41,7 @@ put `cui-ui` on `<body>`, and prefer `cui-*` classes over raw
 Boy") makes it drop the wrapper class — that is the designed opt-out, and the
 stylesheet is inert without the class.
 
+<a id="2-outside-conjureos-npm-install"></a>
 ## 2. Outside ConjureOS: npm install
 
 ```bash
@@ -74,6 +76,7 @@ Package facts that matter here:
 - No `peerDependencies`, no runtime deps, no JS. `engines.node` is `>=18` (only
   relevant to running the build script).
 
+<a id="3-how-the-conjureos-shell-consumes-it"></a>
 ## 3. How the ConjureOS shell consumes it
 
 Two separate mechanisms, for two different audiences. Verified against
@@ -145,6 +148,7 @@ duplicate token set. The root cause of that mirror: the CSS was only being copie
 `public/` for iframes, so `--cui-*` were undefined in the shell document and
 unusable. Don't reintroduce a mirror.
 
+<a id="4-anchor-apps"></a>
 ## 4. Anchor apps
 
 The two first-party anchor apps consume it differently, and the difference is
@@ -187,6 +191,7 @@ cp node_modules/@conjureos/ui/dist/ui.css src/conjureos-ui.css
 Both notes generalize: **if your bundler externalizes bare imports, vendor the
 CSS**, and **if your bundler generates the HTML, add the wrapper class at runtime**.
 
+<a id="5-exported-projects-conjureos-pack"></a>
 ## 5. Exported projects (`@conjureos/pack`)
 
 When an app is exported out of the shell (`unbundle()`), the scaffold:
@@ -205,6 +210,7 @@ import) is present and that `<body class="cui-ui">` survived.
 
 ---
 
+<a id="gotchas"></a>
 ## Gotchas
 
 **1. The tokens are not on `:root`.**
@@ -266,7 +272,9 @@ Four of the eight interactive primitives (`cui-button`, `cui-chip`, `cui-tab`,
 `cui-card--interactive`) have no focus rule at all, and `cui-input` / `cui-select` /
 `cui-slider` actively set `outline: none` — inputs and selects replacing it with only
 a 1px border-color change, which will not meet WCAG 2.4.11. Treat that as a package
-bug to compensate for, not as a design choice: paste the mitigation rule in
+bug to compensate for, not as a design choice — it is filed as
+[conjureos-ui#4](https://github.com/Jonny-B/conjureos-ui/issues/4) and unfixed as of
+0.3.1. Paste the mitigation rule from
 [components.md → Accessibility status](components.md#accessibility-status). ARIA,
 roles, keyboard handling, and the modal focus trap genuinely are yours to supply.
 

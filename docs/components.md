@@ -21,6 +21,7 @@ that page has not been updated since 0.1.3, so it has **no** examples of the 0.2
 semantic button/pill variants or the 0.3.0 `cui-field` family. This page is the
 complete list; the demo is not.
 
+<a id="the-whole-surface-at-a-glance"></a>
 ## The whole surface at a glance
 
 | Group | Classes |
@@ -52,6 +53,7 @@ collision if an app inspects the parent frame.
 
 ---
 
+<a id="layout-helpers"></a>
 ## Layout helpers
 
 ### `cui-stack-v`
@@ -94,6 +96,7 @@ utility scale, no `cui-p-4`. For anything else, write CSS using the space tokens
 
 ---
 
+<a id="card"></a>
 ## Card
 
 ### `cui-card`
@@ -131,6 +134,7 @@ headline.
 
 ---
 
+<a id="button"></a>
 ## Button
 
 ### `cui-button` (base)
@@ -192,6 +196,7 @@ cancel/dismiss, `link` for inline navigation that still needs button semantics.
 
 ---
 
+<a id="pill-status-tag"></a>
 ## Pill (status / tag)
 
 ### `cui-pill`
@@ -241,6 +246,7 @@ the intended one for quiet metadata).
 
 ---
 
+<a id="chip-interactive-tag"></a>
 ## Chip (interactive tag)
 
 `cui-chip` is the clickable cousin of the pill: 4px/12px padding, `--cui-bg-2`
@@ -264,6 +270,7 @@ semantics, and defines no focus style.
 
 ---
 
+<a id="input"></a>
 ## Input
 
 ### `cui-input`
@@ -302,6 +309,7 @@ Wrap a label and its control in it.
 
 ---
 
+<a id="field-labeled-control-with-a-hint"></a>
 ## Field (labeled control with a hint)
 
 Added 0.3.0. `cui-label` is label-plus-control only; `cui-field` is what real forms
@@ -333,6 +341,7 @@ Order matters only for how it reads; the CSS does not care. The canonical order
 
 ---
 
+<a id="select"></a>
 ## Select
 
 `cui-select` styles a native `<select>`: `appearance: none` (and `-webkit-`), full
@@ -361,6 +370,7 @@ package.
 
 ---
 
+<a id="slider"></a>
 ## Slider
 
 `cui-slider` styles a native `<input type="range">`: full width, 4px track in
@@ -380,6 +390,7 @@ ring. Firefox gets the static thumb — a known, accepted asymmetry.
 
 ---
 
+<a id="toggle"></a>
 ## Toggle
 
 A checkbox rendered as an on/off switch. Three parts, and the **markup order is
@@ -410,6 +421,7 @@ the input→track adjacency matters.
 
 ---
 
+<a id="tabs"></a>
 ## Tabs
 
 A pill-shaped segmented control.
@@ -439,6 +451,7 @@ You supply the ARIA and the click handling; the classes are purely visual.
 
 ---
 
+<a id="tooltip"></a>
 ## Tooltip
 
 Pure CSS, no JavaScript. Put `cui-tooltip` on a wrapper *and* give it a
@@ -463,6 +476,7 @@ readers — add `aria-label` or `title` if the text carries meaning.
 
 ---
 
+<a id="modal"></a>
 ## Modal
 
 Two classes plus two keyframes.
@@ -499,6 +513,7 @@ trap, `aria-modal`, restoring focus on close. The classes only paint.
 
 ---
 
+<a id="typography-and-divider-helpers"></a>
 ## Typography and divider helpers
 
 | Class | What it does |
@@ -522,6 +537,7 @@ Reach for the tokens in your own CSS instead.
 
 ---
 
+<a id="hardcoded-values-not-tokenized"></a>
 ## Hardcoded values (not tokenized)
 
 Places where `ui.css` writes a literal instead of a token. Useful to know when you
@@ -541,17 +557,27 @@ or z-index and are theme-neutral.
 | | `.cui-slider` thumb (`:408-427`) | `16px`, `2px` border | Fixed control geometry |
 | | `.cui-toggle__track` (`:453-486`) | `36px` x `20px`, `16px` thumb, `translateX(16px)` | Fixed control geometry |
 | ● | `.cui-toggle input:checked + .cui-toggle__track::after` (`:485`) | `background: white` | Contrast on the accent fill |
-| ● | `.cui-tab--active` (`:522-527`) | `linear-gradient(135deg, rgba(124,106,247,0.55), rgba(74,158,255,0.4))`, `box-shadow: 0 4px 12px rgba(124,106,247,0.25)`, `color: white` | The active-state gradient is not a token; `--cui-accent-gradient` is a different (weaker) mix |
+| ● | `.cui-tab--active` (`:522-527`, and `color: white` again in `--active:hover` at `:530`) | `linear-gradient(135deg, rgba(124,106,247,0.55), rgba(74,158,255,0.4))`, `box-shadow: 0 4px 12px rgba(124,106,247,0.25)`, `color: white` | The active-state gradient is not a token; `--cui-accent-gradient` is a different (weaker) mix |
 | ● | `.cui-modal-backdrop` (`:569`) | `rgba(0,0,0,0.6)` (plus `blur(4px)`, `z-index: 1000`) | — |
 | | `.cui-tooltip::after` (`:546-556`) | `4px 10px` padding, `6px` offset, `z-index: 10` | — |
 | | `.cui-modal` (`:585-587`) | `max-width: 480px`, `calc(100vh - 64px)` | — |
 | | `@media (pointer: coarse)` (`:388-393`) | `font-size: 16px` | The iOS zoom threshold is literally 16px; a token would invite someone to change it |
 
+<a id="accessibility-status"></a>
 ## Accessibility status
 
 Not a non-goal — a **known defect of the package**, recorded here so consumers can
 compensate and so nobody documents it as intentional. Audited against every
-`:focus` / `:focus-visible` / `outline` occurrence in `src/ui.css`.
+`:focus` / `:focus-visible` / `outline` occurrence in `src/ui.css`: three
+`outline: none` declarations (`:268`, `:366`, `:404`) and exactly **one**
+`:focus-visible` rule in the whole stylesheet (`:488`, the toggle).
+
+> **Tracked as [conjureos-ui#4](https://github.com/Jonny-B/conjureos-ui/issues/4)**
+> ("No focus indicators on interactive primitives (WCAG 2.4.11) — inherited by every
+> generated app"), open, labeled `bug` / `accessibility`, and scoped into the
+> ConjureOS Phase 44 WCAG 2.1 AA work (umbrella `ConjureOS#385`). The fix belongs in
+> the package: the AI Dev agent emits `cui-*` classes by default, so every generated
+> app inherits the defect and no downstream nudge can patch it.
 
 Of the eight interactive primitives:
 
@@ -590,6 +616,7 @@ Nothing else about accessibility is handled either: the classes carry no ARIA, n
 roles, no keyboard handlers, no focus trap on `cui-modal`, no `prefers-contrast`
 support. Those are legitimately the consumer's job; the focus indicators are not.
 
+<a id="deliberate-non-goals"></a>
 ## Deliberate non-goals
 
 Things people look for and won't find in 0.3.1, so you can stop searching. (Focus

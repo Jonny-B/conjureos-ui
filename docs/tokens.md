@@ -4,6 +4,7 @@ Every CSS custom property defined by `@conjureos/ui` 0.3.1. Source of truth:
 [`../src/tokens.css`](../src/tokens.css) (165 lines). **73 tokens**, in four
 buckets: color, typography, space/radius/border, motion.
 
+<a id="how-the-tokens-are-scoped"></a>
 ## How the tokens are scoped
 
 They are **not** on `:root`. The declaration block is:
@@ -34,9 +35,18 @@ Two consequences worth internalizing:
 2. **Opting in changes your base type.** The wrapper element gets 14px/1.5. If your
    app assumes a 16px base, neutralize it (the shell does exactly that with
    `html.cui-tokens { font-size: 16px; line-height: normal; }`).
+3. **The background is painted on the wrapper element only.** `background:
+   var(--cui-bg)` lands on whatever element carries the class (`src/tokens.css:149-154`),
+   not on the page canvas. Put the class on a nested `<div>` and everything outside
+   that box keeps the UA default white — white gutters beside your layout, a white
+   flash before first paint, and white overscroll rubber-banding on iOS. Put the
+   wrapper on `<html>` or `<body>` (the shell uses `<html>`), or set
+   `background: var(--cui-bg)` on `html, body` yourself. See
+   [usage.md gotcha 12](usage.md#gotchas).
 
 ---
 
+<a id="1-color"></a>
 ## 1. Color
 
 ### Accent
@@ -141,6 +151,7 @@ something and lets it show through; `-brand-gradient` *is* the fill.
 
 ---
 
+<a id="2-typography"></a>
 ## 2. Typography
 
 ### Font stacks
@@ -187,6 +198,7 @@ CSS.
 
 ---
 
+<a id="3-space-radius-border-shadow"></a>
 ## 3. Space, radius, border, shadow
 
 ### Spacing ladder (9 steps)
@@ -238,6 +250,7 @@ background contrast, not a heavier line.
 
 ---
 
+<a id="4-motion"></a>
 ## 4. Motion
 
 ### Durations
@@ -285,6 +298,7 @@ Read the tokens, or check `prefers-reduced-motion` yourself.
 
 ---
 
+<a id="light-and-dark"></a>
 ## Light and dark
 
 **There is only dark.** As of 0.3.1:

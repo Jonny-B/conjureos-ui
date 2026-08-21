@@ -21,6 +21,7 @@ Related documents that live outside `docs/`:
 
 ---
 
+<a id="what-this-package-is"></a>
 ## What this package is
 
 A **CSS-only** package. No JavaScript, no React components, no build-time framework
@@ -44,6 +45,7 @@ That is the entire runtime surface. There is nothing else — no `dist/*.js`, no
 > `files` array in `package.json`: `dist`, `src`, `README.md`, `MODERN_WHIMSY.md`,
 > `CHANGELOG.md`, `LICENSE`).
 
+<a id="why-it-exists"></a>
 ## Why it exists
 
 It came out of **ConjureOS Phase 21 ("ConjureOS Identity")**, shipped 2026-05-22 at
@@ -78,6 +80,7 @@ Two things widened the audience after Phase 21:
 So the library is now the design system for *the whole platform*, not just
 generated apps.
 
+<a id="quick-start"></a>
 ## Quick start
 
 Inside ConjureOS (the common case — the shell already serves the CSS):
@@ -123,6 +126,7 @@ import "@conjureos/ui/dist/ui.css";
 …then put `cui-ui` on `<body>` (or `<html>`) exactly as above. Full detail and the
 per-bundler caveats are in [usage.md](usage.md).
 
+<a id="the-two-opt-in-modes-and-the-opt-out"></a>
 ## The two opt-in modes (and the opt-out)
 
 **Nothing in this stylesheet applies until an element opts in.** Every rule is
@@ -139,6 +143,7 @@ is a visual no-op.
 selector is literally `.cui-tokens, .cui-ui { … }`, so `cui-ui` alone is enough.
 Putting both on one element (as the shell does) is harmless.
 
+<a id="compatibility-notes"></a>
 ## Compatibility notes
 
 - **Dark theme only.** There is no light theme, no `prefers-color-scheme` handling,
@@ -151,10 +156,35 @@ Putting both on one element (as the shell does) is harmless.
   `.cui-input` / `.cui-select` to 16px so iOS Safari doesn't zoom on focus (the
   0.3.1 fix).
 - **Focus indicators are incomplete** — four interactive primitives have no focus
-  rule and three suppress the UA outline. Tracked as a package defect, with a
-  consumer mitigation, in
+  rule and three suppress the UA outline (`src/ui.css:268`, `:366`, `:404`), against
+  exactly one `:focus-visible` rule in the file. A package **defect**, not a design
+  choice: tracked as
+  [conjureos-ui#4](https://github.com/Jonny-B/conjureos-ui/issues/4), with a consumer
+  mitigation in
   [components.md → Accessibility status](components.md#accessibility-status).
 - Modern-CSS features used: custom properties, `inset`, `backdrop-filter`
   (`-webkit-` prefixed too), `appearance`, `::-webkit-slider-thumb` /
   `::-moz-range-thumb`, `:focus-within`, `:focus-visible`, `font-variant-numeric`.
   No `@layer`, no `:has()`, no container queries, no nesting.
+
+<a id="how-these-docs-are-structured"></a>
+## How these docs are structured (porting note)
+
+Each file is a flat list of level-2 sections, and **every `##` heading is preceded by
+an explicit `<a id="kebab-case-id"></a>` anchor**. Those ids are the stable handles:
+they do not change when a heading is reworded, and they are what cross-file links in
+these docs point at. A port to another surface — the in-app "ConjureOS Internals"
+doc, for instance — can therefore split each file on `^## ` and take the preceding
+anchor as the section id, with no slug-guessing and no punctuation heuristics.
+
+Rules if you edit these files:
+
+- One `##` = one section. Keep sections self-contained; don't split a topic across
+  two of them for length reasons.
+- Adding a section means adding its anchor line in the same edit.
+- **Never change an existing id**, even when you reword its heading — inbound links
+  and any ported copy key off it. Add a second anchor above the first if a new name
+  is genuinely needed.
+- `###` sub-headings have no explicit anchors and rely on GitHub's auto-slug, so
+  links to them are the fragile ones. Two such links exist today, both inside
+  `contributing.md`'s release history.

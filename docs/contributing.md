@@ -4,6 +4,7 @@ For people changing the package itself: the build, the rules for adding tokens a
 primitives without breaking consumers, the release runbook, and the history you need
 to know before you touch anything.
 
+<a id="repo-map"></a>
 ## Repo map
 
 ```
@@ -23,6 +24,7 @@ conjureos-ui/
 No `node_modules` are required to build (the build script uses only Node builtins),
 no tests, no linter, no CI other than the publish workflow.
 
+<a id="build"></a>
 ## Build
 
 ```bash
@@ -97,12 +99,12 @@ know your new primitive exists.
 > That is the pre-existing bug described in
 > [Known gap 2](#known-gap-2--the-committed-modern_whimsymd-is-stale), not your
 > change. Do not commit it blind, and do not hand-edit it back either (the next
-> build re-adds it). Fix the cause first — give the `@media (pointer: coarse)` block
-> its own `/* ---- … ---- */` section header so the parser stops filing `.cui-input`
-> under Select — then rebuild, and the diff you commit contains only your work plus
-> the corrected Select line. That fix is a one-line change to `src/ui.css` with **no
-> rendering effect**, so it is safe to make in the same commit.
+> build re-adds it). Fix the cause first, then rebuild, so the diff you commit is
+> your work plus a corrected Select line — see
+> [Known gap 2](#known-gap-2--the-committed-modern_whimsymd-is-stale) for the two
+> candidate fixes and why the obvious one is not quite right.
 
+<a id="verifying-a-change"></a>
 ## Verifying a change
 
 There is no test suite. The manual gate:
@@ -127,6 +129,7 @@ There is no test suite. The manual gate:
    ConjureOS dev server, and check the shell — the shell consumes the same classes
    now, so a regression there is a real regression.
 
+<a id="adding-a-token"></a>
 ## Adding a token
 
 1. Put it in the right numbered bucket in `src/tokens.css` (1 Color / 2 Typography /
@@ -149,6 +152,7 @@ There is no test suite. The manual gate:
 app generated since Phase 21 links `v1.css` from the *live* deploy, so a value change
 retroactively restyles apps nobody is maintaining. Adding is safe; changing is not.
 
+<a id="adding-a-primitive-class"></a>
 ## Adding a primitive class
 
 1. New `/* ---- Name ---- */` section in `src/ui.css`, in a sensible position.
@@ -163,9 +167,15 @@ retroactively restyles apps nobody is maintaining. Adding is safe; changing is n
 5. Keep it a **primitive**. The stated scope is "looks like ConjureOS with three
    classes," not "every possible component." Composites belong in the consuming app.
 6. Selector at line start, so the autogen sees it.
-7. Add a `demo.html` section with a copy-pasteable snippet.
+7. Add a `demo.html` section with a copy-pasteable snippet. Remember the committed
+   page loads the **published** CSS from unpkg, so your new class renders as
+   unstyled markup there until you temporarily repoint the `<link>` — see
+   [Verifying a change](#verifying-a-change) step 2.
 8. Document it in [components.md](components.md) and the `CHANGELOG.md`.
-9. `npm run build` and commit the `MODERN_WHIMSY.md` autogen diff.
+9. `npm run build` and commit the `MODERN_WHIMSY.md` autogen diff — check it for the
+   known stale `Select` line first
+   ([Known gap 2](#known-gap-2--the-committed-modern_whimsymd-is-stale)), which a
+   build today re-adds whether or not you touched anything near it.
 
 ### The compatibility contract
 
@@ -185,13 +195,17 @@ selectors and depends on their exact specificity), two anchor apps, every export
 project pinned at `latest`, and an unbounded set of AI-generated apps that nobody
 will ever update.
 
+<a id="release"></a>
 ## Release
 
 The canonical runbook is **`ConjureOS/NPM_PACKAGES.md`** — read it before publishing.
 Short version, per that document:
 
 1. Bump `version` in `package.json` (npm refuses to republish an existing version).
-2. Add a dated `CHANGELOG.md` entry.
+2. Add a dated `CHANGELOG.md` entry. (`NPM_PACKAGES.md` scopes this step to
+   `@conjureos/pack`, written before this package had a changelog worth keeping —
+   it does now, and 0.3.1 shipping without an entry is exactly the failure mode.
+   Do it here too.)
 3. `npm run build`.
 4. `npm whoami` / `npm login` if needed.
 5. `npm publish --access public --no-provenance` and answer the 2FA OTP prompt.
@@ -249,6 +263,7 @@ newer variants. Bumping them is a per-app decision.
 
 ---
 
+<a id="history-and-known-issues"></a>
 ## History and known issues
 
 Full detail in [`../CHANGELOG.md`](../CHANGELOG.md); this is the "things that bit
@@ -295,10 +310,28 @@ Cause: the new `@media (pointer: coarse)` block sits under the `/* ---- Select -
 header, and its selector list starts a line with `.cui-ui .cui-input,` — which the
 autogen regex counts as a Select-section primitive. `cui-input` is now listed twice
 in the agent's primitive list, once correctly under Input and once wrongly under
-Select. Harmless but sloppy. The clean fix is to give the media query its own
-section header (or move it out of the Select section) and then rebuild and commit.
-Do that with the next release rather than as a drive-by, since the file is compiled
-into the Dev agent's prompt.
+Select — and that list is compiled into the AI Dev agent's prompt, so a wrong entry
+degrades what the agent generates for every user.
+
+Two candidate fixes, and the obvious one is a trap:
+
+- **Give the media query its own `/* ---- … ---- */` header.** Tempting, but verify
+  what it actually produces before you commit. Reproduced against the current
+  source: adding `/* ---- Touch sizing ---- */` above the block turns
+  ``- Select: `cui-select`, `cui-input` `` into ``- Select: `cui-select` `` **plus a
+  new bullet** ``- Touch sizing: `cui-input`, `cui-select` ``. The misattribution is
+  gone,
+  but the agent's primitive list now advertises a "Touch sizing" primitive that does
+  not exist. Net: not a fix, a different wrong line.
+- **Make the parser `@media`-aware** (`scripts/build.mjs`, `extractPrimitives()`).
+  The regex `^\s*\.cui-ui\s+\.(cui-[\w-]+)` has no idea it is inside an at-rule.
+  Strip `@media { … }` bodies from each section before matching (or skip lines whose
+  brace depth inside the section is > 0) and the list becomes
+  ``- Select: `cui-select` `` with no extra section — the correct output. This is the
+  real fix and it is ~5 lines in the build script.
+
+Do it with the next release rather than as a drive-by, and rebuild + commit
+`MODERN_WHIMSY.md` in the same change.
 
 ### 0.3.0 (2026-06-13) — additive, for the shell's benefit
 
@@ -345,7 +378,13 @@ Initial release: tokens, primitives, the two-mode wrapper contract, the build sc
 ### Standing defect: focus indicators
 
 Not tied to any one release, and the thing to fix first if you want a
-correctness-flavored contribution. Audited across all of `src/ui.css`:
+correctness-flavored contribution. Filed as
+**[conjureos-ui#4](https://github.com/Jonny-B/conjureos-ui/issues/4)** (open, `bug` /
+`accessibility`, pulled into ConjureOS Phase 44 / `ConjureOS#385`), which carries the
+acceptance criteria — a `:focus-visible` indicator on every interactive primitive,
+meeting WCAG 2.4.11 area *and* contrast, surviving a consumer reset, plus a new token
+if the accent can't clear contrast on every surface it sits on. Audited across all of
+`src/ui.css`:
 
 - `.cui-button`, `.cui-chip`, `.cui-tab` and `.cui-card--interactive` have **no**
   `:focus` or `:focus-visible` rule. They stay keyboard-visible only because nothing
