@@ -1,92 +1,1206 @@
 /*
- * @conjureos/ui — tokens.css
+ * @conjureos/ui - tokens.css
  *
  * Semantic design tokens for ConjureOS apps. Wrap content in
  * `.cui-tokens` (or `.cui-ui` which extends it) to pick up the
  * palette without committing to the primitive component classes.
  *
- * Tokens are organized into four buckets so apps reaching for one
- * thing don't have to read past 80 lines to find it:
+ * TWO INDEPENDENT AXES, THREE LEVELS OF AUTHORITY
  *
- *   1. Color (accent + neutral surfaces, dark theme as canonical)
- *   2. Typography (font stacks, sizes, weights, leading)
- *   3. Space + radius + border (the layout primitives)
- *   4. Motion (durations + easings — kept tiny, opt-in)
+ *   theme   which palette. The app developer's choice, declared as
+ *           `data-theme` on the app root. Omit it, or say "system",
+ *           and the app inherits whatever ConjureOS is set to.
+ *   flavor  light or dark. The user's choice, declared as
+ *           `data-flavor`. Omit it and the browser decides.
  *
- * Dark is the canonical theme; light-theme work lives in v2.
+ * The browser is consulted for exactly one thing: light or dark. It is
+ * never asked which palette to use. A page with nothing configured is
+ * Conjure, in whichever flavor the browser reports.
+ *
+ *   <body class="cui-ui">                        Conjure, browser flavor
+ *   <body class="cui-ui" data-theme="fal">       Fall, browser flavor
+ *   <body class="cui-ui" data-theme="fal"
+ *                        data-flavor="light">    Fall, forced light
+ *   <div  class="cui-ui" data-theme="system">    inherit the shell
+ *
+ * HOW THE FLAVOR SURVIVES A THEME CHANGE
+ *
+ * The flavor is carried by two INHERITED variables, --cui-d and --cui-l,
+ * of which exactly one is ever set. Every colour token is declared once
+ * with both values, and the inherited pair decides which half survives.
+ * Selectors cannot see an inherited attribute, so an app that swapped its
+ * theme with an ordinary selector would have to re-resolve the flavor and
+ * would silently fall back to the browser. This way it does not.
+ *
+ * Buckets, in order:
+ *
+ *   0. Flavor switch     the inherited pair
+ *   1. Colour            9 themes, both flavors, plus deprecated aliases
+ *   2. Typography        font stacks, sizes, weights, leading
+ *   3. Space + radius    the layout primitives
+ *   4. Motion            durations + easings
  */
+
+/* ---- 0. Flavor switch ------------------------------------------------
+   Declared on :root, not on .cui-ui, so a nested .cui-ui inherits rather
+   than resetting. That is what lets an app inside a dark-forced shell
+   stay dark while changing its palette. Exactly one of the pair is set;
+   `initial` makes var() fall through to its fallback, an empty value
+   makes it collapse. */
+
+:root {
+  --cui-d: initial;
+  --cui-l: ;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --cui-d: ;
+    --cui-l: initial;
+  }
+}
+
+/* An explicit choice beats the browser, anywhere in the tree. Any other
+   value, including "system" or no attribute at all, inherits. */
+[data-flavor="dark"]  { --cui-d: initial; --cui-l: ; }
+[data-flavor="light"] { --cui-d: ;        --cui-l: initial; }
+
+/* ---- 1. Colour -------------------------------------------------------
+   The default palette sits on :root so that an app declaring no theme
+   inherits it, and so that `data-theme="system"` needs no rule of its
+   own. Each block below declares one palette in both flavors. */
+
+:root {
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #0b0e14) var(--cui-l, #f1f3f5);
+  --cui-bg-1:               var(--cui-d, #11151d) var(--cui-l, #ffffff);
+  --cui-bg-2:               var(--cui-d, #1a1f2b) var(--cui-l, #eef1f4);
+  --cui-bg-3:               var(--cui-d, #232938) var(--cui-l, #e2e6ea);
+  --cui-fg:                 var(--cui-d, #e5e9f0) var(--cui-l, #16191f);
+  --cui-fg-mute:            var(--cui-d, #9ca3af) var(--cui-l, #5b6472);
+  --cui-fg-dim:             var(--cui-d, #6b7280) var(--cui-l, #8a93a3);
+  --cui-border:             var(--cui-d, rgba(229,233,240,0.10)) var(--cui-l, rgba(22,25,31,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(229,233,240,0.20)) var(--cui-l, rgba(22,25,31,0.26));
+  --cui-accent:             var(--cui-d, #0f766e) var(--cui-l, #0f766e);
+  --cui-accent-hover:       var(--cui-d, #0c5f58) var(--cui-l, #0c5f58);
+  --cui-on-accent:          var(--cui-d, #fff) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #38bdf8) var(--cui-l, #0f766e);
+  --cui-link-hover:         var(--cui-d, #38bdf8) var(--cui-l, #0f766e);
+  --cui-support:            var(--cui-d, #60a5fa) var(--cui-l, #075985);
+  --cui-support-text:       var(--cui-d, #93c5fd) var(--cui-l, #075985);
+  --cui-support-tint:       var(--cui-d, rgba(96,165,250,0.22)) var(--cui-l, rgba(7,89,133,0.12));
+  --cui-support-line:       var(--cui-d, rgba(147,197,253,0.32)) var(--cui-l, rgba(7,89,133,0.28));
+  --cui-third:              var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-third-text:         var(--cui-d, #6ee7b7) var(--cui-l, #036348);
+  --cui-third-tint:         var(--cui-d, rgba(52,211,153,0.20)) var(--cui-l, rgba(3,99,72,0.12));
+  --cui-third-line:         var(--cui-d, rgba(110,231,183,0.30)) var(--cui-l, rgba(3,99,72,0.28));
+  --cui-secondary:          var(--cui-d, #3b4252) var(--cui-l, #e2e6ea);
+  --cui-hero-bg:            var(--cui-d, #243b59) var(--cui-l, #dae4ea);
+  --cui-hero-fg:            var(--cui-d, #e5e9f0) var(--cui-l, #16191f);
+  --cui-hero-mute:          var(--cui-d, #b8c4d4) var(--cui-l, #5b6472);
+  --cui-hero-line:          var(--cui-d, rgba(147,197,253,0.32)) var(--cui-l, rgba(7,89,133,0.28));
+  --cui-tile:               var(--cui-d, rgba(15,118,110,0.62)) var(--cui-l, rgba(15,118,110,0.50));
+  --cui-tile-line:          var(--cui-d, rgba(15,118,110,0.80)) var(--cui-l, rgba(15,118,110,0.68));
+  --cui-glyph:              var(--cui-d, #7dd3fc) var(--cui-l, #0a4f4a);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+
+[data-theme="cnj"] {   /* Conjure */
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #0b0e14) var(--cui-l, #f1f3f5);
+  --cui-bg-1:               var(--cui-d, #11151d) var(--cui-l, #ffffff);
+  --cui-bg-2:               var(--cui-d, #1a1f2b) var(--cui-l, #eef1f4);
+  --cui-bg-3:               var(--cui-d, #232938) var(--cui-l, #e2e6ea);
+  --cui-fg:                 var(--cui-d, #e5e9f0) var(--cui-l, #16191f);
+  --cui-fg-mute:            var(--cui-d, #9ca3af) var(--cui-l, #5b6472);
+  --cui-fg-dim:             var(--cui-d, #6b7280) var(--cui-l, #8a93a3);
+  --cui-border:             var(--cui-d, rgba(229,233,240,0.10)) var(--cui-l, rgba(22,25,31,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(229,233,240,0.20)) var(--cui-l, rgba(22,25,31,0.26));
+  --cui-accent:             var(--cui-d, #0f766e) var(--cui-l, #0f766e);
+  --cui-accent-hover:       var(--cui-d, #0c5f58) var(--cui-l, #0c5f58);
+  --cui-on-accent:          var(--cui-d, #fff) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #38bdf8) var(--cui-l, #0f766e);
+  --cui-link-hover:         var(--cui-d, #38bdf8) var(--cui-l, #0f766e);
+  --cui-support:            var(--cui-d, #60a5fa) var(--cui-l, #075985);
+  --cui-support-text:       var(--cui-d, #93c5fd) var(--cui-l, #075985);
+  --cui-support-tint:       var(--cui-d, rgba(96,165,250,0.22)) var(--cui-l, rgba(7,89,133,0.12));
+  --cui-support-line:       var(--cui-d, rgba(147,197,253,0.32)) var(--cui-l, rgba(7,89,133,0.28));
+  --cui-third:              var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-third-text:         var(--cui-d, #6ee7b7) var(--cui-l, #036348);
+  --cui-third-tint:         var(--cui-d, rgba(52,211,153,0.20)) var(--cui-l, rgba(3,99,72,0.12));
+  --cui-third-line:         var(--cui-d, rgba(110,231,183,0.30)) var(--cui-l, rgba(3,99,72,0.28));
+  --cui-secondary:          var(--cui-d, #3b4252) var(--cui-l, #e2e6ea);
+  --cui-hero-bg:            var(--cui-d, #243b59) var(--cui-l, #dae4ea);
+  --cui-hero-fg:            var(--cui-d, #e5e9f0) var(--cui-l, #16191f);
+  --cui-hero-mute:          var(--cui-d, #b8c4d4) var(--cui-l, #5b6472);
+  --cui-hero-line:          var(--cui-d, rgba(147,197,253,0.32)) var(--cui-l, rgba(7,89,133,0.28));
+  --cui-tile:               var(--cui-d, rgba(15,118,110,0.62)) var(--cui-l, rgba(15,118,110,0.50));
+  --cui-tile-line:          var(--cui-d, rgba(15,118,110,0.80)) var(--cui-l, rgba(15,118,110,0.68));
+  --cui-glyph:              var(--cui-d, #7dd3fc) var(--cui-l, #0a4f4a);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+
+[data-theme="hal"] {   /* Halloween */
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #0c0b09) var(--cui-l, #d9d1bd);
+  --cui-bg-1:               var(--cui-d, #15140f) var(--cui-l, #e7e0cf);
+  --cui-bg-2:               var(--cui-d, #1f1d16) var(--cui-l, #cdc3aa);
+  --cui-bg-3:               var(--cui-d, #2a2820) var(--cui-l, #bcb094);
+  --cui-fg:                 var(--cui-d, #f0ece2) var(--cui-l, #1a1813);
+  --cui-fg-mute:            var(--cui-d, #a8a294) var(--cui-l, #55503f);
+  --cui-fg-dim:             var(--cui-d, #71695c) var(--cui-l, #857f6b);
+  --cui-border:             var(--cui-d, rgba(240,236,226,0.10)) var(--cui-l, rgba(26,24,19,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(240,236,226,0.20)) var(--cui-l, rgba(26,24,19,0.26));
+  --cui-accent:             var(--cui-d, #c2410c) var(--cui-l, #a8380a);
+  --cui-accent-hover:       var(--cui-d, #9a3208) var(--cui-l, #8a2d08);
+  --cui-on-accent:          var(--cui-d, #fff) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #e8934f) var(--cui-l, #8f3208);
+  --cui-link-hover:         var(--cui-d, #e8934f) var(--cui-l, #8f3208);
+  --cui-support:            var(--cui-d, #6d4482) var(--cui-l, #573268);
+  --cui-support-text:       var(--cui-d, #b195c9) var(--cui-l, #573268);
+  --cui-support-tint:       var(--cui-d, rgba(109,68,130,0.24)) var(--cui-l, rgba(87,50,104,0.12));
+  --cui-support-line:       var(--cui-d, rgba(177,149,201,0.32)) var(--cui-l, rgba(87,50,104,0.28));
+  --cui-third:              var(--cui-d, #5f7a3a) var(--cui-l, #445f29);
+  --cui-third-text:         var(--cui-d, #a3bd78) var(--cui-l, #3a5222);
+  --cui-third-tint:         var(--cui-d, rgba(95,122,58,0.22)) var(--cui-l, rgba(68,95,41,0.12));
+  --cui-third-line:         var(--cui-d, rgba(163,189,120,0.30)) var(--cui-l, rgba(68,95,41,0.28));
+  --cui-secondary:          var(--cui-d, #2a2820) var(--cui-l, #cdc3aa);
+  --cui-hero-bg:            var(--cui-d, #4a2f56) var(--cui-l, #c7b4a8);
+  --cui-hero-fg:            var(--cui-d, #f0ece2) var(--cui-l, #1a1813);
+  --cui-hero-mute:          var(--cui-d, #aaa497) var(--cui-l, #4c4838);
+  --cui-hero-line:          var(--cui-d, rgba(177,149,201,0.32)) var(--cui-l, rgba(115,47,74,0.30));
+  --cui-tile:               var(--cui-d, rgba(194,65,12,0.62)) var(--cui-l, rgba(168,56,10,0.50));
+  --cui-tile-line:          var(--cui-d, rgba(194,65,12,0.80)) var(--cui-l, rgba(168,56,10,0.68));
+  --cui-glyph:              var(--cui-d, #e8934f) var(--cui-l, #6f2306);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+
+[data-theme="fal"] {   /* Fall */
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #19140f) var(--cui-l, #f0dab0);
+  --cui-bg-1:               var(--cui-d, #231d17) var(--cui-l, #faeeda);
+  --cui-bg-2:               var(--cui-d, #322818) var(--cui-l, #e2c99a);
+  --cui-bg-3:               var(--cui-d, #423523) var(--cui-l, #d1b684);
+  --cui-fg:                 var(--cui-d, #f5efe3) var(--cui-l, #211a11);
+  --cui-fg-mute:            var(--cui-d, #bbae98) var(--cui-l, #655b40);
+  --cui-fg-dim:             var(--cui-d, #867a63) var(--cui-l, #918569);
+  --cui-border:             var(--cui-d, rgba(245,239,227,0.10)) var(--cui-l, rgba(33,26,17,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(245,239,227,0.20)) var(--cui-l, rgba(33,26,17,0.26));
+  --cui-accent:             var(--cui-d, #c2820a) var(--cui-l, #a35207);
+  --cui-accent-hover:       var(--cui-d, #9c6808) var(--cui-l, #864306);
+  --cui-on-accent:          var(--cui-d, #14100c) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #e8b53f) var(--cui-l, #994d06);
+  --cui-link-hover:         var(--cui-d, #e8b53f) var(--cui-l, #994d06);
+  --cui-support:            var(--cui-d, #b04728) var(--cui-l, #8a3418);
+  --cui-support-text:       var(--cui-d, #eb9a78) var(--cui-l, #8a3418);
+  --cui-support-tint:       var(--cui-d, rgba(176,71,40,0.26)) var(--cui-l, rgba(138,52,24,0.12));
+  --cui-support-line:       var(--cui-d, rgba(235,154,120,0.32)) var(--cui-l, rgba(138,52,24,0.28));
+  --cui-third:              var(--cui-d, #2f5d3f) var(--cui-l, #245036);
+  --cui-third-text:         var(--cui-d, #84c398) var(--cui-l, #245036);
+  --cui-third-tint:         var(--cui-d, rgba(47,93,63,0.24)) var(--cui-l, rgba(36,80,54,0.12));
+  --cui-third-line:         var(--cui-d, rgba(132,195,152,0.30)) var(--cui-l, rgba(36,80,54,0.28));
+  --cui-secondary:          var(--cui-d, #322818) var(--cui-l, #e2c99a);
+  --cui-hero-bg:            var(--cui-d, #5b2a1a) var(--cui-l, #e0bf98);
+  --cui-hero-fg:            var(--cui-d, #f5efe3) var(--cui-l, #211a11);
+  --cui-hero-mute:          var(--cui-d, #bbae98) var(--cui-l, #585038);
+  --cui-hero-line:          var(--cui-d, rgba(235,154,120,0.32)) var(--cui-l, rgba(138,52,24,0.28));
+  --cui-tile:               var(--cui-d, rgba(194,130,10,0.52)) var(--cui-l, rgba(163,82,7,0.62));
+  --cui-tile-line:          var(--cui-d, rgba(194,130,10,0.70)) var(--cui-l, rgba(163,82,7,0.80));
+  --cui-glyph:              var(--cui-d, #e8b53f) var(--cui-l, #672f04);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+
+[data-theme="win"] {   /* Winter */
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #0a1d26) var(--cui-l, #e6ecf4);
+  --cui-bg-1:               var(--cui-d, #12262f) var(--cui-l, #f8fafd);
+  --cui-bg-2:               var(--cui-d, #1b323d) var(--cui-l, #d3dce8);
+  --cui-bg-3:               var(--cui-d, #27414e) var(--cui-l, #bec9d8);
+  --cui-fg:                 var(--cui-d, #eef2f7) var(--cui-l, #111820);
+  --cui-fg-mute:            var(--cui-d, #9fabb9) var(--cui-l, #4f5b68);
+  --cui-fg-dim:             var(--cui-d, #6d7886) var(--cui-l, #7d8894);
+  --cui-border:             var(--cui-d, rgba(238,242,247,0.10)) var(--cui-l, rgba(17,24,32,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(238,242,247,0.20)) var(--cui-l, rgba(17,24,32,0.26));
+  --cui-accent:             var(--cui-d, #4a90b8) var(--cui-l, #2b6d92);
+  --cui-accent-hover:       var(--cui-d, #3b7699) var(--cui-l, #225874);
+  --cui-on-accent:          var(--cui-d, #0a0f14) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #7cc0e0) var(--cui-l, #245f80);
+  --cui-link-hover:         var(--cui-d, #7cc0e0) var(--cui-l, #245f80);
+  --cui-support:            var(--cui-d, #3f4894) var(--cui-l, #3a3f80);
+  --cui-support-text:       var(--cui-d, #9fa3e8) var(--cui-l, #3a3f80);
+  --cui-support-tint:       var(--cui-d, rgba(63,72,148,0.28)) var(--cui-l, rgba(58,63,128,0.13));
+  --cui-support-line:       var(--cui-d, rgba(159,163,232,0.32)) var(--cui-l, rgba(58,63,128,0.28));
+  --cui-third:              var(--cui-d, #a34a5e) var(--cui-l, #8e3a4e);
+  --cui-third-text:         var(--cui-d, #eb96a8) var(--cui-l, #8e3a4e);
+  --cui-third-tint:         var(--cui-d, rgba(163,74,94,0.24)) var(--cui-l, rgba(142,58,78,0.12));
+  --cui-third-line:         var(--cui-d, rgba(235,150,168,0.30)) var(--cui-l, rgba(142,58,78,0.28));
+  --cui-secondary:          var(--cui-d, #1b323d) var(--cui-l, #d3dce8);
+  --cui-hero-bg:            var(--cui-d, #2b386a) var(--cui-l, #ccd2e3);
+  --cui-hero-fg:            var(--cui-d, #eef2f7) var(--cui-l, #111820);
+  --cui-hero-mute:          var(--cui-d, #9fabb9) var(--cui-l, #4f5b67);
+  --cui-hero-line:          var(--cui-d, rgba(159,163,232,0.32)) var(--cui-l, rgba(58,63,128,0.28));
+  --cui-tile:               var(--cui-d, rgba(74,144,184,0.58)) var(--cui-l, rgba(43,109,146,0.56));
+  --cui-tile-line:          var(--cui-d, rgba(74,144,184,0.76)) var(--cui-l, rgba(43,109,146,0.74));
+  --cui-glyph:              var(--cui-d, #9ad2ec) var(--cui-l, #173e54);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+
+[data-theme="spr"] {   /* Spring */
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #131a17) var(--cui-l, #ebf1e6);
+  --cui-bg-1:               var(--cui-d, #1c2620) var(--cui-l, #f9fbf7);
+  --cui-bg-2:               var(--cui-d, #27342c) var(--cui-l, #dae4d3);
+  --cui-bg-3:               var(--cui-d, #35453a) var(--cui-l, #c7d4bd);
+  --cui-fg:                 var(--cui-d, #f0f4ea) var(--cui-l, #131810);
+  --cui-fg-mute:            var(--cui-d, #a8b39c) var(--cui-l, #4f5a46);
+  --cui-fg-dim:             var(--cui-d, #74806a) var(--cui-l, #7d8874);
+  --cui-border:             var(--cui-d, rgba(240,244,234,0.10)) var(--cui-l, rgba(19,24,16,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(240,244,234,0.20)) var(--cui-l, rgba(19,24,16,0.26));
+  --cui-accent:             var(--cui-d, #6aa32e) var(--cui-l, #47801a);
+  --cui-accent-hover:       var(--cui-d, #55831f) var(--cui-l, #3a690f);
+  --cui-on-accent:          var(--cui-d, #0d1108) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #a8d95f) var(--cui-l, #3d6d16);
+  --cui-link-hover:         var(--cui-d, #a8d95f) var(--cui-l, #3d6d16);
+  --cui-support:            var(--cui-d, #c4629b) var(--cui-l, #a53d7a);
+  --cui-support-text:       var(--cui-d, #f0a8cc) var(--cui-l, #a53d7a);
+  --cui-support-tint:       var(--cui-d, rgba(196,98,155,0.26)) var(--cui-l, rgba(165,61,122,0.12));
+  --cui-support-line:       var(--cui-d, rgba(240,168,204,0.32)) var(--cui-l, rgba(165,61,122,0.28));
+  --cui-third:              var(--cui-d, #e0c33f) var(--cui-l, #705708);
+  --cui-third-text:         var(--cui-d, #f2d878) var(--cui-l, #705708);
+  --cui-third-tint:         var(--cui-d, rgba(224,195,63,0.22)) var(--cui-l, rgba(112,87,8,0.12));
+  --cui-third-line:         var(--cui-d, rgba(242,216,120,0.30)) var(--cui-l, rgba(112,87,8,0.28));
+  --cui-secondary:          var(--cui-d, #27342c) var(--cui-l, #dae4d3);
+  --cui-hero-bg:            var(--cui-d, #613a51) var(--cui-l, #e0d6d6);
+  --cui-hero-fg:            var(--cui-d, #f0f4ea) var(--cui-l, #131810);
+  --cui-hero-mute:          var(--cui-d, #afb9a3) var(--cui-l, #4f5a46);
+  --cui-hero-line:          var(--cui-d, rgba(240,168,204,0.32)) var(--cui-l, rgba(165,61,122,0.28));
+  --cui-tile:               var(--cui-d, rgba(106,163,46,0.62)) var(--cui-l, rgba(71,128,26,0.60));
+  --cui-tile-line:          var(--cui-d, rgba(106,163,46,0.80)) var(--cui-l, rgba(71,128,26,0.78));
+  --cui-glyph:              var(--cui-d, #c0e884) var(--cui-l, #28480e);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+
+[data-theme="sum"] {   /* Summer */
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #123434) var(--cui-l, #f7edde);
+  --cui-bg-1:               var(--cui-d, #1a4242) var(--cui-l, #fdf8f0);
+  --cui-bg-2:               var(--cui-d, #245252) var(--cui-l, #ecd5b7);
+  --cui-bg-3:               var(--cui-d, #316466) var(--cui-l, #dcc09b);
+  --cui-fg:                 var(--cui-d, #eaf7f6) var(--cui-l, #1a1610);
+  --cui-fg-mute:            var(--cui-d, #a3c0bf) var(--cui-l, #5a5346);
+  --cui-fg-dim:             var(--cui-d, #74918f) var(--cui-l, #8a8375);
+  --cui-border:             var(--cui-d, rgba(234,247,246,0.10)) var(--cui-l, rgba(26,22,16,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(234,247,246,0.20)) var(--cui-l, rgba(26,22,16,0.26));
+  --cui-accent:             var(--cui-d, #43b5b2) var(--cui-l, #1d6764);
+  --cui-accent-hover:       var(--cui-d, #35938f) var(--cui-l, #175553);
+  --cui-on-accent:          var(--cui-d, #04161a) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #6fd0cd) var(--cui-l, #175553);
+  --cui-link-hover:         var(--cui-d, #6fd0cd) var(--cui-l, #175553);
+  --cui-support:            var(--cui-d, #e88b6f) var(--cui-l, #a4482c);
+  --cui-support-text:       var(--cui-d, #ffc6b0) var(--cui-l, #a4482c);
+  --cui-support-tint:       var(--cui-d, #4a352c) var(--cui-l, rgba(164,72,44,0.12));
+  --cui-support-line:       var(--cui-d, rgba(255,198,176,0.32)) var(--cui-l, rgba(164,72,44,0.28));
+  --cui-third:              var(--cui-d, #0f7ec1) var(--cui-l, #035996);
+  --cui-third-text:         var(--cui-d, #7cc4ee) var(--cui-l, #035996);
+  --cui-third-tint:         var(--cui-d, rgba(15,126,193,0.26)) var(--cui-l, rgba(3,89,150,0.12));
+  --cui-third-line:         var(--cui-d, rgba(124,196,238,0.30)) var(--cui-l, rgba(3,89,150,0.28));
+  --cui-secondary:          var(--cui-d, #245252) var(--cui-l, #ecd5b7);
+  --cui-hero-bg:            var(--cui-d, #c67d66) var(--cui-l, #e8cfbe);
+  --cui-hero-fg:            var(--cui-d, #1a0e08) var(--cui-l, #1a1610);
+  --cui-hero-mute:          var(--cui-d, #37231c) var(--cui-l, #5a5346);
+  --cui-hero-line:          var(--cui-d, rgba(255,198,176,0.40)) var(--cui-l, rgba(164,72,44,0.28));
+  --cui-tile:               var(--cui-d, #1d6764) var(--cui-l, rgba(29,103,100,0.50));
+  --cui-tile-line:          var(--cui-d, #175553) var(--cui-l, rgba(29,103,100,0.68));
+  --cui-glyph:              var(--cui-d, #d6f4f2) var(--cui-l, #124240);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+
+[data-theme="xms"] {   /* Christmas */
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #0e1f14) var(--cui-l, #d6e5cf);
+  --cui-bg-1:               var(--cui-d, #16291c) var(--cui-l, #eaf2e5);
+  --cui-bg-2:               var(--cui-d, #1f3726) var(--cui-l, #c2d6b8);
+  --cui-bg-3:               var(--cui-d, #2b4832) var(--cui-l, #adc7a1);
+  --cui-fg:                 var(--cui-d, #f2f5ef) var(--cui-l, #131a10);
+  --cui-fg-mute:            var(--cui-d, #a8bcac) var(--cui-l, #4e5949);
+  --cui-fg-dim:             var(--cui-d, #7a8d7e) var(--cui-l, #7e8879);
+  --cui-border:             var(--cui-d, rgba(242,245,239,0.10)) var(--cui-l, rgba(19,26,16,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(242,245,239,0.20)) var(--cui-l, rgba(19,26,16,0.26));
+  --cui-accent:             var(--cui-d, #ce2229) var(--cui-l, #ce2229);
+  --cui-accent-hover:       var(--cui-d, #a81a20) var(--cui-l, #a81a20);
+  --cui-on-accent:          var(--cui-d, #fff) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #f89a86) var(--cui-l, #9e2318);
+  --cui-link-hover:         var(--cui-d, #f89a86) var(--cui-l, #9e2318);
+  --cui-support:            var(--cui-d, #ce2229) var(--cui-l, #ce2229);
+  --cui-support-text:       var(--cui-d, #f89a86) var(--cui-l, #9e2318);
+  --cui-support-tint:       var(--cui-d, rgba(206,34,41,0.26)) var(--cui-l, rgba(206,34,41,0.14));
+  --cui-support-line:       var(--cui-d, rgba(248,154,134,0.32)) var(--cui-l, rgba(206,34,41,0.28));
+  --cui-third:              var(--cui-d, #a0c356) var(--cui-l, #a0c356);
+  --cui-third-text:         var(--cui-d, #bcd97e) var(--cui-l, #3d5c14);
+  --cui-third-tint:         var(--cui-d, rgba(160,195,86,0.28)) var(--cui-l, rgba(160,195,86,0.45));
+  --cui-third-line:         var(--cui-d, rgba(188,217,126,0.30)) var(--cui-l, rgba(125,164,58,0.40));
+  --cui-secondary:          var(--cui-d, #1f3726) var(--cui-l, #c2d6b8);
+  --cui-hero-bg:            var(--cui-d, #7d1a18) var(--cui-l, #f0bcb2);
+  --cui-hero-fg:            var(--cui-d, #f2f5ef) var(--cui-l, #131a10);
+  --cui-hero-mute:          var(--cui-d, #e8b9ae) var(--cui-l, #6e4a42);
+  --cui-hero-line:          var(--cui-d, rgba(248,154,134,0.34)) var(--cui-l, rgba(206,34,41,0.30));
+  --cui-tile:               var(--cui-d, #8f7219) var(--cui-l, #b08c1f);
+  --cui-tile-line:          var(--cui-d, #a8871f) var(--cui-l, #c9a227);
+  --cui-glyph:              var(--cui-d, #2b1a05) var(--cui-l, #3d2f07);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+
+[data-theme="est"] {   /* Easter */
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #1c1524) var(--cui-l, #d9eeed);
+  --cui-bg-1:               var(--cui-d, #271e31) var(--cui-l, #eef8f7);
+  --cui-bg-2:               var(--cui-d, #352a41) var(--cui-l, #c3e2e0);
+  --cui-bg-3:               var(--cui-d, #453855) var(--cui-l, #a9d3d1);
+  --cui-fg:                 var(--cui-d, #f4eff7) var(--cui-l, #12191a);
+  --cui-fg-mute:            var(--cui-d, #b6acbe) var(--cui-l, #4b5757);
+  --cui-fg-dim:             var(--cui-d, #857c8d) var(--cui-l, #7b8686);
+  --cui-border:             var(--cui-d, rgba(244,239,247,0.10)) var(--cui-l, rgba(18,25,26,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(244,239,247,0.20)) var(--cui-l, rgba(18,25,26,0.26));
+  --cui-accent:             var(--cui-d, #ae71d4) var(--cui-l, #9e4aa6);
+  --cui-accent-hover:       var(--cui-d, #8f57b4) var(--cui-l, #843d8b);
+  --cui-on-accent:          var(--cui-d, #170f1c) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #d4aeee) var(--cui-l, #8a3d92);
+  --cui-link-hover:         var(--cui-d, #d4aeee) var(--cui-l, #8a3d92);
+  --cui-support:            var(--cui-d, #febfd0) var(--cui-l, #febfd0);
+  --cui-support-text:       var(--cui-d, #f7c7d6) var(--cui-l, #9c3357);
+  --cui-support-tint:       var(--cui-d, rgba(254,191,208,0.30)) var(--cui-l, rgba(254,191,208,0.34));
+  --cui-support-line:       var(--cui-d, rgba(247,199,214,0.32)) var(--cui-l, rgba(156,51,87,0.30));
+  --cui-third:              var(--cui-d, #fbf49a) var(--cui-l, #fbf49a);
+  --cui-third-text:         var(--cui-d, #f7ef9a) var(--cui-l, #6b5d07);
+  --cui-third-tint:         var(--cui-d, rgba(251,244,154,0.26)) var(--cui-l, rgba(251,244,154,0.34));
+  --cui-third-line:         var(--cui-d, rgba(247,239,154,0.30)) var(--cui-l, rgba(107,93,7,0.30));
+  --cui-secondary:          var(--cui-d, #352a41) var(--cui-l, #c3e2e0);
+  --cui-hero-bg:            var(--cui-d, #644b5b) var(--cui-l, #efd2dc);
+  --cui-hero-fg:            var(--cui-d, #f4eff7) var(--cui-l, #12191a);
+  --cui-hero-mute:          var(--cui-d, #ccc5d2) var(--cui-l, #4b5757);
+  --cui-hero-line:          var(--cui-d, rgba(247,199,214,0.32)) var(--cui-l, rgba(156,51,87,0.28));
+  --cui-tile:               var(--cui-d, #9564ab) var(--cui-l, #c286be);
+  --cui-tile-line:          var(--cui-d, #a878bd) var(--cui-l, #cf9bcb);
+  --cui-glyph:              var(--cui-d, #e4cbf5) var(--cui-l, #742f7b);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+
+[data-theme="cnd"] {   /* Candyland */
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #2d0a1e) var(--cui-l, #ffd6e6);
+  --cui-bg-1:               var(--cui-d, #3a1128) var(--cui-l, #fff0f6);
+  --cui-bg-2:               var(--cui-d, #4a1a35) var(--cui-l, #fbbcd6);
+  --cui-bg-3:               var(--cui-d, #5d2444) var(--cui-l, #f5a2c4);
+  --cui-fg:                 var(--cui-d, #f8eef4) var(--cui-l, #1a1016);
+  --cui-fg-mute:            var(--cui-d, #c0a8b6) var(--cui-l, #5f4b55);
+  --cui-fg-dim:             var(--cui-d, #8f7a86) var(--cui-l, #8d7883);
+  --cui-border:             var(--cui-d, rgba(248,238,244,0.10)) var(--cui-l, rgba(26,16,22,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(248,238,244,0.20)) var(--cui-l, rgba(26,16,22,0.26));
+  --cui-accent:             var(--cui-d, #ff70a6) var(--cui-l, #d1207a);
+  --cui-accent-hover:       var(--cui-d, #e04a86) var(--cui-l, #b31a68);
+  --cui-on-accent:          var(--cui-d, #2a0715) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #ffa3c6) var(--cui-l, #a0175c);
+  --cui-link-hover:         var(--cui-d, #ffa3c6) var(--cui-l, #a0175c);
+  --cui-support:            var(--cui-d, #4ee9e9) var(--cui-l, #4ee9e9);
+  --cui-support-text:       var(--cui-d, #8ff2f2) var(--cui-l, #096e6e);
+  --cui-support-tint:       var(--cui-d, #14454d) var(--cui-l, #b5eef1);
+  --cui-support-line:       var(--cui-d, #1d6b76) var(--cui-l, #7fd8dc);
+  --cui-third:              var(--cui-d, #e9ff70) var(--cui-l, #e9ff70);
+  --cui-third-text:         var(--cui-d, #e9ff70) var(--cui-l, #4f5804);
+  --cui-third-tint:         var(--cui-d, #354715) var(--cui-l, #e2f2a0);
+  --cui-third-line:         var(--cui-d, #4a6420) var(--cui-l, #c8dc78);
+  --cui-secondary:          var(--cui-d, #4a1a35) var(--cui-l, #fbbcd6);
+  --cui-hero-bg:            var(--cui-d, #0f5560) var(--cui-l, #93e2e7);
+  --cui-hero-fg:            var(--cui-d, #f8eef4) var(--cui-l, #1a1016);
+  --cui-hero-mute:          var(--cui-d, #a8d4da) var(--cui-l, #3f5457);
+  --cui-hero-line:          var(--cui-d, #2a939b) var(--cui-l, #4bb8bf);
+  --cui-tile:               var(--cui-d, #d6538c) var(--cui-l, #e0448a);
+  --cui-tile-line:          var(--cui-d, #e26196) var(--cui-l, #ee6ba1);
+  --cui-glyph:              var(--cui-d, #2a0817) var(--cui-l, #ffe0ee);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+
+/* `data-theme="system"` deliberately declares nothing: with no block
+   matching, the subtree inherits the tokens already computed upstream.
+   The selector exists so the intent is greppable. */
+[data-theme="system"] { /* inherit */ }
+
+/* ---- 1c. Single-element theming ---------------------------------------
+   Custom properties cascade to the element they are set on, so these
+   theme one button, one card or one route without adopting a theme for
+   the whole app. They pin the flavor deliberately, which is right for a
+   decorative one-off and wrong for an app. */
+.cui-t-cnj-d {
+  --cui-d: initial; --cui-l: ;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #0b0e14) var(--cui-l, #f1f3f5);
+  --cui-bg-1:               var(--cui-d, #11151d) var(--cui-l, #ffffff);
+  --cui-bg-2:               var(--cui-d, #1a1f2b) var(--cui-l, #eef1f4);
+  --cui-bg-3:               var(--cui-d, #232938) var(--cui-l, #e2e6ea);
+  --cui-fg:                 var(--cui-d, #e5e9f0) var(--cui-l, #16191f);
+  --cui-fg-mute:            var(--cui-d, #9ca3af) var(--cui-l, #5b6472);
+  --cui-fg-dim:             var(--cui-d, #6b7280) var(--cui-l, #8a93a3);
+  --cui-border:             var(--cui-d, rgba(229,233,240,0.10)) var(--cui-l, rgba(22,25,31,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(229,233,240,0.20)) var(--cui-l, rgba(22,25,31,0.26));
+  --cui-accent:             var(--cui-d, #0f766e) var(--cui-l, #0f766e);
+  --cui-accent-hover:       var(--cui-d, #0c5f58) var(--cui-l, #0c5f58);
+  --cui-on-accent:          var(--cui-d, #fff) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #38bdf8) var(--cui-l, #0f766e);
+  --cui-link-hover:         var(--cui-d, #38bdf8) var(--cui-l, #0f766e);
+  --cui-support:            var(--cui-d, #60a5fa) var(--cui-l, #075985);
+  --cui-support-text:       var(--cui-d, #93c5fd) var(--cui-l, #075985);
+  --cui-support-tint:       var(--cui-d, rgba(96,165,250,0.22)) var(--cui-l, rgba(7,89,133,0.12));
+  --cui-support-line:       var(--cui-d, rgba(147,197,253,0.32)) var(--cui-l, rgba(7,89,133,0.28));
+  --cui-third:              var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-third-text:         var(--cui-d, #6ee7b7) var(--cui-l, #036348);
+  --cui-third-tint:         var(--cui-d, rgba(52,211,153,0.20)) var(--cui-l, rgba(3,99,72,0.12));
+  --cui-third-line:         var(--cui-d, rgba(110,231,183,0.30)) var(--cui-l, rgba(3,99,72,0.28));
+  --cui-secondary:          var(--cui-d, #3b4252) var(--cui-l, #e2e6ea);
+  --cui-hero-bg:            var(--cui-d, #243b59) var(--cui-l, #dae4ea);
+  --cui-hero-fg:            var(--cui-d, #e5e9f0) var(--cui-l, #16191f);
+  --cui-hero-mute:          var(--cui-d, #b8c4d4) var(--cui-l, #5b6472);
+  --cui-hero-line:          var(--cui-d, rgba(147,197,253,0.32)) var(--cui-l, rgba(7,89,133,0.28));
+  --cui-tile:               var(--cui-d, rgba(15,118,110,0.62)) var(--cui-l, rgba(15,118,110,0.50));
+  --cui-tile-line:          var(--cui-d, rgba(15,118,110,0.80)) var(--cui-l, rgba(15,118,110,0.68));
+  --cui-glyph:              var(--cui-d, #7dd3fc) var(--cui-l, #0a4f4a);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+.cui-t-cnj-l {
+  --cui-d: ; --cui-l: initial;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #0b0e14) var(--cui-l, #f1f3f5);
+  --cui-bg-1:               var(--cui-d, #11151d) var(--cui-l, #ffffff);
+  --cui-bg-2:               var(--cui-d, #1a1f2b) var(--cui-l, #eef1f4);
+  --cui-bg-3:               var(--cui-d, #232938) var(--cui-l, #e2e6ea);
+  --cui-fg:                 var(--cui-d, #e5e9f0) var(--cui-l, #16191f);
+  --cui-fg-mute:            var(--cui-d, #9ca3af) var(--cui-l, #5b6472);
+  --cui-fg-dim:             var(--cui-d, #6b7280) var(--cui-l, #8a93a3);
+  --cui-border:             var(--cui-d, rgba(229,233,240,0.10)) var(--cui-l, rgba(22,25,31,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(229,233,240,0.20)) var(--cui-l, rgba(22,25,31,0.26));
+  --cui-accent:             var(--cui-d, #0f766e) var(--cui-l, #0f766e);
+  --cui-accent-hover:       var(--cui-d, #0c5f58) var(--cui-l, #0c5f58);
+  --cui-on-accent:          var(--cui-d, #fff) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #38bdf8) var(--cui-l, #0f766e);
+  --cui-link-hover:         var(--cui-d, #38bdf8) var(--cui-l, #0f766e);
+  --cui-support:            var(--cui-d, #60a5fa) var(--cui-l, #075985);
+  --cui-support-text:       var(--cui-d, #93c5fd) var(--cui-l, #075985);
+  --cui-support-tint:       var(--cui-d, rgba(96,165,250,0.22)) var(--cui-l, rgba(7,89,133,0.12));
+  --cui-support-line:       var(--cui-d, rgba(147,197,253,0.32)) var(--cui-l, rgba(7,89,133,0.28));
+  --cui-third:              var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-third-text:         var(--cui-d, #6ee7b7) var(--cui-l, #036348);
+  --cui-third-tint:         var(--cui-d, rgba(52,211,153,0.20)) var(--cui-l, rgba(3,99,72,0.12));
+  --cui-third-line:         var(--cui-d, rgba(110,231,183,0.30)) var(--cui-l, rgba(3,99,72,0.28));
+  --cui-secondary:          var(--cui-d, #3b4252) var(--cui-l, #e2e6ea);
+  --cui-hero-bg:            var(--cui-d, #243b59) var(--cui-l, #dae4ea);
+  --cui-hero-fg:            var(--cui-d, #e5e9f0) var(--cui-l, #16191f);
+  --cui-hero-mute:          var(--cui-d, #b8c4d4) var(--cui-l, #5b6472);
+  --cui-hero-line:          var(--cui-d, rgba(147,197,253,0.32)) var(--cui-l, rgba(7,89,133,0.28));
+  --cui-tile:               var(--cui-d, rgba(15,118,110,0.62)) var(--cui-l, rgba(15,118,110,0.50));
+  --cui-tile-line:          var(--cui-d, rgba(15,118,110,0.80)) var(--cui-l, rgba(15,118,110,0.68));
+  --cui-glyph:              var(--cui-d, #7dd3fc) var(--cui-l, #0a4f4a);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+.cui-t-hal-d {
+  --cui-d: initial; --cui-l: ;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #0c0b09) var(--cui-l, #d9d1bd);
+  --cui-bg-1:               var(--cui-d, #15140f) var(--cui-l, #e7e0cf);
+  --cui-bg-2:               var(--cui-d, #1f1d16) var(--cui-l, #cdc3aa);
+  --cui-bg-3:               var(--cui-d, #2a2820) var(--cui-l, #bcb094);
+  --cui-fg:                 var(--cui-d, #f0ece2) var(--cui-l, #1a1813);
+  --cui-fg-mute:            var(--cui-d, #a8a294) var(--cui-l, #55503f);
+  --cui-fg-dim:             var(--cui-d, #71695c) var(--cui-l, #857f6b);
+  --cui-border:             var(--cui-d, rgba(240,236,226,0.10)) var(--cui-l, rgba(26,24,19,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(240,236,226,0.20)) var(--cui-l, rgba(26,24,19,0.26));
+  --cui-accent:             var(--cui-d, #c2410c) var(--cui-l, #a8380a);
+  --cui-accent-hover:       var(--cui-d, #9a3208) var(--cui-l, #8a2d08);
+  --cui-on-accent:          var(--cui-d, #fff) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #e8934f) var(--cui-l, #8f3208);
+  --cui-link-hover:         var(--cui-d, #e8934f) var(--cui-l, #8f3208);
+  --cui-support:            var(--cui-d, #6d4482) var(--cui-l, #573268);
+  --cui-support-text:       var(--cui-d, #b195c9) var(--cui-l, #573268);
+  --cui-support-tint:       var(--cui-d, rgba(109,68,130,0.24)) var(--cui-l, rgba(87,50,104,0.12));
+  --cui-support-line:       var(--cui-d, rgba(177,149,201,0.32)) var(--cui-l, rgba(87,50,104,0.28));
+  --cui-third:              var(--cui-d, #5f7a3a) var(--cui-l, #445f29);
+  --cui-third-text:         var(--cui-d, #a3bd78) var(--cui-l, #3a5222);
+  --cui-third-tint:         var(--cui-d, rgba(95,122,58,0.22)) var(--cui-l, rgba(68,95,41,0.12));
+  --cui-third-line:         var(--cui-d, rgba(163,189,120,0.30)) var(--cui-l, rgba(68,95,41,0.28));
+  --cui-secondary:          var(--cui-d, #2a2820) var(--cui-l, #cdc3aa);
+  --cui-hero-bg:            var(--cui-d, #4a2f56) var(--cui-l, #c7b4a8);
+  --cui-hero-fg:            var(--cui-d, #f0ece2) var(--cui-l, #1a1813);
+  --cui-hero-mute:          var(--cui-d, #aaa497) var(--cui-l, #4c4838);
+  --cui-hero-line:          var(--cui-d, rgba(177,149,201,0.32)) var(--cui-l, rgba(115,47,74,0.30));
+  --cui-tile:               var(--cui-d, rgba(194,65,12,0.62)) var(--cui-l, rgba(168,56,10,0.50));
+  --cui-tile-line:          var(--cui-d, rgba(194,65,12,0.80)) var(--cui-l, rgba(168,56,10,0.68));
+  --cui-glyph:              var(--cui-d, #e8934f) var(--cui-l, #6f2306);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+.cui-t-hal-l {
+  --cui-d: ; --cui-l: initial;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #0c0b09) var(--cui-l, #d9d1bd);
+  --cui-bg-1:               var(--cui-d, #15140f) var(--cui-l, #e7e0cf);
+  --cui-bg-2:               var(--cui-d, #1f1d16) var(--cui-l, #cdc3aa);
+  --cui-bg-3:               var(--cui-d, #2a2820) var(--cui-l, #bcb094);
+  --cui-fg:                 var(--cui-d, #f0ece2) var(--cui-l, #1a1813);
+  --cui-fg-mute:            var(--cui-d, #a8a294) var(--cui-l, #55503f);
+  --cui-fg-dim:             var(--cui-d, #71695c) var(--cui-l, #857f6b);
+  --cui-border:             var(--cui-d, rgba(240,236,226,0.10)) var(--cui-l, rgba(26,24,19,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(240,236,226,0.20)) var(--cui-l, rgba(26,24,19,0.26));
+  --cui-accent:             var(--cui-d, #c2410c) var(--cui-l, #a8380a);
+  --cui-accent-hover:       var(--cui-d, #9a3208) var(--cui-l, #8a2d08);
+  --cui-on-accent:          var(--cui-d, #fff) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #e8934f) var(--cui-l, #8f3208);
+  --cui-link-hover:         var(--cui-d, #e8934f) var(--cui-l, #8f3208);
+  --cui-support:            var(--cui-d, #6d4482) var(--cui-l, #573268);
+  --cui-support-text:       var(--cui-d, #b195c9) var(--cui-l, #573268);
+  --cui-support-tint:       var(--cui-d, rgba(109,68,130,0.24)) var(--cui-l, rgba(87,50,104,0.12));
+  --cui-support-line:       var(--cui-d, rgba(177,149,201,0.32)) var(--cui-l, rgba(87,50,104,0.28));
+  --cui-third:              var(--cui-d, #5f7a3a) var(--cui-l, #445f29);
+  --cui-third-text:         var(--cui-d, #a3bd78) var(--cui-l, #3a5222);
+  --cui-third-tint:         var(--cui-d, rgba(95,122,58,0.22)) var(--cui-l, rgba(68,95,41,0.12));
+  --cui-third-line:         var(--cui-d, rgba(163,189,120,0.30)) var(--cui-l, rgba(68,95,41,0.28));
+  --cui-secondary:          var(--cui-d, #2a2820) var(--cui-l, #cdc3aa);
+  --cui-hero-bg:            var(--cui-d, #4a2f56) var(--cui-l, #c7b4a8);
+  --cui-hero-fg:            var(--cui-d, #f0ece2) var(--cui-l, #1a1813);
+  --cui-hero-mute:          var(--cui-d, #aaa497) var(--cui-l, #4c4838);
+  --cui-hero-line:          var(--cui-d, rgba(177,149,201,0.32)) var(--cui-l, rgba(115,47,74,0.30));
+  --cui-tile:               var(--cui-d, rgba(194,65,12,0.62)) var(--cui-l, rgba(168,56,10,0.50));
+  --cui-tile-line:          var(--cui-d, rgba(194,65,12,0.80)) var(--cui-l, rgba(168,56,10,0.68));
+  --cui-glyph:              var(--cui-d, #e8934f) var(--cui-l, #6f2306);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+.cui-t-fal-d {
+  --cui-d: initial; --cui-l: ;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #19140f) var(--cui-l, #f0dab0);
+  --cui-bg-1:               var(--cui-d, #231d17) var(--cui-l, #faeeda);
+  --cui-bg-2:               var(--cui-d, #322818) var(--cui-l, #e2c99a);
+  --cui-bg-3:               var(--cui-d, #423523) var(--cui-l, #d1b684);
+  --cui-fg:                 var(--cui-d, #f5efe3) var(--cui-l, #211a11);
+  --cui-fg-mute:            var(--cui-d, #bbae98) var(--cui-l, #655b40);
+  --cui-fg-dim:             var(--cui-d, #867a63) var(--cui-l, #918569);
+  --cui-border:             var(--cui-d, rgba(245,239,227,0.10)) var(--cui-l, rgba(33,26,17,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(245,239,227,0.20)) var(--cui-l, rgba(33,26,17,0.26));
+  --cui-accent:             var(--cui-d, #c2820a) var(--cui-l, #a35207);
+  --cui-accent-hover:       var(--cui-d, #9c6808) var(--cui-l, #864306);
+  --cui-on-accent:          var(--cui-d, #14100c) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #e8b53f) var(--cui-l, #994d06);
+  --cui-link-hover:         var(--cui-d, #e8b53f) var(--cui-l, #994d06);
+  --cui-support:            var(--cui-d, #b04728) var(--cui-l, #8a3418);
+  --cui-support-text:       var(--cui-d, #eb9a78) var(--cui-l, #8a3418);
+  --cui-support-tint:       var(--cui-d, rgba(176,71,40,0.26)) var(--cui-l, rgba(138,52,24,0.12));
+  --cui-support-line:       var(--cui-d, rgba(235,154,120,0.32)) var(--cui-l, rgba(138,52,24,0.28));
+  --cui-third:              var(--cui-d, #2f5d3f) var(--cui-l, #245036);
+  --cui-third-text:         var(--cui-d, #84c398) var(--cui-l, #245036);
+  --cui-third-tint:         var(--cui-d, rgba(47,93,63,0.24)) var(--cui-l, rgba(36,80,54,0.12));
+  --cui-third-line:         var(--cui-d, rgba(132,195,152,0.30)) var(--cui-l, rgba(36,80,54,0.28));
+  --cui-secondary:          var(--cui-d, #322818) var(--cui-l, #e2c99a);
+  --cui-hero-bg:            var(--cui-d, #5b2a1a) var(--cui-l, #e0bf98);
+  --cui-hero-fg:            var(--cui-d, #f5efe3) var(--cui-l, #211a11);
+  --cui-hero-mute:          var(--cui-d, #bbae98) var(--cui-l, #585038);
+  --cui-hero-line:          var(--cui-d, rgba(235,154,120,0.32)) var(--cui-l, rgba(138,52,24,0.28));
+  --cui-tile:               var(--cui-d, rgba(194,130,10,0.52)) var(--cui-l, rgba(163,82,7,0.62));
+  --cui-tile-line:          var(--cui-d, rgba(194,130,10,0.70)) var(--cui-l, rgba(163,82,7,0.80));
+  --cui-glyph:              var(--cui-d, #e8b53f) var(--cui-l, #672f04);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+.cui-t-fal-l {
+  --cui-d: ; --cui-l: initial;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #19140f) var(--cui-l, #f0dab0);
+  --cui-bg-1:               var(--cui-d, #231d17) var(--cui-l, #faeeda);
+  --cui-bg-2:               var(--cui-d, #322818) var(--cui-l, #e2c99a);
+  --cui-bg-3:               var(--cui-d, #423523) var(--cui-l, #d1b684);
+  --cui-fg:                 var(--cui-d, #f5efe3) var(--cui-l, #211a11);
+  --cui-fg-mute:            var(--cui-d, #bbae98) var(--cui-l, #655b40);
+  --cui-fg-dim:             var(--cui-d, #867a63) var(--cui-l, #918569);
+  --cui-border:             var(--cui-d, rgba(245,239,227,0.10)) var(--cui-l, rgba(33,26,17,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(245,239,227,0.20)) var(--cui-l, rgba(33,26,17,0.26));
+  --cui-accent:             var(--cui-d, #c2820a) var(--cui-l, #a35207);
+  --cui-accent-hover:       var(--cui-d, #9c6808) var(--cui-l, #864306);
+  --cui-on-accent:          var(--cui-d, #14100c) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #e8b53f) var(--cui-l, #994d06);
+  --cui-link-hover:         var(--cui-d, #e8b53f) var(--cui-l, #994d06);
+  --cui-support:            var(--cui-d, #b04728) var(--cui-l, #8a3418);
+  --cui-support-text:       var(--cui-d, #eb9a78) var(--cui-l, #8a3418);
+  --cui-support-tint:       var(--cui-d, rgba(176,71,40,0.26)) var(--cui-l, rgba(138,52,24,0.12));
+  --cui-support-line:       var(--cui-d, rgba(235,154,120,0.32)) var(--cui-l, rgba(138,52,24,0.28));
+  --cui-third:              var(--cui-d, #2f5d3f) var(--cui-l, #245036);
+  --cui-third-text:         var(--cui-d, #84c398) var(--cui-l, #245036);
+  --cui-third-tint:         var(--cui-d, rgba(47,93,63,0.24)) var(--cui-l, rgba(36,80,54,0.12));
+  --cui-third-line:         var(--cui-d, rgba(132,195,152,0.30)) var(--cui-l, rgba(36,80,54,0.28));
+  --cui-secondary:          var(--cui-d, #322818) var(--cui-l, #e2c99a);
+  --cui-hero-bg:            var(--cui-d, #5b2a1a) var(--cui-l, #e0bf98);
+  --cui-hero-fg:            var(--cui-d, #f5efe3) var(--cui-l, #211a11);
+  --cui-hero-mute:          var(--cui-d, #bbae98) var(--cui-l, #585038);
+  --cui-hero-line:          var(--cui-d, rgba(235,154,120,0.32)) var(--cui-l, rgba(138,52,24,0.28));
+  --cui-tile:               var(--cui-d, rgba(194,130,10,0.52)) var(--cui-l, rgba(163,82,7,0.62));
+  --cui-tile-line:          var(--cui-d, rgba(194,130,10,0.70)) var(--cui-l, rgba(163,82,7,0.80));
+  --cui-glyph:              var(--cui-d, #e8b53f) var(--cui-l, #672f04);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+.cui-t-win-d {
+  --cui-d: initial; --cui-l: ;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #0a1d26) var(--cui-l, #e6ecf4);
+  --cui-bg-1:               var(--cui-d, #12262f) var(--cui-l, #f8fafd);
+  --cui-bg-2:               var(--cui-d, #1b323d) var(--cui-l, #d3dce8);
+  --cui-bg-3:               var(--cui-d, #27414e) var(--cui-l, #bec9d8);
+  --cui-fg:                 var(--cui-d, #eef2f7) var(--cui-l, #111820);
+  --cui-fg-mute:            var(--cui-d, #9fabb9) var(--cui-l, #4f5b68);
+  --cui-fg-dim:             var(--cui-d, #6d7886) var(--cui-l, #7d8894);
+  --cui-border:             var(--cui-d, rgba(238,242,247,0.10)) var(--cui-l, rgba(17,24,32,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(238,242,247,0.20)) var(--cui-l, rgba(17,24,32,0.26));
+  --cui-accent:             var(--cui-d, #4a90b8) var(--cui-l, #2b6d92);
+  --cui-accent-hover:       var(--cui-d, #3b7699) var(--cui-l, #225874);
+  --cui-on-accent:          var(--cui-d, #0a0f14) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #7cc0e0) var(--cui-l, #245f80);
+  --cui-link-hover:         var(--cui-d, #7cc0e0) var(--cui-l, #245f80);
+  --cui-support:            var(--cui-d, #3f4894) var(--cui-l, #3a3f80);
+  --cui-support-text:       var(--cui-d, #9fa3e8) var(--cui-l, #3a3f80);
+  --cui-support-tint:       var(--cui-d, rgba(63,72,148,0.28)) var(--cui-l, rgba(58,63,128,0.13));
+  --cui-support-line:       var(--cui-d, rgba(159,163,232,0.32)) var(--cui-l, rgba(58,63,128,0.28));
+  --cui-third:              var(--cui-d, #a34a5e) var(--cui-l, #8e3a4e);
+  --cui-third-text:         var(--cui-d, #eb96a8) var(--cui-l, #8e3a4e);
+  --cui-third-tint:         var(--cui-d, rgba(163,74,94,0.24)) var(--cui-l, rgba(142,58,78,0.12));
+  --cui-third-line:         var(--cui-d, rgba(235,150,168,0.30)) var(--cui-l, rgba(142,58,78,0.28));
+  --cui-secondary:          var(--cui-d, #1b323d) var(--cui-l, #d3dce8);
+  --cui-hero-bg:            var(--cui-d, #2b386a) var(--cui-l, #ccd2e3);
+  --cui-hero-fg:            var(--cui-d, #eef2f7) var(--cui-l, #111820);
+  --cui-hero-mute:          var(--cui-d, #9fabb9) var(--cui-l, #4f5b67);
+  --cui-hero-line:          var(--cui-d, rgba(159,163,232,0.32)) var(--cui-l, rgba(58,63,128,0.28));
+  --cui-tile:               var(--cui-d, rgba(74,144,184,0.58)) var(--cui-l, rgba(43,109,146,0.56));
+  --cui-tile-line:          var(--cui-d, rgba(74,144,184,0.76)) var(--cui-l, rgba(43,109,146,0.74));
+  --cui-glyph:              var(--cui-d, #9ad2ec) var(--cui-l, #173e54);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+.cui-t-win-l {
+  --cui-d: ; --cui-l: initial;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #0a1d26) var(--cui-l, #e6ecf4);
+  --cui-bg-1:               var(--cui-d, #12262f) var(--cui-l, #f8fafd);
+  --cui-bg-2:               var(--cui-d, #1b323d) var(--cui-l, #d3dce8);
+  --cui-bg-3:               var(--cui-d, #27414e) var(--cui-l, #bec9d8);
+  --cui-fg:                 var(--cui-d, #eef2f7) var(--cui-l, #111820);
+  --cui-fg-mute:            var(--cui-d, #9fabb9) var(--cui-l, #4f5b68);
+  --cui-fg-dim:             var(--cui-d, #6d7886) var(--cui-l, #7d8894);
+  --cui-border:             var(--cui-d, rgba(238,242,247,0.10)) var(--cui-l, rgba(17,24,32,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(238,242,247,0.20)) var(--cui-l, rgba(17,24,32,0.26));
+  --cui-accent:             var(--cui-d, #4a90b8) var(--cui-l, #2b6d92);
+  --cui-accent-hover:       var(--cui-d, #3b7699) var(--cui-l, #225874);
+  --cui-on-accent:          var(--cui-d, #0a0f14) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #7cc0e0) var(--cui-l, #245f80);
+  --cui-link-hover:         var(--cui-d, #7cc0e0) var(--cui-l, #245f80);
+  --cui-support:            var(--cui-d, #3f4894) var(--cui-l, #3a3f80);
+  --cui-support-text:       var(--cui-d, #9fa3e8) var(--cui-l, #3a3f80);
+  --cui-support-tint:       var(--cui-d, rgba(63,72,148,0.28)) var(--cui-l, rgba(58,63,128,0.13));
+  --cui-support-line:       var(--cui-d, rgba(159,163,232,0.32)) var(--cui-l, rgba(58,63,128,0.28));
+  --cui-third:              var(--cui-d, #a34a5e) var(--cui-l, #8e3a4e);
+  --cui-third-text:         var(--cui-d, #eb96a8) var(--cui-l, #8e3a4e);
+  --cui-third-tint:         var(--cui-d, rgba(163,74,94,0.24)) var(--cui-l, rgba(142,58,78,0.12));
+  --cui-third-line:         var(--cui-d, rgba(235,150,168,0.30)) var(--cui-l, rgba(142,58,78,0.28));
+  --cui-secondary:          var(--cui-d, #1b323d) var(--cui-l, #d3dce8);
+  --cui-hero-bg:            var(--cui-d, #2b386a) var(--cui-l, #ccd2e3);
+  --cui-hero-fg:            var(--cui-d, #eef2f7) var(--cui-l, #111820);
+  --cui-hero-mute:          var(--cui-d, #9fabb9) var(--cui-l, #4f5b67);
+  --cui-hero-line:          var(--cui-d, rgba(159,163,232,0.32)) var(--cui-l, rgba(58,63,128,0.28));
+  --cui-tile:               var(--cui-d, rgba(74,144,184,0.58)) var(--cui-l, rgba(43,109,146,0.56));
+  --cui-tile-line:          var(--cui-d, rgba(74,144,184,0.76)) var(--cui-l, rgba(43,109,146,0.74));
+  --cui-glyph:              var(--cui-d, #9ad2ec) var(--cui-l, #173e54);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+.cui-t-spr-d {
+  --cui-d: initial; --cui-l: ;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #131a17) var(--cui-l, #ebf1e6);
+  --cui-bg-1:               var(--cui-d, #1c2620) var(--cui-l, #f9fbf7);
+  --cui-bg-2:               var(--cui-d, #27342c) var(--cui-l, #dae4d3);
+  --cui-bg-3:               var(--cui-d, #35453a) var(--cui-l, #c7d4bd);
+  --cui-fg:                 var(--cui-d, #f0f4ea) var(--cui-l, #131810);
+  --cui-fg-mute:            var(--cui-d, #a8b39c) var(--cui-l, #4f5a46);
+  --cui-fg-dim:             var(--cui-d, #74806a) var(--cui-l, #7d8874);
+  --cui-border:             var(--cui-d, rgba(240,244,234,0.10)) var(--cui-l, rgba(19,24,16,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(240,244,234,0.20)) var(--cui-l, rgba(19,24,16,0.26));
+  --cui-accent:             var(--cui-d, #6aa32e) var(--cui-l, #47801a);
+  --cui-accent-hover:       var(--cui-d, #55831f) var(--cui-l, #3a690f);
+  --cui-on-accent:          var(--cui-d, #0d1108) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #a8d95f) var(--cui-l, #3d6d16);
+  --cui-link-hover:         var(--cui-d, #a8d95f) var(--cui-l, #3d6d16);
+  --cui-support:            var(--cui-d, #c4629b) var(--cui-l, #a53d7a);
+  --cui-support-text:       var(--cui-d, #f0a8cc) var(--cui-l, #a53d7a);
+  --cui-support-tint:       var(--cui-d, rgba(196,98,155,0.26)) var(--cui-l, rgba(165,61,122,0.12));
+  --cui-support-line:       var(--cui-d, rgba(240,168,204,0.32)) var(--cui-l, rgba(165,61,122,0.28));
+  --cui-third:              var(--cui-d, #e0c33f) var(--cui-l, #705708);
+  --cui-third-text:         var(--cui-d, #f2d878) var(--cui-l, #705708);
+  --cui-third-tint:         var(--cui-d, rgba(224,195,63,0.22)) var(--cui-l, rgba(112,87,8,0.12));
+  --cui-third-line:         var(--cui-d, rgba(242,216,120,0.30)) var(--cui-l, rgba(112,87,8,0.28));
+  --cui-secondary:          var(--cui-d, #27342c) var(--cui-l, #dae4d3);
+  --cui-hero-bg:            var(--cui-d, #613a51) var(--cui-l, #e0d6d6);
+  --cui-hero-fg:            var(--cui-d, #f0f4ea) var(--cui-l, #131810);
+  --cui-hero-mute:          var(--cui-d, #afb9a3) var(--cui-l, #4f5a46);
+  --cui-hero-line:          var(--cui-d, rgba(240,168,204,0.32)) var(--cui-l, rgba(165,61,122,0.28));
+  --cui-tile:               var(--cui-d, rgba(106,163,46,0.62)) var(--cui-l, rgba(71,128,26,0.60));
+  --cui-tile-line:          var(--cui-d, rgba(106,163,46,0.80)) var(--cui-l, rgba(71,128,26,0.78));
+  --cui-glyph:              var(--cui-d, #c0e884) var(--cui-l, #28480e);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+.cui-t-spr-l {
+  --cui-d: ; --cui-l: initial;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #131a17) var(--cui-l, #ebf1e6);
+  --cui-bg-1:               var(--cui-d, #1c2620) var(--cui-l, #f9fbf7);
+  --cui-bg-2:               var(--cui-d, #27342c) var(--cui-l, #dae4d3);
+  --cui-bg-3:               var(--cui-d, #35453a) var(--cui-l, #c7d4bd);
+  --cui-fg:                 var(--cui-d, #f0f4ea) var(--cui-l, #131810);
+  --cui-fg-mute:            var(--cui-d, #a8b39c) var(--cui-l, #4f5a46);
+  --cui-fg-dim:             var(--cui-d, #74806a) var(--cui-l, #7d8874);
+  --cui-border:             var(--cui-d, rgba(240,244,234,0.10)) var(--cui-l, rgba(19,24,16,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(240,244,234,0.20)) var(--cui-l, rgba(19,24,16,0.26));
+  --cui-accent:             var(--cui-d, #6aa32e) var(--cui-l, #47801a);
+  --cui-accent-hover:       var(--cui-d, #55831f) var(--cui-l, #3a690f);
+  --cui-on-accent:          var(--cui-d, #0d1108) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #a8d95f) var(--cui-l, #3d6d16);
+  --cui-link-hover:         var(--cui-d, #a8d95f) var(--cui-l, #3d6d16);
+  --cui-support:            var(--cui-d, #c4629b) var(--cui-l, #a53d7a);
+  --cui-support-text:       var(--cui-d, #f0a8cc) var(--cui-l, #a53d7a);
+  --cui-support-tint:       var(--cui-d, rgba(196,98,155,0.26)) var(--cui-l, rgba(165,61,122,0.12));
+  --cui-support-line:       var(--cui-d, rgba(240,168,204,0.32)) var(--cui-l, rgba(165,61,122,0.28));
+  --cui-third:              var(--cui-d, #e0c33f) var(--cui-l, #705708);
+  --cui-third-text:         var(--cui-d, #f2d878) var(--cui-l, #705708);
+  --cui-third-tint:         var(--cui-d, rgba(224,195,63,0.22)) var(--cui-l, rgba(112,87,8,0.12));
+  --cui-third-line:         var(--cui-d, rgba(242,216,120,0.30)) var(--cui-l, rgba(112,87,8,0.28));
+  --cui-secondary:          var(--cui-d, #27342c) var(--cui-l, #dae4d3);
+  --cui-hero-bg:            var(--cui-d, #613a51) var(--cui-l, #e0d6d6);
+  --cui-hero-fg:            var(--cui-d, #f0f4ea) var(--cui-l, #131810);
+  --cui-hero-mute:          var(--cui-d, #afb9a3) var(--cui-l, #4f5a46);
+  --cui-hero-line:          var(--cui-d, rgba(240,168,204,0.32)) var(--cui-l, rgba(165,61,122,0.28));
+  --cui-tile:               var(--cui-d, rgba(106,163,46,0.62)) var(--cui-l, rgba(71,128,26,0.60));
+  --cui-tile-line:          var(--cui-d, rgba(106,163,46,0.80)) var(--cui-l, rgba(71,128,26,0.78));
+  --cui-glyph:              var(--cui-d, #c0e884) var(--cui-l, #28480e);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+.cui-t-sum-d {
+  --cui-d: initial; --cui-l: ;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #123434) var(--cui-l, #f7edde);
+  --cui-bg-1:               var(--cui-d, #1a4242) var(--cui-l, #fdf8f0);
+  --cui-bg-2:               var(--cui-d, #245252) var(--cui-l, #ecd5b7);
+  --cui-bg-3:               var(--cui-d, #316466) var(--cui-l, #dcc09b);
+  --cui-fg:                 var(--cui-d, #eaf7f6) var(--cui-l, #1a1610);
+  --cui-fg-mute:            var(--cui-d, #a3c0bf) var(--cui-l, #5a5346);
+  --cui-fg-dim:             var(--cui-d, #74918f) var(--cui-l, #8a8375);
+  --cui-border:             var(--cui-d, rgba(234,247,246,0.10)) var(--cui-l, rgba(26,22,16,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(234,247,246,0.20)) var(--cui-l, rgba(26,22,16,0.26));
+  --cui-accent:             var(--cui-d, #43b5b2) var(--cui-l, #1d6764);
+  --cui-accent-hover:       var(--cui-d, #35938f) var(--cui-l, #175553);
+  --cui-on-accent:          var(--cui-d, #04161a) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #6fd0cd) var(--cui-l, #175553);
+  --cui-link-hover:         var(--cui-d, #6fd0cd) var(--cui-l, #175553);
+  --cui-support:            var(--cui-d, #e88b6f) var(--cui-l, #a4482c);
+  --cui-support-text:       var(--cui-d, #ffc6b0) var(--cui-l, #a4482c);
+  --cui-support-tint:       var(--cui-d, #4a352c) var(--cui-l, rgba(164,72,44,0.12));
+  --cui-support-line:       var(--cui-d, rgba(255,198,176,0.32)) var(--cui-l, rgba(164,72,44,0.28));
+  --cui-third:              var(--cui-d, #0f7ec1) var(--cui-l, #035996);
+  --cui-third-text:         var(--cui-d, #7cc4ee) var(--cui-l, #035996);
+  --cui-third-tint:         var(--cui-d, rgba(15,126,193,0.26)) var(--cui-l, rgba(3,89,150,0.12));
+  --cui-third-line:         var(--cui-d, rgba(124,196,238,0.30)) var(--cui-l, rgba(3,89,150,0.28));
+  --cui-secondary:          var(--cui-d, #245252) var(--cui-l, #ecd5b7);
+  --cui-hero-bg:            var(--cui-d, #c67d66) var(--cui-l, #e8cfbe);
+  --cui-hero-fg:            var(--cui-d, #1a0e08) var(--cui-l, #1a1610);
+  --cui-hero-mute:          var(--cui-d, #37231c) var(--cui-l, #5a5346);
+  --cui-hero-line:          var(--cui-d, rgba(255,198,176,0.40)) var(--cui-l, rgba(164,72,44,0.28));
+  --cui-tile:               var(--cui-d, #1d6764) var(--cui-l, rgba(29,103,100,0.50));
+  --cui-tile-line:          var(--cui-d, #175553) var(--cui-l, rgba(29,103,100,0.68));
+  --cui-glyph:              var(--cui-d, #d6f4f2) var(--cui-l, #124240);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+.cui-t-sum-l {
+  --cui-d: ; --cui-l: initial;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #123434) var(--cui-l, #f7edde);
+  --cui-bg-1:               var(--cui-d, #1a4242) var(--cui-l, #fdf8f0);
+  --cui-bg-2:               var(--cui-d, #245252) var(--cui-l, #ecd5b7);
+  --cui-bg-3:               var(--cui-d, #316466) var(--cui-l, #dcc09b);
+  --cui-fg:                 var(--cui-d, #eaf7f6) var(--cui-l, #1a1610);
+  --cui-fg-mute:            var(--cui-d, #a3c0bf) var(--cui-l, #5a5346);
+  --cui-fg-dim:             var(--cui-d, #74918f) var(--cui-l, #8a8375);
+  --cui-border:             var(--cui-d, rgba(234,247,246,0.10)) var(--cui-l, rgba(26,22,16,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(234,247,246,0.20)) var(--cui-l, rgba(26,22,16,0.26));
+  --cui-accent:             var(--cui-d, #43b5b2) var(--cui-l, #1d6764);
+  --cui-accent-hover:       var(--cui-d, #35938f) var(--cui-l, #175553);
+  --cui-on-accent:          var(--cui-d, #04161a) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #6fd0cd) var(--cui-l, #175553);
+  --cui-link-hover:         var(--cui-d, #6fd0cd) var(--cui-l, #175553);
+  --cui-support:            var(--cui-d, #e88b6f) var(--cui-l, #a4482c);
+  --cui-support-text:       var(--cui-d, #ffc6b0) var(--cui-l, #a4482c);
+  --cui-support-tint:       var(--cui-d, #4a352c) var(--cui-l, rgba(164,72,44,0.12));
+  --cui-support-line:       var(--cui-d, rgba(255,198,176,0.32)) var(--cui-l, rgba(164,72,44,0.28));
+  --cui-third:              var(--cui-d, #0f7ec1) var(--cui-l, #035996);
+  --cui-third-text:         var(--cui-d, #7cc4ee) var(--cui-l, #035996);
+  --cui-third-tint:         var(--cui-d, rgba(15,126,193,0.26)) var(--cui-l, rgba(3,89,150,0.12));
+  --cui-third-line:         var(--cui-d, rgba(124,196,238,0.30)) var(--cui-l, rgba(3,89,150,0.28));
+  --cui-secondary:          var(--cui-d, #245252) var(--cui-l, #ecd5b7);
+  --cui-hero-bg:            var(--cui-d, #c67d66) var(--cui-l, #e8cfbe);
+  --cui-hero-fg:            var(--cui-d, #1a0e08) var(--cui-l, #1a1610);
+  --cui-hero-mute:          var(--cui-d, #37231c) var(--cui-l, #5a5346);
+  --cui-hero-line:          var(--cui-d, rgba(255,198,176,0.40)) var(--cui-l, rgba(164,72,44,0.28));
+  --cui-tile:               var(--cui-d, #1d6764) var(--cui-l, rgba(29,103,100,0.50));
+  --cui-tile-line:          var(--cui-d, #175553) var(--cui-l, rgba(29,103,100,0.68));
+  --cui-glyph:              var(--cui-d, #d6f4f2) var(--cui-l, #124240);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+.cui-t-xms-d {
+  --cui-d: initial; --cui-l: ;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #0e1f14) var(--cui-l, #d6e5cf);
+  --cui-bg-1:               var(--cui-d, #16291c) var(--cui-l, #eaf2e5);
+  --cui-bg-2:               var(--cui-d, #1f3726) var(--cui-l, #c2d6b8);
+  --cui-bg-3:               var(--cui-d, #2b4832) var(--cui-l, #adc7a1);
+  --cui-fg:                 var(--cui-d, #f2f5ef) var(--cui-l, #131a10);
+  --cui-fg-mute:            var(--cui-d, #a8bcac) var(--cui-l, #4e5949);
+  --cui-fg-dim:             var(--cui-d, #7a8d7e) var(--cui-l, #7e8879);
+  --cui-border:             var(--cui-d, rgba(242,245,239,0.10)) var(--cui-l, rgba(19,26,16,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(242,245,239,0.20)) var(--cui-l, rgba(19,26,16,0.26));
+  --cui-accent:             var(--cui-d, #ce2229) var(--cui-l, #ce2229);
+  --cui-accent-hover:       var(--cui-d, #a81a20) var(--cui-l, #a81a20);
+  --cui-on-accent:          var(--cui-d, #fff) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #f89a86) var(--cui-l, #9e2318);
+  --cui-link-hover:         var(--cui-d, #f89a86) var(--cui-l, #9e2318);
+  --cui-support:            var(--cui-d, #ce2229) var(--cui-l, #ce2229);
+  --cui-support-text:       var(--cui-d, #f89a86) var(--cui-l, #9e2318);
+  --cui-support-tint:       var(--cui-d, rgba(206,34,41,0.26)) var(--cui-l, rgba(206,34,41,0.14));
+  --cui-support-line:       var(--cui-d, rgba(248,154,134,0.32)) var(--cui-l, rgba(206,34,41,0.28));
+  --cui-third:              var(--cui-d, #a0c356) var(--cui-l, #a0c356);
+  --cui-third-text:         var(--cui-d, #bcd97e) var(--cui-l, #3d5c14);
+  --cui-third-tint:         var(--cui-d, rgba(160,195,86,0.28)) var(--cui-l, rgba(160,195,86,0.45));
+  --cui-third-line:         var(--cui-d, rgba(188,217,126,0.30)) var(--cui-l, rgba(125,164,58,0.40));
+  --cui-secondary:          var(--cui-d, #1f3726) var(--cui-l, #c2d6b8);
+  --cui-hero-bg:            var(--cui-d, #7d1a18) var(--cui-l, #f0bcb2);
+  --cui-hero-fg:            var(--cui-d, #f2f5ef) var(--cui-l, #131a10);
+  --cui-hero-mute:          var(--cui-d, #e8b9ae) var(--cui-l, #6e4a42);
+  --cui-hero-line:          var(--cui-d, rgba(248,154,134,0.34)) var(--cui-l, rgba(206,34,41,0.30));
+  --cui-tile:               var(--cui-d, #8f7219) var(--cui-l, #b08c1f);
+  --cui-tile-line:          var(--cui-d, #a8871f) var(--cui-l, #c9a227);
+  --cui-glyph:              var(--cui-d, #2b1a05) var(--cui-l, #3d2f07);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+.cui-t-xms-l {
+  --cui-d: ; --cui-l: initial;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #0e1f14) var(--cui-l, #d6e5cf);
+  --cui-bg-1:               var(--cui-d, #16291c) var(--cui-l, #eaf2e5);
+  --cui-bg-2:               var(--cui-d, #1f3726) var(--cui-l, #c2d6b8);
+  --cui-bg-3:               var(--cui-d, #2b4832) var(--cui-l, #adc7a1);
+  --cui-fg:                 var(--cui-d, #f2f5ef) var(--cui-l, #131a10);
+  --cui-fg-mute:            var(--cui-d, #a8bcac) var(--cui-l, #4e5949);
+  --cui-fg-dim:             var(--cui-d, #7a8d7e) var(--cui-l, #7e8879);
+  --cui-border:             var(--cui-d, rgba(242,245,239,0.10)) var(--cui-l, rgba(19,26,16,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(242,245,239,0.20)) var(--cui-l, rgba(19,26,16,0.26));
+  --cui-accent:             var(--cui-d, #ce2229) var(--cui-l, #ce2229);
+  --cui-accent-hover:       var(--cui-d, #a81a20) var(--cui-l, #a81a20);
+  --cui-on-accent:          var(--cui-d, #fff) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #f89a86) var(--cui-l, #9e2318);
+  --cui-link-hover:         var(--cui-d, #f89a86) var(--cui-l, #9e2318);
+  --cui-support:            var(--cui-d, #ce2229) var(--cui-l, #ce2229);
+  --cui-support-text:       var(--cui-d, #f89a86) var(--cui-l, #9e2318);
+  --cui-support-tint:       var(--cui-d, rgba(206,34,41,0.26)) var(--cui-l, rgba(206,34,41,0.14));
+  --cui-support-line:       var(--cui-d, rgba(248,154,134,0.32)) var(--cui-l, rgba(206,34,41,0.28));
+  --cui-third:              var(--cui-d, #a0c356) var(--cui-l, #a0c356);
+  --cui-third-text:         var(--cui-d, #bcd97e) var(--cui-l, #3d5c14);
+  --cui-third-tint:         var(--cui-d, rgba(160,195,86,0.28)) var(--cui-l, rgba(160,195,86,0.45));
+  --cui-third-line:         var(--cui-d, rgba(188,217,126,0.30)) var(--cui-l, rgba(125,164,58,0.40));
+  --cui-secondary:          var(--cui-d, #1f3726) var(--cui-l, #c2d6b8);
+  --cui-hero-bg:            var(--cui-d, #7d1a18) var(--cui-l, #f0bcb2);
+  --cui-hero-fg:            var(--cui-d, #f2f5ef) var(--cui-l, #131a10);
+  --cui-hero-mute:          var(--cui-d, #e8b9ae) var(--cui-l, #6e4a42);
+  --cui-hero-line:          var(--cui-d, rgba(248,154,134,0.34)) var(--cui-l, rgba(206,34,41,0.30));
+  --cui-tile:               var(--cui-d, #8f7219) var(--cui-l, #b08c1f);
+  --cui-tile-line:          var(--cui-d, #a8871f) var(--cui-l, #c9a227);
+  --cui-glyph:              var(--cui-d, #2b1a05) var(--cui-l, #3d2f07);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+.cui-t-est-d {
+  --cui-d: initial; --cui-l: ;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #1c1524) var(--cui-l, #d9eeed);
+  --cui-bg-1:               var(--cui-d, #271e31) var(--cui-l, #eef8f7);
+  --cui-bg-2:               var(--cui-d, #352a41) var(--cui-l, #c3e2e0);
+  --cui-bg-3:               var(--cui-d, #453855) var(--cui-l, #a9d3d1);
+  --cui-fg:                 var(--cui-d, #f4eff7) var(--cui-l, #12191a);
+  --cui-fg-mute:            var(--cui-d, #b6acbe) var(--cui-l, #4b5757);
+  --cui-fg-dim:             var(--cui-d, #857c8d) var(--cui-l, #7b8686);
+  --cui-border:             var(--cui-d, rgba(244,239,247,0.10)) var(--cui-l, rgba(18,25,26,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(244,239,247,0.20)) var(--cui-l, rgba(18,25,26,0.26));
+  --cui-accent:             var(--cui-d, #ae71d4) var(--cui-l, #9e4aa6);
+  --cui-accent-hover:       var(--cui-d, #8f57b4) var(--cui-l, #843d8b);
+  --cui-on-accent:          var(--cui-d, #170f1c) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #d4aeee) var(--cui-l, #8a3d92);
+  --cui-link-hover:         var(--cui-d, #d4aeee) var(--cui-l, #8a3d92);
+  --cui-support:            var(--cui-d, #febfd0) var(--cui-l, #febfd0);
+  --cui-support-text:       var(--cui-d, #f7c7d6) var(--cui-l, #9c3357);
+  --cui-support-tint:       var(--cui-d, rgba(254,191,208,0.30)) var(--cui-l, rgba(254,191,208,0.34));
+  --cui-support-line:       var(--cui-d, rgba(247,199,214,0.32)) var(--cui-l, rgba(156,51,87,0.30));
+  --cui-third:              var(--cui-d, #fbf49a) var(--cui-l, #fbf49a);
+  --cui-third-text:         var(--cui-d, #f7ef9a) var(--cui-l, #6b5d07);
+  --cui-third-tint:         var(--cui-d, rgba(251,244,154,0.26)) var(--cui-l, rgba(251,244,154,0.34));
+  --cui-third-line:         var(--cui-d, rgba(247,239,154,0.30)) var(--cui-l, rgba(107,93,7,0.30));
+  --cui-secondary:          var(--cui-d, #352a41) var(--cui-l, #c3e2e0);
+  --cui-hero-bg:            var(--cui-d, #644b5b) var(--cui-l, #efd2dc);
+  --cui-hero-fg:            var(--cui-d, #f4eff7) var(--cui-l, #12191a);
+  --cui-hero-mute:          var(--cui-d, #ccc5d2) var(--cui-l, #4b5757);
+  --cui-hero-line:          var(--cui-d, rgba(247,199,214,0.32)) var(--cui-l, rgba(156,51,87,0.28));
+  --cui-tile:               var(--cui-d, #9564ab) var(--cui-l, #c286be);
+  --cui-tile-line:          var(--cui-d, #a878bd) var(--cui-l, #cf9bcb);
+  --cui-glyph:              var(--cui-d, #e4cbf5) var(--cui-l, #742f7b);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+.cui-t-est-l {
+  --cui-d: ; --cui-l: initial;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #1c1524) var(--cui-l, #d9eeed);
+  --cui-bg-1:               var(--cui-d, #271e31) var(--cui-l, #eef8f7);
+  --cui-bg-2:               var(--cui-d, #352a41) var(--cui-l, #c3e2e0);
+  --cui-bg-3:               var(--cui-d, #453855) var(--cui-l, #a9d3d1);
+  --cui-fg:                 var(--cui-d, #f4eff7) var(--cui-l, #12191a);
+  --cui-fg-mute:            var(--cui-d, #b6acbe) var(--cui-l, #4b5757);
+  --cui-fg-dim:             var(--cui-d, #857c8d) var(--cui-l, #7b8686);
+  --cui-border:             var(--cui-d, rgba(244,239,247,0.10)) var(--cui-l, rgba(18,25,26,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(244,239,247,0.20)) var(--cui-l, rgba(18,25,26,0.26));
+  --cui-accent:             var(--cui-d, #ae71d4) var(--cui-l, #9e4aa6);
+  --cui-accent-hover:       var(--cui-d, #8f57b4) var(--cui-l, #843d8b);
+  --cui-on-accent:          var(--cui-d, #170f1c) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #d4aeee) var(--cui-l, #8a3d92);
+  --cui-link-hover:         var(--cui-d, #d4aeee) var(--cui-l, #8a3d92);
+  --cui-support:            var(--cui-d, #febfd0) var(--cui-l, #febfd0);
+  --cui-support-text:       var(--cui-d, #f7c7d6) var(--cui-l, #9c3357);
+  --cui-support-tint:       var(--cui-d, rgba(254,191,208,0.30)) var(--cui-l, rgba(254,191,208,0.34));
+  --cui-support-line:       var(--cui-d, rgba(247,199,214,0.32)) var(--cui-l, rgba(156,51,87,0.30));
+  --cui-third:              var(--cui-d, #fbf49a) var(--cui-l, #fbf49a);
+  --cui-third-text:         var(--cui-d, #f7ef9a) var(--cui-l, #6b5d07);
+  --cui-third-tint:         var(--cui-d, rgba(251,244,154,0.26)) var(--cui-l, rgba(251,244,154,0.34));
+  --cui-third-line:         var(--cui-d, rgba(247,239,154,0.30)) var(--cui-l, rgba(107,93,7,0.30));
+  --cui-secondary:          var(--cui-d, #352a41) var(--cui-l, #c3e2e0);
+  --cui-hero-bg:            var(--cui-d, #644b5b) var(--cui-l, #efd2dc);
+  --cui-hero-fg:            var(--cui-d, #f4eff7) var(--cui-l, #12191a);
+  --cui-hero-mute:          var(--cui-d, #ccc5d2) var(--cui-l, #4b5757);
+  --cui-hero-line:          var(--cui-d, rgba(247,199,214,0.32)) var(--cui-l, rgba(156,51,87,0.28));
+  --cui-tile:               var(--cui-d, #9564ab) var(--cui-l, #c286be);
+  --cui-tile-line:          var(--cui-d, #a878bd) var(--cui-l, #cf9bcb);
+  --cui-glyph:              var(--cui-d, #e4cbf5) var(--cui-l, #742f7b);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+.cui-t-cnd-d {
+  --cui-d: initial; --cui-l: ;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #2d0a1e) var(--cui-l, #ffd6e6);
+  --cui-bg-1:               var(--cui-d, #3a1128) var(--cui-l, #fff0f6);
+  --cui-bg-2:               var(--cui-d, #4a1a35) var(--cui-l, #fbbcd6);
+  --cui-bg-3:               var(--cui-d, #5d2444) var(--cui-l, #f5a2c4);
+  --cui-fg:                 var(--cui-d, #f8eef4) var(--cui-l, #1a1016);
+  --cui-fg-mute:            var(--cui-d, #c0a8b6) var(--cui-l, #5f4b55);
+  --cui-fg-dim:             var(--cui-d, #8f7a86) var(--cui-l, #8d7883);
+  --cui-border:             var(--cui-d, rgba(248,238,244,0.10)) var(--cui-l, rgba(26,16,22,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(248,238,244,0.20)) var(--cui-l, rgba(26,16,22,0.26));
+  --cui-accent:             var(--cui-d, #ff70a6) var(--cui-l, #d1207a);
+  --cui-accent-hover:       var(--cui-d, #e04a86) var(--cui-l, #b31a68);
+  --cui-on-accent:          var(--cui-d, #2a0715) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #ffa3c6) var(--cui-l, #a0175c);
+  --cui-link-hover:         var(--cui-d, #ffa3c6) var(--cui-l, #a0175c);
+  --cui-support:            var(--cui-d, #4ee9e9) var(--cui-l, #4ee9e9);
+  --cui-support-text:       var(--cui-d, #8ff2f2) var(--cui-l, #096e6e);
+  --cui-support-tint:       var(--cui-d, #14454d) var(--cui-l, #b5eef1);
+  --cui-support-line:       var(--cui-d, #1d6b76) var(--cui-l, #7fd8dc);
+  --cui-third:              var(--cui-d, #e9ff70) var(--cui-l, #e9ff70);
+  --cui-third-text:         var(--cui-d, #e9ff70) var(--cui-l, #4f5804);
+  --cui-third-tint:         var(--cui-d, #354715) var(--cui-l, #e2f2a0);
+  --cui-third-line:         var(--cui-d, #4a6420) var(--cui-l, #c8dc78);
+  --cui-secondary:          var(--cui-d, #4a1a35) var(--cui-l, #fbbcd6);
+  --cui-hero-bg:            var(--cui-d, #0f5560) var(--cui-l, #93e2e7);
+  --cui-hero-fg:            var(--cui-d, #f8eef4) var(--cui-l, #1a1016);
+  --cui-hero-mute:          var(--cui-d, #a8d4da) var(--cui-l, #3f5457);
+  --cui-hero-line:          var(--cui-d, #2a939b) var(--cui-l, #4bb8bf);
+  --cui-tile:               var(--cui-d, #d6538c) var(--cui-l, #e0448a);
+  --cui-tile-line:          var(--cui-d, #e26196) var(--cui-l, #ee6ba1);
+  --cui-glyph:              var(--cui-d, #2a0817) var(--cui-l, #ffe0ee);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+.cui-t-cnd-l {
+  --cui-d: ; --cui-l: initial;
+  color-scheme: var(--cui-d, dark) var(--cui-l, light);
+  --cui-bg:                 var(--cui-d, #2d0a1e) var(--cui-l, #ffd6e6);
+  --cui-bg-1:               var(--cui-d, #3a1128) var(--cui-l, #fff0f6);
+  --cui-bg-2:               var(--cui-d, #4a1a35) var(--cui-l, #fbbcd6);
+  --cui-bg-3:               var(--cui-d, #5d2444) var(--cui-l, #f5a2c4);
+  --cui-fg:                 var(--cui-d, #f8eef4) var(--cui-l, #1a1016);
+  --cui-fg-mute:            var(--cui-d, #c0a8b6) var(--cui-l, #5f4b55);
+  --cui-fg-dim:             var(--cui-d, #8f7a86) var(--cui-l, #8d7883);
+  --cui-border:             var(--cui-d, rgba(248,238,244,0.10)) var(--cui-l, rgba(26,16,22,0.14));
+  --cui-border-strong:      var(--cui-d, rgba(248,238,244,0.20)) var(--cui-l, rgba(26,16,22,0.26));
+  --cui-accent:             var(--cui-d, #ff70a6) var(--cui-l, #d1207a);
+  --cui-accent-hover:       var(--cui-d, #e04a86) var(--cui-l, #b31a68);
+  --cui-on-accent:          var(--cui-d, #2a0715) var(--cui-l, #fff);
+  --cui-link:               var(--cui-d, #ffa3c6) var(--cui-l, #a0175c);
+  --cui-link-hover:         var(--cui-d, #ffa3c6) var(--cui-l, #a0175c);
+  --cui-support:            var(--cui-d, #4ee9e9) var(--cui-l, #4ee9e9);
+  --cui-support-text:       var(--cui-d, #8ff2f2) var(--cui-l, #096e6e);
+  --cui-support-tint:       var(--cui-d, #14454d) var(--cui-l, #b5eef1);
+  --cui-support-line:       var(--cui-d, #1d6b76) var(--cui-l, #7fd8dc);
+  --cui-third:              var(--cui-d, #e9ff70) var(--cui-l, #e9ff70);
+  --cui-third-text:         var(--cui-d, #e9ff70) var(--cui-l, #4f5804);
+  --cui-third-tint:         var(--cui-d, #354715) var(--cui-l, #e2f2a0);
+  --cui-third-line:         var(--cui-d, #4a6420) var(--cui-l, #c8dc78);
+  --cui-secondary:          var(--cui-d, #4a1a35) var(--cui-l, #fbbcd6);
+  --cui-hero-bg:            var(--cui-d, #0f5560) var(--cui-l, #93e2e7);
+  --cui-hero-fg:            var(--cui-d, #f8eef4) var(--cui-l, #1a1016);
+  --cui-hero-mute:          var(--cui-d, #a8d4da) var(--cui-l, #3f5457);
+  --cui-hero-line:          var(--cui-d, #2a939b) var(--cui-l, #4bb8bf);
+  --cui-tile:               var(--cui-d, #d6538c) var(--cui-l, #e0448a);
+  --cui-tile-line:          var(--cui-d, #e26196) var(--cui-l, #ee6ba1);
+  --cui-glyph:              var(--cui-d, #2a0817) var(--cui-l, #ffe0ee);
+  --cui-success:            var(--cui-d, #34d399) var(--cui-l, #036348);
+  --cui-warning:            var(--cui-d, #fbbf24) var(--cui-l, #76460b);
+  --cui-error:              var(--cui-d, #f87171) var(--cui-l, #a11818);
+  --cui-info:               var(--cui-d, #7dd3fc) var(--cui-l, #075985);
+  --cui-onstatus:           var(--cui-d, #0b0e14) var(--cui-l, #ffffff);
+}
+
+/* ---- 1b. Deprecated aliases ------------------------------------------
+   Kept so 0.3.x consumers keep rendering. Every one of these is scheduled
+   for removal in 1.0; the replacement is named in the comment. Two of them
+   were stops in the retiring purple-to-blue gradient and now resolve to
+   flat accent values, so a consumer still asking for a gradient gets a
+   single colour rather than the old brand. */
+
+:root {
+  --cui-accent-soft:      var(--cui-link);          /* use --cui-link */
+  --cui-accent-mute:      var(--cui-support-tint);  /* use --cui-support-tint */
+  --cui-accent-tint:      var(--cui-support-line);  /* use --cui-support-line */
+  --cui-accent-pink:      var(--cui-third);         /* use --cui-third */
+  --cui-warn:             var(--cui-warning);       /* use --cui-warning */
+  --cui-danger:           var(--cui-error);         /* use --cui-error */
+  --cui-danger-hover:     var(--cui-error);         /* use --cui-error */
+  --cui-warning-hover:    var(--cui-warning);       /* use --cui-warning */
+  --cui-info-strong:      var(--cui-info);          /* use --cui-info */
+  --cui-info-strong-hover:var(--cui-info);          /* use --cui-info */
+  --cui-secondary-hover:  var(--cui-bg-3);          /* use --cui-bg-3 */
+  --cui-surface:          var(--cui-bg-1);          /* use --cui-bg-1 */
+  --cui-surface-2:        var(--cui-bg-2);          /* use --cui-bg-2 */
+  --cui-surface-hover:    var(--cui-d, rgba(255,255,255,0.06)) var(--cui-l, rgba(0,0,0,0.05));
+  --cui-accent-gradient:  linear-gradient(135deg, var(--cui-support-tint), var(--cui-third-tint));
+  --cui-brand-gradient:   linear-gradient(120deg, var(--cui-accent), var(--cui-support), var(--cui-accent));
+}
 
 .cui-tokens,
 .cui-ui {
-  /* ---- 1. Color ---- */
-
-  /* Accent: the purple/blue gradient that defines Modern Whimsy. */
-  --cui-accent:           #7c6af7;            /* primary accent — buttons, focus rings */
-  --cui-accent-soft:      #a5b4fc;            /* secondary accent — icons, captions */
-  --cui-accent-mute:      rgba(124,106,247,0.18);
-  --cui-accent-tint:      rgba(124,106,247,0.28);
-  --cui-accent-hover:     #8e7df8;            /* accent, one notch lighter — :hover fills (distinct from -soft, which is a lighter SECONDARY role) */
-  --cui-accent-pink:      #c780f7;            /* third brand accent (magenta) — gradient stop + playful flourishes */
-
-  /* Backgrounds — layered from deepest to highest. */
-  --cui-bg:               #0b0e14;            /* root canvas */
-  --cui-bg-1:             #11151d;            /* primary surface (cards) */
-  --cui-bg-2:             #1a1f2b;            /* raised surface (hover, modal) */
-  --cui-bg-3:             #232938;            /* highest — popovers, selected rows */
-
-  /* Translucent "glass" surfaces — alpha so a blurred desktop/wallpaper shows
-     through (floating shell panels, menus). Distinct from the opaque --cui-bg-*
-     layers above; reach for these when the panel sits over live content. */
-  --cui-surface:          rgba(20,22,30,0.85);    /* primary glass panel */
-  --cui-surface-2:        rgba(28,30,40,0.75);    /* raised glass panel */
-  --cui-surface-hover:    rgba(255,255,255,0.06); /* additive white wash for hover over any surface */
-
-  /* Foregrounds. */
-  --cui-fg:               #e5e9f0;            /* primary text */
-  --cui-fg-mute:          #9ca3af;            /* secondary / placeholder */
-  --cui-fg-dim:           #6b7280;            /* tertiary / disabled */
-
-  /* Borders + dividers. */
-  --cui-border:           rgba(255,255,255,0.08);
-  --cui-border-strong:    rgba(255,255,255,0.16);
-
-  /* Status colors. Used by .cui-pill variants + level chips. These are
-     the lighter "on dark surface" tints, readable as text/pill fills. */
-  --cui-success:          #34d399;
-  --cui-warn:             #fbbf24;
-  --cui-error:            #f87171;
-  --cui-info:             var(--cui-accent-soft);
-
-  /* Semantic button colors. Button-weight shades, deliberately a touch
-     stronger/more saturated than the pill tints above so a filled
-     button reads as solid and its white label keeps contrast. The
-     button variants in ui.css consume these; `--cui-accent` already
-     serves "primary". */
-  --cui-secondary:        #3b4252;            /* neutral slate fill */
-  --cui-secondary-hover:  #474f63;
-  --cui-danger:           #ef4444;            /* destructive red */
-  --cui-danger-hover:     #dc2626;
-  --cui-warning:          #f59e0b;
-  --cui-warning-hover:    #d97706;
-  --cui-info-strong:      #4a9eff;            /* button-weight info blue */
-  --cui-info-strong-hover:#2f8aee;
-  --cui-link:             var(--cui-accent-soft);
-  --cui-link-hover:       var(--cui-accent);
-
-  /* The signature gradient. Use as background-image on hero
-     surfaces (header tiles, icon badges). */
-  --cui-accent-gradient:  linear-gradient(135deg,
-                            rgba(124,106,247,0.28),
-                            rgba(74,158,255,0.18));
-
-  /* The full-saturation brand sweep (opaque, 4-stop) — for animated accent bars,
-     primary-button fills, hero spans. Distinct from --cui-accent-gradient above,
-     which is a translucent OVERLAY tint meant to blend over a surface. */
-  --cui-brand-gradient:   linear-gradient(120deg,
-                            var(--cui-accent) 0%,
-                            var(--cui-info-strong) 35%,
-                            var(--cui-accent-pink) 70%,
-                            var(--cui-accent) 100%);
 
   /* ---- 2. Typography ---- */
 
@@ -131,11 +1245,14 @@
 
   --cui-border-width:     1px;
 
-  /* Shadows. Accent-tinted for the Modern Whimsy lift on hover. */
+  /* Shadows. The accent shadow is now flavor-aware: an accent-tinted glow
+     reads as a smudge on a light ground, so light gets a neutral drop. */
   --cui-shadow-sm:        0 1px 2px rgba(0,0,0,0.3);
   --cui-shadow:           0 4px 12px rgba(0,0,0,0.4);
-  --cui-shadow-accent:    0 6px 20px rgba(124,106,247,0.25);
-  --cui-shadow-lg:        0 10px 40px rgba(0,0,0,0.45);  /* large ambient drop — floating popovers / menus / overlay panels */
+  --cui-shadow-accent:    var(--cui-d, 0 6px 20px rgba(0,0,0,0.45))
+                          var(--cui-l, 0 6px 20px rgba(0,0,0,0.12));
+  --cui-shadow-lg:        var(--cui-d, 0 10px 40px rgba(0,0,0,0.45))
+                          var(--cui-l, 0 10px 40px rgba(0,0,0,0.16));
 
   /* ---- 4. Motion ---- */
 
@@ -145,6 +1262,9 @@
 
   --cui-ease:             cubic-bezier(0.2, 0.7, 0.3, 1);
   --cui-ease-out:         cubic-bezier(0.16, 1, 0.3, 1);
+  /* Reserved for moments that need character: the error card bounce-in,
+     an empty state rising into place. Not a general-purpose easing. */
+  --cui-ease-bounce:      cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Apply baseline typography + background to wrapped content. */
   font-family: var(--cui-font-sans);

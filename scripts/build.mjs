@@ -3,9 +3,9 @@
  * Build script for @conjureos/ui.
  *
  * v1 is deliberately tiny: concatenate src/tokens.css + src/ui.css
- * into dist/ui.css with a version header. No PostCSS pipeline yet —
+ * into dist/ui.css with a version header. No PostCSS pipeline yet;
  * the source is already vanilla CSS and small enough that minification
- * isn't worth the dependency cost.
+ * is not worth the dependency cost.
  *
  * `--watch` re-runs on source change for local dev round-trips. Uses
  * Node's fs.watch which is good-enough on Windows + macOS; for Linux
@@ -25,6 +25,8 @@ const repo = resolve(here, "..");
 const srcDir = resolve(repo, "src");
 const distDir = resolve(repo, "dist");
 const distFile = resolve(distDir, "ui.css");
+const themeSrc = resolve(srcDir, "theme.js");
+const themeOut = resolve(distDir, "theme.js");
 const styleGuideFile = resolve(repo, "MODERN_WHIMSY.md");
 
 const pkg = JSON.parse(await readFile(resolve(repo, "package.json"), "utf-8"));
@@ -110,7 +112,7 @@ const build = async () => {
     `/*!\n` +
     ` * @conjureos/ui v${pkg.version}\n` +
     ` * Built ${new Date().toISOString()}\n` +
-    ` * MIT License — https://github.com/Jonny-B/conjureos-ui\n` +
+    ` * MIT License, https://github.com/Jonny-B/conjureos-ui\n` +
     ` */\n\n`;
 
   const out = header + tokens + "\n\n" + ui;
@@ -119,6 +121,21 @@ const build = async () => {
   await writeFile(distFile, out, "utf-8");
 
   console.log(`[conjureos-ui] built v${pkg.version} → ${distFile} (${out.length} bytes)`);
+
+  // The optional theme resolver. Copied rather than bundled: it is a plain
+  // script with no imports, and apps load it with a <script> tag.
+  const theme = await readFile(themeSrc, "utf-8");
+  const themeHeader =
+    `/*!
+` +
+    ` * @conjureos/ui theme resolver v${pkg.version}
+` +
+    ` * MIT License, https://github.com/Jonny-B/conjureos-ui
+` +
+    ` */
+`;
+  await writeFile(themeOut, themeHeader + theme, "utf-8");
+  console.log(`[conjureos-ui] built theme.js → ${themeOut} (${theme.length} bytes)`);
 
   await updateStyleGuide(extractPrimitives(ui));
 };
@@ -130,7 +147,7 @@ await build();
 if (watchMode) {
   console.log("[conjureos-ui] watching src/ for changes…");
   watch(srcDir, { recursive: false }, async (_event, filename) => {
-    if (!filename || !filename.endsWith(".css")) return;
+    if (!filename || !(filename.endsWith(".css") || filename.endsWith(".js"))) return;
     try {
       await build();
     } catch (err) {

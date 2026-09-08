@@ -9,13 +9,13 @@ This is the design library AI-generated ConjureOS apps consume so they visually 
 
 ## See it live
 
-Open [`demo.html`](demo.html) in any browser. The page renders every primitive class and color token in one place with copy-pasteable code snippets beside each example. No build step, no JS framework, no dependencies; the file pulls the published CSS from the unpkg CDN at load time so a fresh `git clone` works immediately.
+Run `npm run build`, then open [`demo.html`](demo.html) in any browser. No server, no framework, no dependencies.
 
-To preview a local working copy of the library instead (e.g. while developing new tokens), swap `demo.html`'s `<link>` tag from `https://unpkg.com/@conjureos/ui/dist/ui.css` to `./dist/ui.css` and run `npm run build` first.
+The page renders every primitive in all nine themes and both flavors, with a theme dropdown at the top and the markup for each component in a collapsible block beside it. It loads the real `dist/ui.css`, so what you see is exactly what your app gets; anything wrong on that page is wrong in the package.
 
 ## Style guide
 
-[MODERN_WHIMSY.md](MODERN_WHIMSY.md) is the canonical reference for the visual language: palette, type, motion, surface idioms, voice, and known drift. The final `## For agents` section is inline-imported by the ConjureOS Dev agent's system prompt, so edits to that section flow straight into AI-generated apps.
+[MODERN_WHIMSY.md](MODERN_WHIMSY.md) is the canonical reference for the visual language: the theming contract, all nine palettes with their values, the full token reference, every component with its markup, surface idioms, voice, and known drift. The final `## For agents` section is inline-imported by the ConjureOS Dev agent's system prompt, so edits to that section flow straight into AI-generated apps.
 
 ## Install
 
@@ -73,33 +73,51 @@ Or copy `node_modules/@conjureos/ui/dist/ui.css` into your own static assets and
 
 Apps that want to go off-brand entirely just omit the wrapper class.
 
-## Token reference (the most-reached-for ones)
+## Theming
 
-| Token | Value | Use |
-|---|---|---|
-| `--cui-accent` | `#7c6af7` | Primary accent (buttons, focus rings) |
-| `--cui-accent-soft` | `#a5b4fc` | Secondary accent (icons, captions) |
-| `--cui-bg` | `#0b0e14` | Root canvas |
-| `--cui-bg-1` | `#11151d` | Cards |
-| `--cui-bg-2` | `#1a1f2b` | Hover / modal surface |
-| `--cui-fg` | `#e5e9f0` | Primary text |
-| `--cui-fg-mute` | `#9ca3af` | Secondary text |
-| `--cui-radius` | `10px` | Default corner |
-| `--cui-radius-pill` | `999px` | Pill shapes |
-| `--cui-accent-gradient` | `linear-gradient(135deg, ...)` | Hero surface backing |
+Two attributes, set on `<html>`.
 
-Full set in `src/tokens.css`.
+```html
+<html lang="en" data-theme="spr" data-flavor="dark">
+```
+
+`data-theme` picks one of nine palettes: `cnj` (Conjure, the default), `hal`, `fal`, `win`, `spr`, `sum`, `xms`, `est`, `cnd`. `data-flavor` is `dark` or `light`.
+
+Both are optional. Omit `data-theme` and the app inherits Conjure; omit `data-flavor` and it follows the browser's light/dark preference. Every one of the eighteen resulting token sets meets WCAG 2.1 AA.
+
+To follow the ConjureOS theme and offer users a picker in your own settings, load the optional resolver:
+
+```html
+<script src="/_conjureos/ui/theme.js"></script>
+<script>ConjureTheme.init({ theme: "spr" });</script>
+```
+
+See [MODERN_WHIMSY.md](MODERN_WHIMSY.md) for the precedence rules, the settings-panel pattern, and the full token reference.
+
+## Token reference
+
+Thirty five colour tokens, redefined by every theme in both flavors, plus theme-independent type, space, radius and motion tokens. Never hardcode a hex value; it will be wrong in eight of the nine themes.
+
+The most-reached-for:
+
+| Token | Use |
+|---|---|
+| `--cui-bg` / `-1` / `-2` / `-3` | Ground layers, deepest to highest |
+| `--cui-fg` / `-mute` / `-dim` | The only three text tiers |
+| `--cui-accent` | The lead hue as a fill |
+| `--cui-on-accent` | The label on that fill. Never `white`. |
+| `--cui-link` | The lead hue as text. A different value from `--cui-accent`. |
+| `--cui-support` / `--cui-third` | The palette's other two hues, each with `-text` / `-tint` / `-line` |
+| `--cui-hero-bg` / `-fg` | The featured card and its own foreground |
+| `--cui-border` | Hairline |
+| `--cui-radius` | `10px` default corner |
+| `--cui-radius-pill` | `999px` |
+
+Full set in `src/tokens.css`, documented in [MODERN_WHIMSY.md](MODERN_WHIMSY.md).
 
 ## Primitive class reference
 
-- **Layout:** `cui-stack-v`, `cui-stack-h`, `cui-stack-h--between`
-- **Card:** `cui-card`, `cui-card--interactive`, `cui-card--hero`
-- **Button:** `cui-button`, `cui-button--primary`, `cui-button--ghost`, `cui-button--pill`
-- **Status pill:** `cui-pill`, `cui-pill--success`, `cui-pill--warn`, `cui-pill--error`
-- **Chip:** `cui-chip`, `cui-chip--active`
-- **Input:** `cui-input`, `cui-label`
-- **Typography:** `cui-heading`, `cui-subheading`, `cui-muted`, `cui-dim`
-- **Divider:** `cui-divider`
+Around fifty primitives across buttons, form controls, feedback, pills and chips, navigation, data display and surfaces. The complete list is autogenerated into [MODERN_WHIMSY.md](MODERN_WHIMSY.md) at build time, and every one is rendered with its markup in [`demo.html`](demo.html).
 
 ## Build
 
@@ -107,7 +125,7 @@ Full set in `src/tokens.css`.
 npm run build
 ```
 
-Produces `dist/ui.css`, a single concatenated stylesheet with a version header. v1 keeps the build dead simple; PostCSS / minification can layer in when the surface grows.
+Produces `dist/ui.css`, a single concatenated stylesheet with a version header, and `dist/theme.js`, the optional theme resolver. It also refreshes the autogenerated primitive list inside `MODERN_WHIMSY.md`. v1 keeps the build dead simple; PostCSS and minification can layer in when the surface grows.
 
 ```bash
 npm run dev
@@ -127,7 +145,7 @@ Pre-1.0. The token names and primitive classes are stable for v1 but not yet con
 
 ## Roadmap
 
-See the [ConjureOS UI project board](https://github.com/users/Jonny-B/projects/12) for what is done, in flight, and queued. Highlights for upcoming work: light theme support, animation utility classes, form primitives beyond input, an optional Web Components layer.
+See the [ConjureOS UI project board](https://github.com/users/Jonny-B/projects/12) for what is done, in flight, and queued. Light and dark flavors and the nine-palette theme system shipped in 0.4.0. Highlights for upcoming work: the ConjureOS shell half of the theme handshake, animation utility classes, and an optional Web Components layer.
 
 ## Changelog
 
