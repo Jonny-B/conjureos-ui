@@ -1,0 +1,204 @@
+/*
+ * @conjureos/ui - theme resolver
+ *
+ * Optional. The CSS works without a line of JavaScript: set data-theme and
+ * data-flavor on <html> and you are done. This file exists for the case the
+ * CSS cannot cover on its own, which is an app running inside ConjureOS
+ * wanting to follow the theme the user picked at the OS level.
+ *
+ * Apps run in an iframe, and custom-property inheritance does not cross an
+ * iframe boundary, so the shell has to tell the app. This implements the
+ * app's half of that conversation, plus the precedence rules, plus
+ * persistence, so every app resolves the theme the same way instead of each
+ * one inventing a slightly different answer.
+ *
+ * Precedence, highest first:
+ *   1. what the user chose in THIS app's settings (localStorage)
+ *   2. what ConjureOS says the OS theme is (postMessage, or URL parameters)
+ *   3. the default the app passed to init()
+ *
+ * Choosing "System" in an app's settings clears level 1, which lets level 2
+ * through. An app opened outside ConjureOS gets no level 2, so it falls to
+ * its own default and behaves exactly like a normal standalone site.
+ */
+(function (global) {
+  "use strict";
+
+  var THEMES = [
+    { id: "cnj", label: "Conjure" },
+    { id: "hal", label: "Halloween" },
+    { id: "fal", label: "Fall" },
+    { id: "win", label: "Winter" },
+    { id: "spr", label: "Spring" },
+    { id: "sum", label: "Summer" },
+    { id: "xms", label: "Christmas" },
+    { id: "est", label: "Easter" },
+    { id: "cnd", label: "Candyland" }
+  ];
+  var IDS = THEMES.map(function (t) { return t.id; });
+  var FLAVORS = ["dark", "light"];
+  var MSG = "conjureos:theme";
+
+  function valid(id) { return IDS.indexOf(id) >= 0 ? id : null; }
+  function validFlavor(f) { return FLAVORS.indexOf(f) >= 0 ? f : null; }
+
+  function create() {
+    var state = {
+      root: null,
+      key: null,
+      appTheme: null,     // level 3
+      appFlavor: null,
+      osTheme: null,      // level 2
+      osFlavor: null,
+      userTheme: null,    // level 1, null means "follow the OS"
+      userFlavor: null,
+      started: false
+    };
+    var listeners = [];
+
+    function readStore() {
+      if (!state.key) return;
+      try {
+        var raw = global.localStorage.getItem(state.key);
+        if (!raw) return;
+        var saved = JSON.parse(raw);
+        state.userTheme = valid(saved.theme);
+        state.userFlavor = validFlavor(saved.flavor);
+      } catch (e) { /* private mode, or a corrupt value. Ignore both. */ }
+    }
+
+    function writeStore() {
+      if (!state.key) return;
+      try {
+        global.localStorage.setItem(state.key, JSON.stringify({
+          theme: state.userTheme,
+          flavor: state.userFlavor
+        }));
+      } catch (e) { /* storage blocked. The choice still applies this session. */ }
+    }
+
+    function readUrl() {
+      try {
+        var q = new global.URLSearchParams(global.location.search);
+        state.osTheme = valid(q.get("cui-theme")) || state.osTheme;
+        state.osFlavor = validFlavor(q.get("cui-flavor")) || state.osFlavor;
+      } catch (e) { /* no URL API. Fine, postMessage still works. */ }
+    }
+
+    function resolved() {
+      return {
+        theme: state.userTheme || state.osTheme || state.appTheme || null,
+        flavor: state.userFlavor || state.osFlavor || state.appFlavor || null,
+        source: state.userTheme ? "user" : (state.osTheme ? "os" : "app"),
+        // A picker has to tell "System" apart from an explicit choice that
+        // happens to match, so the raw user layer is exposed alongside the
+        // resolved value. null on either means "following the level above".
+        userTheme: state.userTheme,
+        userFlavor: state.userFlavor,
+        following: state.userTheme === null
+      };
+    }
+
+    function apply() {
+      var r = resolved();
+      var el = state.root || global.document.documentElement;
+      // Absent attribute means "inherit", which for the document root means
+      // the Conjure default for the theme and the browser's preference for
+      // the flavor. That is the intended behavior, so remove rather than
+      // write an empty string.
+      if (r.theme) el.setAttribute("data-theme", r.theme);
+      else el.removeAttribute("data-theme");
+      if (r.flavor) el.setAttribute("data-flavor", r.flavor);
+      else el.removeAttribute("data-flavor");
+
+      for (var i = 0; i < listeners.length; i++) {
+        try { listeners[i](r); } catch (e) { /* one bad listener must not stop the rest */ }
+      }
+      return r;
+    }
+
+    function onMessage(ev) {
+      var d = ev && ev.data;
+      if (!d || d.type !== MSG) return;
+      // Only the embedder can drive the OS layer. A message from anywhere
+      // else is a page trying to restyle an app it does not own.
+      if (global.parent && ev.source !== global.parent) return;
+      var t = valid(d.theme);
+      var f = validFlavor(d.flavor);
+      if (t === state.osTheme && f === state.osFlavor) return;
+      state.osTheme = t;
+      state.osFlavor = f;
+      apply();
+    }
+
+    var api = {
+      THEMES: THEMES.slice(),
+      FLAVORS: FLAVORS.slice(),
+
+      /*
+       * opts.theme   default palette for this app, e.g. "spr". Optional; omit
+       *              to use the Conjure default.
+       * opts.flavor  "dark" | "light". Optional; omit to follow the browser.
+       * opts.storageKey  where this app remembers the user's choice. Defaults
+       *              to "conjureos.theme". Give each app its own key if you
+       *              do not want the choice shared across same-origin apps.
+       * opts.root    element to write the attributes on. Defaults to <html>.
+       */
+      init: function (opts) {
+        opts = opts || {};
+        state.root = opts.root || null;
+        state.key = opts.storageKey === null ? null : (opts.storageKey || "conjureos.theme");
+        state.appTheme = valid(opts.theme);
+        state.appFlavor = validFlavor(opts.flavor);
+
+        readStore();
+        readUrl();
+
+        if (!state.started) {
+          state.started = true;
+          global.addEventListener("message", onMessage);
+          // Announce to the shell that this app follows the OS theme. If
+          // nothing is listening, nothing happens and we keep the app default.
+          try {
+            if (global.parent && global.parent !== global) {
+              global.parent.postMessage({ type: MSG + ":subscribe" }, "*");
+            }
+          } catch (e) { /* cross-origin parent that refuses. Not fatal. */ }
+        }
+        return apply();
+      },
+
+      /* null means "follow ConjureOS", which is the System option in a picker. */
+      setTheme: function (id) {
+        state.userTheme = id === null ? null : valid(id);
+        writeStore();
+        return apply();
+      },
+
+      /* null means "follow the browser's light or dark preference". */
+      setFlavor: function (f) {
+        state.userFlavor = f === null ? null : validFlavor(f);
+        writeStore();
+        return apply();
+      },
+
+      get: function () { return resolved(); },
+
+      /* Returns an unsubscribe function. */
+      subscribe: function (fn) {
+        listeners.push(fn);
+        return function () {
+          var i = listeners.indexOf(fn);
+          if (i >= 0) listeners.splice(i, 1);
+        };
+      }
+    };
+
+    return api;
+  }
+
+  var instance = create();
+
+  if (typeof module === "object" && module.exports) module.exports = instance;
+  else global.ConjureTheme = instance;
+})(typeof globalThis !== "undefined" ? globalThis : window);

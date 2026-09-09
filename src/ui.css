@@ -1,5 +1,5 @@
 /*
- * @conjureos/ui — ui.css
+ * @conjureos/ui, ui.css
  *
  * Primitive component classes built on tokens.css. Wrap content in
  * `.cui-ui` to pick up everything; tokens + primitives.
@@ -57,10 +57,15 @@
 }
 
 .cui-ui .cui-card--hero {
-  background: var(--cui-accent-gradient), var(--cui-bg-1);
-  background-blend-mode: normal;
-  border-color: var(--cui-accent-tint);
+  background: var(--cui-hero-bg);
+  border-color: var(--cui-hero-line);
+  color: var(--cui-hero-fg);
 }
+
+/* The featured card can be LIGHTER than its ground (Summer), so it carries
+   its own foreground pair rather than inheriting the panel's. */
+.cui-ui .cui-card--hero .cui-muted,
+.cui-ui .cui-card--hero .cui-dim { color: var(--cui-hero-mute); }
 
 /* ---- Button ---- */
 
@@ -100,16 +105,19 @@
   transform: none;
 }
 
+/* The label is a token, not `white`. Six of the nine themes have a lead
+   hue too light to carry white text; Fall's gold takes white at 3.24:1 and
+   a near-black at 5.85:1. --cui-on-accent resolves per theme and flavor. */
 .cui-ui .cui-button--primary {
   background: var(--cui-accent);
   border-color: var(--cui-accent);
-  color: white;
+  color: var(--cui-on-accent);
 }
 
 .cui-ui .cui-button--primary:hover {
-  background: var(--cui-accent-soft);
-  border-color: var(--cui-accent-soft);
-  color: var(--cui-bg);
+  background: var(--cui-accent-hover);
+  border-color: var(--cui-accent-hover);
+  color: var(--cui-on-accent);
 }
 
 .cui-ui .cui-button--ghost {
@@ -118,7 +126,7 @@
 }
 
 .cui-ui .cui-button--ghost:hover {
-  background: var(--cui-accent-mute);
+  background: var(--cui-support-tint);
   border-color: transparent;
 }
 
@@ -127,51 +135,47 @@
   padding: var(--cui-space-2) var(--cui-space-5);
 }
 
-/* Semantic filled variants. Each is a solid fill with a white label and
-   a darken-on-hover; they share the base button's shape, padding, and
-   motion. Use them by altitude of intent: secondary for the quiet
-   alternative next to primary, danger for destructive actions, warning
-   for "are you sure," info for neutral-positive callouts. */
+/* Semantic filled variants. Each is a solid fill whose label comes from
+   --cui-onstatus, which is near-black on the dark flavor and white on the
+   light one. They share the base button's shape, padding, and motion. Use
+   them by altitude of intent: secondary for the quiet alternative next to
+   primary, danger for destructive actions, warning for "are you sure,"
+   info for neutral-positive callouts. */
 .cui-ui .cui-button--secondary {
   background: var(--cui-secondary);
   border-color: var(--cui-secondary);
   color: var(--cui-fg);
 }
 .cui-ui .cui-button--secondary:hover {
-  background: var(--cui-secondary-hover);
-  border-color: var(--cui-secondary-hover);
+  background: var(--cui-bg-3);
+  border-color: var(--cui-bg-3);
 }
 
 .cui-ui .cui-button--danger {
-  background: var(--cui-danger);
-  border-color: var(--cui-danger);
-  color: white;
+  background: var(--cui-error);
+  border-color: var(--cui-error);
+  color: var(--cui-onstatus);
 }
 .cui-ui .cui-button--danger:hover {
-  background: var(--cui-danger-hover);
-  border-color: var(--cui-danger-hover);
-  color: white;
+  filter: brightness(0.92);
 }
 
 .cui-ui .cui-button--warning {
   background: var(--cui-warning);
   border-color: var(--cui-warning);
-  color: #1a1206;
+  color: var(--cui-onstatus);
 }
 .cui-ui .cui-button--warning:hover {
-  background: var(--cui-warning-hover);
-  border-color: var(--cui-warning-hover);
+  filter: brightness(0.92);
 }
 
 .cui-ui .cui-button--info {
-  background: var(--cui-info-strong);
-  border-color: var(--cui-info-strong);
-  color: white;
+  background: var(--cui-info);
+  border-color: var(--cui-info);
+  color: var(--cui-onstatus);
 }
 .cui-ui .cui-button--info:hover {
-  background: var(--cui-info-strong-hover);
-  border-color: var(--cui-info-strong-hover);
-  color: white;
+  filter: brightness(0.92);
 }
 
 /* Link-style button: no chrome, reads as inline text but keeps button
@@ -198,10 +202,10 @@
   align-items: center;
   gap: var(--cui-space-1);
   padding: 2px var(--cui-space-3);
-  background: var(--cui-accent-mute);
-  border: var(--cui-border-width) solid var(--cui-accent-tint);
+  background: var(--cui-support-tint);
+  border: var(--cui-border-width) solid var(--cui-support-line);
   border-radius: var(--cui-radius-pill);
-  color: var(--cui-accent-soft);
+  color: var(--cui-support-text);
   font-size: var(--cui-text-xs);
   font-weight: var(--cui-weight-medium);
   line-height: 1.4;
@@ -209,17 +213,25 @@
   letter-spacing: 0.04em;
 }
 
-.cui-ui .cui-pill--success { background: rgba(52,211,153,0.14); border-color: rgba(52,211,153,0.35); color: var(--cui-success); }
-.cui-ui .cui-pill--warn    { background: rgba(251,191,36,0.14); border-color: rgba(251,191,36,0.35); color: var(--cui-warn); }
-.cui-ui .cui-pill--error   { background: rgba(248,113,113,0.14); border-color: rgba(248,113,113,0.35); color: var(--cui-error); }
+/* Derived from the status token rather than a frozen literal. The light
+   flavors carry a deepened status set, so a hardcoded rgba of the dark
+   green left the fill and its own label unrelated, and washed the border
+   out entirely on a warm ground like Halloween's parchment. */
+.cui-ui .cui-pill--success { background: color-mix(in srgb, var(--cui-success) 14%, transparent); border-color: color-mix(in srgb, var(--cui-success) 35%, transparent); color: var(--cui-success); }
+.cui-ui .cui-pill--warn    { background: color-mix(in srgb, var(--cui-warning) 14%, transparent); border-color: color-mix(in srgb, var(--cui-warning) 35%, transparent); color: var(--cui-warning); }
+.cui-ui .cui-pill--error   { background: color-mix(in srgb, var(--cui-error) 14%, transparent);   border-color: color-mix(in srgb, var(--cui-error) 35%, transparent);   color: var(--cui-error); }
 /* `--danger` is an alias of `--error` for naming parity with the button
    variants; `--info` rounds out the set (uses the soft accent tint). */
-.cui-ui .cui-pill--danger  { background: rgba(239,68,68,0.14);  border-color: rgba(239,68,68,0.4);   color: var(--cui-error); }
-.cui-ui .cui-pill--info    { background: var(--cui-accent-mute); border-color: var(--cui-accent-tint); color: var(--cui-info); }
-/* Neutral / quiet variant — a grey label pill with no accent, for calm metadata
+.cui-ui .cui-pill--danger  { background: color-mix(in srgb, var(--cui-error) 14%, transparent);   border-color: color-mix(in srgb, var(--cui-error) 40%, transparent);   color: var(--cui-error); }
+.cui-ui .cui-pill--info    { background: var(--cui-bg-2); border-color: var(--cui-info); color: var(--cui-info); }
+/* The palette's two non-lead hues, as pill families. Support carries the
+   featured card; third is the sparing note. Both are per theme. */
+.cui-ui .cui-pill--support { background: var(--cui-support-tint); border-color: var(--cui-support-line); color: var(--cui-support-text); }
+.cui-ui .cui-pill--third   { background: var(--cui-third-tint);   border-color: var(--cui-third-line);   color: var(--cui-third-text); }
+/* Neutral or quiet variant: a grey label pill with no accent, for calm metadata
    tags (categories, "Advanced", counts) that shouldn't shout. */
-.cui-ui .cui-pill--neutral { background: var(--cui-surface-hover); border-color: var(--cui-border); color: var(--cui-fg-mute); }
-/* Plain variant — drops the uppercase + letter-spacing so mixed-case or numeric
+.cui-ui .cui-pill--neutral { background: var(--cui-bg-2); border-color: var(--cui-border-strong); color: var(--cui-fg-mute); }
+/* Plain variant: drops the uppercase + letter-spacing so mixed-case or numeric
    content (e.g. "v3 -> v4") reads naturally; tabular figures keep numbers aligned.
    Composable with --neutral. */
 .cui-ui .cui-pill--plain   { text-transform: none; letter-spacing: normal; font-variant-numeric: tabular-nums; }
@@ -247,9 +259,9 @@
 }
 
 .cui-ui .cui-chip--active {
-  background: var(--cui-accent-mute);
-  border-color: var(--cui-accent-tint);
-  color: var(--cui-accent-soft);
+  background: var(--cui-support-tint);
+  border-color: var(--cui-support-line);
+  color: var(--cui-support-text);
 }
 
 /* ---- Input ---- */
@@ -427,7 +439,7 @@
 }
 
 .cui-ui .cui-slider:hover::-webkit-slider-thumb { transform: scale(1.1); }
-.cui-ui .cui-slider:focus::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--cui-accent-tint); }
+.cui-ui .cui-slider:focus::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--cui-support-tint); }
 
 /* ---- Toggle ---- */
 
@@ -482,11 +494,14 @@
 
 .cui-ui .cui-toggle input:checked + .cui-toggle__track::after {
   transform: translateX(16px);
-  background: white;
+  /* Sits on the accent fill, so it takes the accent's own label colour.
+     A literal white is 2.47:1 on Summer's track and 2.59:1 on Candyland's,
+     both under the 3:1 that 1.4.11 asks of a control indicator. */
+  background: var(--cui-on-accent);
 }
 
 .cui-ui .cui-toggle input:focus-visible + .cui-toggle__track {
-  box-shadow: 0 0 0 2px var(--cui-accent-tint);
+  box-shadow: 0 0 0 2px var(--cui-support-tint);
 }
 
 /* ---- Tabs ---- */
@@ -518,16 +533,16 @@
   color: var(--cui-fg);
 }
 
+/* Was two hardcoded purple/blue literals, the retiring brand gradient
+   living inside a component rule. Now a flat accent fill from tokens. */
 .cui-ui .cui-tab--active {
-  background: linear-gradient(135deg,
-    rgba(124, 106, 247, 0.55),
-    rgba(74, 158, 255, 0.4));
-  color: white;
-  box-shadow: 0 4px 12px rgba(124, 106, 247, 0.25);
+  background: var(--cui-accent);
+  color: var(--cui-on-accent);
+  box-shadow: var(--cui-shadow-sm);
 }
 
 .cui-ui .cui-tab--active:hover {
-  color: white;
+  color: var(--cui-on-accent);
 }
 
 /* ---- Tooltip ---- */
@@ -598,4 +613,449 @@
 @keyframes cui-modal-in {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ======================================================================
+   Added in 0.4.0. Everything below reads tokens only, so each primitive
+   renders in whichever of the nine themes is in scope.
+   ====================================================================== */
+
+/* ---- Button size + icon variants ---- */
+
+.cui-ui .cui-button--sm {
+  padding: var(--cui-space-1) var(--cui-space-3);
+  font-size: var(--cui-text-sm);
+  border-radius: var(--cui-radius-sm);
+}
+
+.cui-ui .cui-button--lg {
+  padding: var(--cui-space-3) var(--cui-space-5);
+  font-size: var(--cui-text-lg);
+  border-radius: var(--cui-radius-lg);
+}
+
+/* Square button for a lone glyph. Pair with an aria-label; an icon with
+   no accessible name is a button nobody using a screen reader can press. */
+.cui-ui .cui-button--icon {
+  padding: var(--cui-space-2);
+  width: 34px;
+  height: 34px;
+}
+
+/* ---- Button group ---- */
+
+/* Segmented run of buttons. Collapses the seam between them so the run
+   reads as one control rather than three that happen to touch. */
+.cui-ui .cui-button-group {
+  display: inline-flex;
+}
+
+.cui-ui .cui-button-group .cui-button {
+  border-radius: 0;
+  margin-left: calc(var(--cui-border-width) * -1);
+}
+
+.cui-ui .cui-button-group .cui-button:first-child {
+  border-radius: var(--cui-radius) 0 0 var(--cui-radius);
+  margin-left: 0;
+}
+
+.cui-ui .cui-button-group .cui-button:last-child {
+  border-radius: 0 var(--cui-radius) var(--cui-radius) 0;
+}
+
+/* ---- Textarea ---- */
+
+.cui-ui .cui-textarea {
+  width: 100%;
+  min-height: 66px;
+  resize: vertical;
+  padding: var(--cui-space-2) var(--cui-space-3);
+  background: var(--cui-bg-1);
+  color: var(--cui-fg);
+  font-family: inherit;
+  font-size: var(--cui-text-base);
+  line-height: var(--cui-leading-normal);
+  border: var(--cui-border-width) solid var(--cui-border-strong);
+  border-radius: var(--cui-radius);
+  transition: border-color var(--cui-duration-fast) var(--cui-ease);
+}
+
+.cui-ui .cui-textarea::placeholder { color: var(--cui-fg-dim); }
+
+.cui-ui .cui-textarea:focus {
+  outline: none;
+  border-color: var(--cui-accent);
+  box-shadow: 0 0 0 3px var(--cui-support-tint);
+}
+
+/* ---- Checkbox + radio ---- */
+
+/* Same idiom as .cui-toggle: a visually hidden real input carries state and
+   focus, an adjacent span carries the paint. Keyboard, screen readers and
+   form submission all work without a line of JavaScript. */
+.cui-ui .cui-choice {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cui-space-2);
+  font-size: var(--cui-text-base);
+  cursor: pointer;
+  user-select: none;
+}
+
+.cui-ui .cui-choice input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+}
+
+.cui-ui .cui-checkbox,
+.cui-ui .cui-radio {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cui-bg-1);
+  border: var(--cui-border-width) solid var(--cui-border-strong);
+  border-radius: var(--cui-radius-sm);
+  transition: background var(--cui-duration-fast) var(--cui-ease),
+              border-color var(--cui-duration-fast) var(--cui-ease);
+}
+
+.cui-ui .cui-radio { border-radius: var(--cui-radius-pill); }
+
+.cui-ui .cui-choice input:checked + .cui-checkbox {
+  background: var(--cui-accent);
+  border-color: var(--cui-accent);
+}
+
+.cui-ui .cui-choice input:checked + .cui-checkbox::after {
+  content: "";
+  width: 8px;
+  height: 4px;
+  border-left: 2px solid var(--cui-on-accent);
+  border-bottom: 2px solid var(--cui-on-accent);
+  transform: rotate(-45deg) translateY(-1px);
+}
+
+.cui-ui .cui-choice input:checked + .cui-radio { border-color: var(--cui-accent); }
+
+.cui-ui .cui-choice input:checked + .cui-radio::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: var(--cui-radius-pill);
+  background: var(--cui-accent);
+}
+
+.cui-ui .cui-choice input:focus-visible + .cui-checkbox,
+.cui-ui .cui-choice input:focus-visible + .cui-radio {
+  box-shadow: 0 0 0 3px var(--cui-support-tint);
+}
+
+.cui-ui .cui-choice input:disabled + .cui-checkbox,
+.cui-ui .cui-choice input:disabled + .cui-radio { opacity: 0.42; }
+
+/* ---- Help text ---- */
+
+.cui-ui .cui-help {
+  font-size: var(--cui-text-xs);
+  color: var(--cui-fg-dim);
+}
+
+/* Error hint under a control. Pair with .cui-input--error on the control
+   itself; colour alone is never the only signal. */
+.cui-ui .cui-help--error { color: var(--cui-error); }
+
+.cui-ui .cui-input--error,
+.cui-ui .cui-textarea--error,
+.cui-ui .cui-select--error { border-color: var(--cui-error); }
+
+/* ---- Alert ---- */
+
+/* Block-level message. The left stripe carries the status colour so the
+   fill stays neutral and the text keeps full contrast on any ground. */
+.cui-ui .cui-alert {
+  display: flex;
+  gap: var(--cui-space-3);
+  padding: var(--cui-space-3);
+  font-size: var(--cui-text-base);
+  background: var(--cui-bg-1);
+  border: var(--cui-border-width) solid var(--cui-border-strong);
+  border-left-width: 3px;
+  border-radius: 0 var(--cui-radius) var(--cui-radius) 0;
+}
+
+.cui-ui .cui-alert b { display: block; margin-bottom: 2px; }
+
+.cui-ui .cui-alert--success { border-left-color: var(--cui-success); }
+.cui-ui .cui-alert--success b { color: var(--cui-success); }
+.cui-ui .cui-alert--warning { border-left-color: var(--cui-warning); }
+.cui-ui .cui-alert--warning b { color: var(--cui-warning); }
+.cui-ui .cui-alert--error   { border-left-color: var(--cui-error); }
+.cui-ui .cui-alert--error b { color: var(--cui-error); }
+.cui-ui .cui-alert--info    { border-left-color: var(--cui-info); }
+.cui-ui .cui-alert--info b  { color: var(--cui-info); }
+
+/* ---- Toast ---- */
+
+.cui-ui .cui-toast {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cui-space-3);
+  padding: var(--cui-space-2) var(--cui-space-3);
+  font-size: var(--cui-text-base);
+  background: var(--cui-bg-3);
+  border: var(--cui-border-width) solid var(--cui-border-strong);
+  border-radius: var(--cui-radius);
+  box-shadow: var(--cui-shadow);
+}
+
+/* ---- Progress ---- */
+
+.cui-ui .cui-progress {
+  height: 7px;
+  overflow: hidden;
+  background: var(--cui-bg-3);
+  border-radius: var(--cui-radius-pill);
+}
+
+.cui-ui .cui-progress__bar {
+  display: block;
+  height: 100%;
+  background: var(--cui-accent);
+  border-radius: var(--cui-radius-pill);
+  transition: width var(--cui-duration) var(--cui-ease);
+}
+
+/* ---- Spinner ---- */
+
+.cui-ui .cui-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--cui-bg-3);
+  border-top-color: var(--cui-accent);
+  border-radius: var(--cui-radius-pill);
+  animation: cui-spin 800ms linear infinite;
+}
+
+@keyframes cui-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cui-ui .cui-spinner { animation-duration: 2400ms; }
+}
+
+/* ---- Skeleton ---- */
+
+.cui-ui .cui-skeleton {
+  height: 11px;
+  background: var(--cui-bg-2);
+  border-radius: var(--cui-radius-sm);
+}
+
+/* ---- Table ---- */
+
+.cui-ui .cui-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--cui-text-sm);
+}
+
+.cui-ui .cui-table th {
+  padding: var(--cui-space-2) var(--cui-space-3);
+  text-align: left;
+  font-weight: var(--cui-weight-semibold);
+  color: var(--cui-fg-mute);
+  border-bottom: var(--cui-border-width) solid var(--cui-border-strong);
+}
+
+.cui-ui .cui-table td {
+  padding: var(--cui-space-2) var(--cui-space-3);
+  border-bottom: var(--cui-border-width) solid var(--cui-border);
+}
+
+.cui-ui .cui-table tbody tr:last-child td { border-bottom: 0; }
+
+/* ---- Avatar ---- */
+
+.cui-ui .cui-avatar {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--cui-text-sm);
+  font-weight: var(--cui-weight-bold);
+  background: var(--cui-support-tint);
+  border: var(--cui-border-width) solid var(--cui-support-line);
+  border-radius: var(--cui-radius-pill);
+  color: var(--cui-support-text);
+}
+
+/* Overlapping run. The ring is the surface behind it, so a stack reads
+   as separate faces rather than one blob. */
+.cui-ui .cui-avatar-stack { display: flex; }
+
+.cui-ui .cui-avatar-stack .cui-avatar {
+  margin-left: -8px;
+  border: 2px solid var(--cui-bg-1);
+}
+
+.cui-ui .cui-avatar-stack .cui-avatar:first-child { margin-left: 0; }
+
+/* ---- Stat ---- */
+
+.cui-ui .cui-stat {
+  margin: 0;
+  padding: var(--cui-space-3);
+  background: var(--cui-bg-1);
+  border: var(--cui-border-width) solid var(--cui-border);
+  border-radius: var(--cui-radius);
+}
+
+.cui-ui .cui-stat dt {
+  font-size: var(--cui-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--cui-fg-dim);
+}
+
+.cui-ui .cui-stat dd {
+  margin: 3px 0 0;
+  font-size: var(--cui-text-2xl);
+  font-weight: var(--cui-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Breadcrumb ---- */
+
+.cui-ui .cui-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--cui-space-2);
+  font-size: var(--cui-text-sm);
+  color: var(--cui-fg-mute);
+}
+
+.cui-ui .cui-breadcrumb b {
+  color: var(--cui-fg);
+  font-weight: var(--cui-weight-semibold);
+}
+
+/* ---- Menu ---- */
+
+.cui-ui .cui-menu {
+  min-width: 190px;
+  padding: var(--cui-space-1);
+  background: var(--cui-bg-1);
+  border: var(--cui-border-width) solid var(--cui-border-strong);
+  border-radius: var(--cui-radius);
+  box-shadow: var(--cui-shadow-lg);
+}
+
+.cui-ui .cui-menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--cui-space-2);
+  padding: var(--cui-space-2) var(--cui-space-3);
+  font-size: var(--cui-text-base);
+  border-radius: var(--cui-radius-sm);
+  cursor: pointer;
+}
+
+.cui-ui .cui-menu-item:hover { background: var(--cui-bg-2); }
+.cui-ui .cui-menu-item:focus-visible {
+  outline: none;
+  background: var(--cui-bg-2);
+  box-shadow: inset 0 0 0 2px var(--cui-accent);
+}
+
+.cui-ui .cui-menu-item--active {
+  background: var(--cui-support-tint);
+  color: var(--cui-support-text);
+}
+
+.cui-ui .cui-menu-sep {
+  height: var(--cui-border-width);
+  margin: var(--cui-space-1) 0;
+  background: var(--cui-border);
+}
+
+.cui-ui .cui-menu-key {
+  margin-left: auto;
+  font-family: var(--cui-font-mono);
+  font-size: var(--cui-text-xs);
+  color: var(--cui-fg-dim);
+}
+
+/* ---- Pagination ---- */
+
+.cui-ui .cui-pagination { display: flex; gap: var(--cui-space-1); }
+
+.cui-ui .cui-pagination > * {
+  min-width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--cui-text-sm);
+  color: var(--cui-fg-mute);
+  border: var(--cui-border-width) solid var(--cui-border);
+  border-radius: var(--cui-radius-sm);
+}
+
+.cui-ui .cui-pagination > .cui-is-current {
+  background: var(--cui-accent);
+  border-color: var(--cui-accent);
+  color: var(--cui-on-accent);
+}
+
+.cui-ui .cui-pagination > *:hover { background: var(--cui-bg-2); color: var(--cui-fg); }
+
+.cui-ui .cui-pagination > *:focus-visible {
+  outline: none;
+  border-color: var(--cui-accent);
+  box-shadow: 0 0 0 3px var(--cui-support-tint);
+}
+
+/* ---- Tile ---- */
+
+/* The square that fronts an app or a list row. Inside a hero card it
+   swaps to the featured-card tile tokens, where the accent is carried as
+   a glyph rather than as a fill; a saturated block at this size reads as
+   a badge rather than as a surface. */
+.cui-ui .cui-tile {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cui-third-tint);
+  border: var(--cui-border-width) solid var(--cui-third-line);
+  border-radius: var(--cui-radius);
+}
+
+.cui-ui .cui-card--hero .cui-tile {
+  background: var(--cui-tile);
+  border-color: var(--cui-tile-line);
+}
+
+.cui-ui .cui-tile svg { fill: var(--cui-third-text); }
+.cui-ui .cui-card--hero .cui-tile svg { fill: var(--cui-glyph); }
+
+/* ---- Empty state ---- */
+
+.cui-ui .cui-empty {
+  padding: var(--cui-space-6) var(--cui-space-4);
+  text-align: center;
+  border: var(--cui-border-width) dashed var(--cui-border-strong);
+  border-radius: var(--cui-radius);
 }
