@@ -315,6 +315,121 @@
     </div>
   </section>
 
+  <section class="demo-section">
+    <h2 class="demo-section-title">Select</h2>
+
+    <div class="demo-row">
+      <div class="demo-preview demo-preview--column">
+        <label class="cui-label">Theme
+          <select class="cui-select">
+            <option>System</option>
+            <option>Dark</option>
+            <option>Light</option>
+          </select>
+        </label>
+      </div>
+      <pre><code>&lt;label class="cui-label"&gt;Theme
+  &lt;select class="cui-select"&gt;
+    &lt;option&gt;System&lt;/option&gt;
+    &lt;option&gt;Dark&lt;/option&gt;
+  &lt;/select&gt;
+&lt;/label&gt;</code></pre>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2 class="demo-section-title">Slider</h2>
+
+    <div class="demo-row">
+      <div class="demo-preview demo-preview--column">
+        <label class="cui-label">Volume
+          <input class="cui-slider" type="range" min="0" max="100" value="40" />
+        </label>
+      </div>
+      <pre><code>&lt;input class="cui-slider"
+  type="range" min="0" max="100" value="40" /&gt;</code></pre>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2 class="demo-section-title">Toggle</h2>
+
+    <div class="demo-row">
+      <div class="demo-preview">
+        <label class="cui-toggle">
+          <input type="checkbox" />
+          <span class="cui-toggle__track"></span>
+          <span>Notifications</span>
+        </label>
+        <label class="cui-toggle">
+          <input type="checkbox" checked />
+          <span class="cui-toggle__track"></span>
+          <span>Email digest</span>
+        </label>
+      </div>
+      <pre><code>&lt;label class="cui-toggle"&gt;
+  &lt;input type="checkbox" /&gt;
+  &lt;span class="cui-toggle__track"&gt;&lt;/span&gt;
+  &lt;span&gt;Notifications&lt;/span&gt;
+&lt;/label&gt;</code></pre>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2 class="demo-section-title">Tabs</h2>
+
+    <div class="demo-row">
+      <div class="demo-preview">
+        <div class="cui-tabs" role="tablist">
+          <button class="cui-tab cui-tab--active" role="tab">Overview</button>
+          <button class="cui-tab" role="tab">Activity</button>
+          <button class="cui-tab" role="tab">Settings</button>
+        </div>
+      </div>
+      <pre><code>&lt;div class="cui-tabs"&gt;
+  &lt;button class="cui-tab cui-tab--active"&gt;Overview&lt;/button&gt;
+  &lt;button class="cui-tab"&gt;Activity&lt;/button&gt;
+  &lt;button class="cui-tab"&gt;Settings&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2 class="demo-section-title">Tooltip</h2>
+
+    <div class="demo-row">
+      <div class="demo-preview">
+        <span class="cui-tooltip" data-tooltip="Saved 2 minutes ago" tabindex="0">
+          <button class="cui-button">Hover me</button>
+        </span>
+      </div>
+      <pre><code>&lt;span class="cui-tooltip"
+      data-tooltip="Saved 2 minutes ago"&gt;
+  &lt;button class="cui-button"&gt;Hover me&lt;/button&gt;
+&lt;/span&gt;</code></pre>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2 class="demo-section-title">Modal</h2>
+
+    <div class="demo-row">
+      <div class="demo-preview demo-preview--column">
+        <p class="cui-muted" style="margin: 0;">Modal markup (not rendered live; toggle visibility from your app's JS):</p>
+      </div>
+      <pre><code>&lt;div class="cui-modal-backdrop"&gt;
+  &lt;div class="cui-modal cui-stack-v"&gt;
+    &lt;h2 class="cui-heading"&gt;Confirm delete&lt;/h2&gt;
+    &lt;p class="cui-muted"&gt;This can't be undone.&lt;/p&gt;
+    &lt;div class="cui-stack-h cui-stack-h--between"&gt;
+      &lt;button class="cui-button cui-button--ghost"&gt;Cancel&lt;/button&gt;
+      &lt;button class="cui-button cui-button--primary"&gt;Delete&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </section>
+
   <footer style="margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--cui-border); text-align: center;">
     <p class="cui-dim" style="font-size: 12px; margin: 0;">
       @conjureos/ui · MIT ·
