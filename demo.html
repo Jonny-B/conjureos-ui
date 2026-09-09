@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" id="root-el" data-theme="cnj" data-flavor="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -100,7 +100,10 @@
   .demo-os-app:hover { background: var(--cui-bg-2); }
   .demo-os-app i { width: 30px; height: 30px; border-radius: var(--cui-radius);
                    display: flex; align-items: center; justify-content: center; }
-  .demo-os-app i svg { fill: var(--cui-on-accent); width: 13px; height: 13px; }
+  /* Tiles are drawn with the third-hue wash, so the glyph takes that
+     hue's text colour. --cui-on-accent is calibrated against the accent
+     fill only and is wrong on any other ground. */
+  .demo-os-app i svg { fill: var(--cui-third-text); width: 13px; height: 13px; }
   .demo-os-pin { margin-top: 11px; padding-top: 10px; border-top: 1px solid var(--cui-border); }
   .demo-os-user { display: flex; align-items: center; gap: 8px; margin-top: 10px;
                   padding-top: 9px; border-top: 1px solid var(--cui-border);
@@ -120,7 +123,7 @@
                font-size: var(--cui-text-sm); color: var(--cui-fg-dim); }
 </style>
 </head>
-<body class="cui-ui" id="root" data-theme="cnj" data-flavor="dark">
+<body class="cui-ui" id="root">
 <div class="demo-wrap">
 
 <div class="demo-head">
@@ -218,39 +221,39 @@
       <p class="demo-exl">Text and choice</p>
       <div class="demo-render"><div class="cui-stack-v">
   <label class="cui-field">
-    <span class="cui-label">Recipe name</span>
+    <span class="cui-field__label">Recipe name</span>
     <input class="cui-input" value="Pumpkin soup">
   </label>
   <label class="cui-field">
-    <span class="cui-label">Category</span>
+    <span class="cui-field__label">Category</span>
     <select class="cui-select"><option>Soups and stews</option></select>
   </label>
   <label class="cui-field">
-    <span class="cui-label">Servings</span>
+    <span class="cui-field__label">Servings</span>
     <input class="cui-input cui-input--error" value="0">
     <span class="cui-help cui-help--error">Must be at least one.</span>
   </label>
   <label class="cui-field">
-    <span class="cui-label">Method</span>
+    <span class="cui-field__label">Method</span>
     <textarea class="cui-textarea">Sweat the onion, add the squash.</textarea>
   </label>
 </div></div>
       <details class="demo-code"><summary>Markup</summary><pre>&lt;div class=&quot;cui-stack-v&quot;&gt;
   &lt;label class=&quot;cui-field&quot;&gt;
-    &lt;span class=&quot;cui-label&quot;&gt;Recipe name&lt;/span&gt;
+    &lt;span class=&quot;cui-field__label&quot;&gt;Recipe name&lt;/span&gt;
     &lt;input class=&quot;cui-input&quot; value=&quot;Pumpkin soup&quot;&gt;
   &lt;/label&gt;
   &lt;label class=&quot;cui-field&quot;&gt;
-    &lt;span class=&quot;cui-label&quot;&gt;Category&lt;/span&gt;
+    &lt;span class=&quot;cui-field__label&quot;&gt;Category&lt;/span&gt;
     &lt;select class=&quot;cui-select&quot;&gt;&lt;option&gt;Soups and stews&lt;/option&gt;&lt;/select&gt;
   &lt;/label&gt;
   &lt;label class=&quot;cui-field&quot;&gt;
-    &lt;span class=&quot;cui-label&quot;&gt;Servings&lt;/span&gt;
+    &lt;span class=&quot;cui-field__label&quot;&gt;Servings&lt;/span&gt;
     &lt;input class=&quot;cui-input cui-input--error&quot; value=&quot;0&quot;&gt;
     &lt;span class=&quot;cui-help cui-help--error&quot;&gt;Must be at least one.&lt;/span&gt;
   &lt;/label&gt;
   &lt;label class=&quot;cui-field&quot;&gt;
-    &lt;span class=&quot;cui-label&quot;&gt;Method&lt;/span&gt;
+    &lt;span class=&quot;cui-field__label&quot;&gt;Method&lt;/span&gt;
     &lt;textarea class=&quot;cui-textarea&quot;&gt;Sweat the onion, add the squash.&lt;/textarea&gt;
   &lt;/label&gt;
 &lt;/div&gt;</pre></details>
@@ -264,7 +267,7 @@
   <label class="cui-choice"><input type="radio" name="units"><span class="cui-radio"></span>Imperial</label>
   <label class="cui-toggle"><input type="checkbox" checked><span class="cui-toggle__track"></span>Auto-save</label>
 </div>
-<div style="max-width:230px;margin-top:12px"><input class="cui-slider" type="range" value="60"></div></div>
+<div style="max-width:230px;margin-top:12px"><input class="cui-slider" type="range" value="60" aria-label="Oven temperature"></div></div>
       <details class="demo-code"><summary>Markup</summary><pre>&lt;div class=&quot;cui-stack-h&quot;&gt;
   &lt;label class=&quot;cui-choice&quot;&gt;&lt;input type=&quot;checkbox&quot; checked&gt;&lt;span class=&quot;cui-checkbox&quot;&gt;&lt;/span&gt;Vegetarian&lt;/label&gt;
   &lt;label class=&quot;cui-choice&quot;&gt;&lt;input type=&quot;checkbox&quot;&gt;&lt;span class=&quot;cui-checkbox&quot;&gt;&lt;/span&gt;Contains nuts&lt;/label&gt;
@@ -272,7 +275,7 @@
   &lt;label class=&quot;cui-choice&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;units&quot;&gt;&lt;span class=&quot;cui-radio&quot;&gt;&lt;/span&gt;Imperial&lt;/label&gt;
   &lt;label class=&quot;cui-toggle&quot;&gt;&lt;input type=&quot;checkbox&quot; checked&gt;&lt;span class=&quot;cui-toggle__track&quot;&gt;&lt;/span&gt;Auto-save&lt;/label&gt;
 &lt;/div&gt;
-&lt;div style=&quot;max-width:230px;margin-top:12px&quot;&gt;&lt;input class=&quot;cui-slider&quot; type=&quot;range&quot; value=&quot;60&quot;&gt;&lt;/div&gt;</pre></details>
+&lt;div style=&quot;max-width:230px;margin-top:12px&quot;&gt;&lt;input class=&quot;cui-slider&quot; type=&quot;range&quot; value=&quot;60&quot; aria-label=&quot;Oven temperature&quot;&gt;&lt;/div&gt;</pre></details>
     </div>
   </section>
 
@@ -298,7 +301,7 @@
       <p class="demo-exl">Toast, progress, spinner and skeleton</p>
       <div class="demo-render"><div class="cui-stack-h">
   <span class="cui-toast"><span class="cui-spinner"></span>Publishing to the store</span>
-  <span class="cui-tooltip">Shortcut: Ctrl S</span>
+  <span class="cui-tooltip" data-tooltip="Ctrl S">Save</span>
 </div>
 <div style="max-width:280px;margin-top:12px">
   <div class="cui-progress"><span class="cui-progress__bar" style="width:62%"></span></div>
@@ -309,7 +312,7 @@
 </div></div>
       <details class="demo-code"><summary>Markup</summary><pre>&lt;div class=&quot;cui-stack-h&quot;&gt;
   &lt;span class=&quot;cui-toast&quot;&gt;&lt;span class=&quot;cui-spinner&quot;&gt;&lt;/span&gt;Publishing to the store&lt;/span&gt;
-  &lt;span class=&quot;cui-tooltip&quot;&gt;Shortcut: Ctrl S&lt;/span&gt;
+  &lt;span class=&quot;cui-tooltip&quot; data-tooltip=&quot;Ctrl S&quot;&gt;Save&lt;/span&gt;
 &lt;/div&gt;
 &lt;div style=&quot;max-width:280px;margin-top:12px&quot;&gt;
   &lt;div class=&quot;cui-progress&quot;&gt;&lt;span class=&quot;cui-progress__bar&quot; style=&quot;width:62%&quot;&gt;&lt;/span&gt;&lt;/div&gt;
@@ -555,7 +558,7 @@
 
 <script>
 (function () {
-  var root = document.getElementById('root');
+  var root = document.documentElement;
   var sel = document.getElementById('theme');
   var flavs = [].slice.call(document.querySelectorAll('[data-f]'));
 

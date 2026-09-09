@@ -21,12 +21,30 @@ Nine themes across two flavors, replacing the single dark purple palette. The la
 
 - **The purple-to-blue brand gradient is retired.** `--cui-accent-gradient` still resolves, now to a flat `--cui-accent` fill.
 - `cui-tab--active` no longer paints two hardcoded purple literals. It was the one component with the brand gradient baked into its rule; it now reads `--cui-accent` and `--cui-on-accent`.
-- Filled buttons take their label from a token instead of `white`. Six of the nine themes have a lead hue too light to carry a white label; Fall's goldenrod takes white at 2.5:1 and near-black at 5.9:1. One literal could not serve both.
+- Filled buttons take their label from a token instead of `white`. Six of the nine themes have a lead hue too light to carry a white label; Fall's goldenrod takes white at 3.24:1 and near-black at 5.85:1. One literal could not serve both.
 - `cui-card--hero` reads the featured tokens rather than a gradient over `--cui-bg-1`, and sets its own `color`. On Summer the featured card renders lighter than its ground, so inheriting the page foreground would put light text on a light card.
-- Status colours are now theme-aware. The core green at `#34d399` fails contrast on five of the nine light grounds, so light flavors carry a deepened set.
+- Status colours are now theme-aware. The core green at `#34d399` fails as text on all nine light grounds, from 1.26:1 on Halloween to 1.73:1 on Conjure, so light flavors carry a deepened set.
 - `--cui-border` and `--cui-border-strong` derive from each theme's text colour rather than from white, so a warm theme gets a warm hairline and a light flavor gets a visible one.
 - `demo.html` rebuilt: it now loads the local `dist/ui.css` rather than the unpkg CDN, and carries a theme dropdown, a dark/light toggle, every primitive with its markup, and a ConjureOS shell mock.
 - `MODERN_WHIMSY.md` rewritten around the theming contract, the nine palettes, the token taxonomy, and per-component usage, including the settings-panel pattern an app should offer.
+
+### Fixed
+
+Found by a scoped agent sweep of this release before it shipped, then verified against the code.
+
+- **Setting only `data-flavor` on a nested element did nothing.** Tokens were written to read the flavor inline, and a custom property containing `var()` is substituted on the element that declares it, so the value was already resolved and inherited by the time a descendant flipped the flavor. Tokens are now stored as inert `--cui-bg-d` / `--cui-bg-l` pairs and collapsed by a single resolution rule matching every element that carries either attribute, so changing one re-resolves all 35 against the palette it inherited.
+- **Every deprecated alias was frozen to Conjure.** Declared once on a bare `:root`, they substituted there and inherited that finished value into every themed subtree, so eight of the nine themes rendered a 0.3.x consumer the wrong colour. They now live in the resolution block and track the active theme.
+- **`data-theme="system"` was a no-op.** The rule had an empty body, so it could not clear an ancestor's theme the way the docs claimed. It now declares the Conjure values and genuinely resets.
+- **Fall light failed WCAG AA.** Its link colour was 4.49:1 on its own ground, under the 4.5:1 minimum. It clears on a card, which is what the published contrast table happened to measure. Now `#8f4705` at 5.00:1, and the tables measure against the page ground.
+- The toggle's checked knob painted a literal `white` on the accent fill: 2.47:1 on Summer, 2.59:1 on Candyland, both under the 3:1 that 1.4.11 asks of a control indicator. It reads `--cui-on-accent`.
+- `cui-card--hero` remapped `.cui-muted` but not `.cui-dim`, leaving the third text tier calibrated for the page rather than the card.
+- Status pills were pinned to the dark-flavor status colours as raw rgba, so on a light flavor the border washed out and the fill no longer related to its own label. They derive from the status token via `color-mix`.
+- A bare `cui-tile` never set its glyph colour, so a non-hero tile icon fell back to SVG black.
+- `cui-menu-item` and `cui-pagination` shipped without focus-visible states.
+- The primitive extractor only captured the first class in a selector, so `cui-is-current` was defined but never reached the agent appendix. It now takes every class, and the build warns if any primitive goes unlisted.
+- Added `prepublishOnly`, since `dist/` is gitignored and `files` includes it: publishing from a fresh clone shipped a package with no stylesheet.
+- The build stamped a wall-clock timestamp into every bundle, so no two builds were byte-identical.
+- Corrected three figures: Fall's gold takes white at 3.24:1 (not 2.5:1), the core green fails as text on all nine light grounds (not five), and two themes carry pre-composited opaque tints (not five).
 
 ### Deprecated
 

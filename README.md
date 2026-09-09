@@ -137,7 +137,9 @@ Same as `build` but re-runs on source changes for round-trips during local dev.
 
 The major version is reflected in the built filename ConjureOS serves: `/_conjureos/ui/v1.css`. Breaking changes ship as a parallel `v2.css` so existing apps don't regress. Minor and patch updates land within the same major-version URL.
 
-The npm package follows standard semver. Pin to `^0.1.0` to get every 0.1.x update automatically without surprise major bumps.
+The npm package follows standard semver. Note that a caret on a `0.x` version locks the minor: `^0.4.0` gets every `0.4.x` patch but will not move to `0.5.0`.
+
+Pre-1.0, a minor bump can break. 0.4.0 retired the purple brand gradient and changed which token supplies a filled control's label, so it is not a drop-in for markup that hardcoded colours. Read the changelog before bumping the minor.
 
 ## Stability
 

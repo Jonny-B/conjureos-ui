@@ -64,7 +64,8 @@
 
 /* The featured card can be LIGHTER than its ground (Summer), so it carries
    its own foreground pair rather than inheriting the panel's. */
-.cui-ui .cui-card--hero .cui-muted { color: var(--cui-hero-mute); }
+.cui-ui .cui-card--hero .cui-muted,
+.cui-ui .cui-card--hero .cui-dim { color: var(--cui-hero-mute); }
 
 /* ---- Button ---- */
 
@@ -105,8 +106,8 @@
 }
 
 /* The label is a token, not `white`. Six of the nine themes have a lead
-   hue too light to carry white text; Fall's gold takes white at 2.5:1 and
-   a near-black at 5.9:1. --cui-on-accent resolves per theme and flavor. */
+   hue too light to carry white text; Fall's gold takes white at 3.24:1 and
+   a near-black at 5.85:1. --cui-on-accent resolves per theme and flavor. */
 .cui-ui .cui-button--primary {
   background: var(--cui-accent);
   border-color: var(--cui-accent);
@@ -212,12 +213,16 @@
   letter-spacing: 0.04em;
 }
 
-.cui-ui .cui-pill--success { background: rgba(52,211,153,0.14); border-color: rgba(52,211,153,0.35); color: var(--cui-success); }
-.cui-ui .cui-pill--warn    { background: rgba(251,191,36,0.14); border-color: rgba(251,191,36,0.35); color: var(--cui-warn); }
-.cui-ui .cui-pill--error   { background: rgba(248,113,113,0.14); border-color: rgba(248,113,113,0.35); color: var(--cui-error); }
+/* Derived from the status token rather than a frozen literal. The light
+   flavors carry a deepened status set, so a hardcoded rgba of the dark
+   green left the fill and its own label unrelated, and washed the border
+   out entirely on a warm ground like Halloween's parchment. */
+.cui-ui .cui-pill--success { background: color-mix(in srgb, var(--cui-success) 14%, transparent); border-color: color-mix(in srgb, var(--cui-success) 35%, transparent); color: var(--cui-success); }
+.cui-ui .cui-pill--warn    { background: color-mix(in srgb, var(--cui-warning) 14%, transparent); border-color: color-mix(in srgb, var(--cui-warning) 35%, transparent); color: var(--cui-warning); }
+.cui-ui .cui-pill--error   { background: color-mix(in srgb, var(--cui-error) 14%, transparent);   border-color: color-mix(in srgb, var(--cui-error) 35%, transparent);   color: var(--cui-error); }
 /* `--danger` is an alias of `--error` for naming parity with the button
    variants; `--info` rounds out the set (uses the soft accent tint). */
-.cui-ui .cui-pill--danger  { background: rgba(239,68,68,0.14);  border-color: rgba(239,68,68,0.4);   color: var(--cui-error); }
+.cui-ui .cui-pill--danger  { background: color-mix(in srgb, var(--cui-error) 14%, transparent);   border-color: color-mix(in srgb, var(--cui-error) 40%, transparent);   color: var(--cui-error); }
 .cui-ui .cui-pill--info    { background: var(--cui-bg-2); border-color: var(--cui-info); color: var(--cui-info); }
 /* The palette's two non-lead hues, as pill families. Support carries the
    featured card; third is the sparing note. Both are per theme. */
@@ -489,7 +494,10 @@
 
 .cui-ui .cui-toggle input:checked + .cui-toggle__track::after {
   transform: translateX(16px);
-  background: white;
+  /* Sits on the accent fill, so it takes the accent's own label colour.
+     A literal white is 2.47:1 on Summer's track and 2.59:1 on Candyland's,
+     both under the 3:1 that 1.4.11 asks of a control indicator. */
+  background: var(--cui-on-accent);
 }
 
 .cui-ui .cui-toggle input:focus-visible + .cui-toggle__track {
@@ -963,6 +971,11 @@
 }
 
 .cui-ui .cui-menu-item:hover { background: var(--cui-bg-2); }
+.cui-ui .cui-menu-item:focus-visible {
+  outline: none;
+  background: var(--cui-bg-2);
+  box-shadow: inset 0 0 0 2px var(--cui-accent);
+}
 
 .cui-ui .cui-menu-item--active {
   background: var(--cui-support-tint);
@@ -1004,6 +1017,14 @@
   color: var(--cui-on-accent);
 }
 
+.cui-ui .cui-pagination > *:hover { background: var(--cui-bg-2); color: var(--cui-fg); }
+
+.cui-ui .cui-pagination > *:focus-visible {
+  outline: none;
+  border-color: var(--cui-accent);
+  box-shadow: 0 0 0 3px var(--cui-support-tint);
+}
+
 /* ---- Tile ---- */
 
 /* The square that fronts an app or a list row. Inside a hero card it
@@ -1027,6 +1048,7 @@
   border-color: var(--cui-tile-line);
 }
 
+.cui-ui .cui-tile svg { fill: var(--cui-third-text); }
 .cui-ui .cui-card--hero .cui-tile svg { fill: var(--cui-glyph); }
 
 /* ---- Empty state ---- */

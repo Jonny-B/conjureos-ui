@@ -46,7 +46,9 @@ Neither attribute is required. Both resolve through normal custom-property inher
 
 This is why the switch is attribute-based rather than class-based: a subtree can override its parent and everything under it follows, with no cascade fights and no JavaScript.
 
-`data-theme="system"` is a spelling of "inherit" you can write explicitly. Useful when you need to clear a theme you set on an ancestor.
+Either attribute can be set on its own, at any depth. A `data-flavor` with no `data-theme` beside it flips just the flavor and keeps the palette it inherited. That works because tokens are stored and resolved in two steps: each theme declares inert `--cui-bg-d` / `--cui-bg-l` pairs that inherit intact, and a single resolution rule matching every element carrying either attribute collapses each pair to the half the current flavor wants. A token written to read the flavor directly would be substituted once, high in the tree, and could never react to a change below it.
+
+`data-theme="system"` returns a subtree to Conjure, the ConjureOS default. Use it to clear a theme an ancestor set. It is the one value that is not inheritance: omitting the attribute inherits, `system` resets.
 
 ### Who decides, and in what order
 
@@ -404,7 +406,7 @@ The one hue that carries the theme. Primary buttons, focus rings, the selected t
 | `--cui-link` | The lead as *text*, which is a different value from the lead as a *fill* |
 | `--cui-link-hover` | Its hover state |
 
-The split between `--cui-accent` and `--cui-link` is the single most load-bearing idea in the token set. A colour bright enough to be legible as text on a dark ground is usually too light to carry a white label as a fill, and a colour dark enough to carry white is usually too dark to read as text. Six of the nine themes need a dark `--cui-on-accent`; Fall's goldenrod takes white at 2.5:1 and near-black at 5.9:1. One token cannot do both jobs.
+The split between `--cui-accent` and `--cui-link` is the single most load-bearing idea in the token set. A colour bright enough to be legible as text on a dark ground is usually too light to carry a white label as a fill, and a colour dark enough to carry white is usually too dark to read as text. Six of the nine themes need a dark `--cui-on-accent`; Fall's goldenrod takes white at 3.24:1, under the 4.5:1 AA needs, and near-black at 5.85:1. One token cannot do both jobs.
 
 ### Support
 
@@ -452,7 +454,7 @@ The tile tokens exist because of a specific failure: painting an app icon as a s
 | `--cui-onstatus` | The label on a status fill. Near-black on dark flavors, white on light. |
 | `--cui-secondary` | The quiet button fill, next to a primary |
 
-Status colours are theme-aware, not fixed. The core green at `#34d399` fails on five of the nine light grounds, so light flavors get a deepened set.
+Status colours are theme-aware, not fixed. The core green at `#34d399` fails as text on every one of the nine light grounds, from 1.26:1 on Halloween to 1.73:1 on Conjure, so light flavors get a deepened set.
 
 ### Everything else
 
@@ -460,7 +462,28 @@ Type, space, radius, motion and shadow tokens are theme-independent. They are de
 
 ### Deprecated aliases
 
-`--cui-accent-soft`, `--cui-accent-mute`, `--cui-accent-tint`, `--cui-accent-gradient`, `--cui-warn`, `--cui-danger`, `--cui-info-strong` and `--cui-surface-hover` still resolve, mapped onto their nearest successor, so 0.3.x markup does not break. `--cui-accent-gradient` now resolves to a flat `--cui-accent` fill rather than the purple-to-blue gradient. They will be removed in 1.0; move off them.
+Sixteen aliases still resolve, mapped onto their nearest successor, so 0.3.x markup keeps rendering. They are declared in the resolution block rather than on a bare `:root`, so they track the active theme; declared once at the root they would substitute against Conjure and freeze there.
+
+| Alias | Use instead |
+| --- | --- |
+| `--cui-accent-soft` | `--cui-link` |
+| `--cui-accent-mute` | `--cui-support-tint` |
+| `--cui-accent-tint` | `--cui-support-line` |
+| `--cui-accent-pink` | `--cui-third` |
+| `--cui-warn` | `--cui-warning` |
+| `--cui-danger` | `--cui-error` |
+| `--cui-danger-hover` | `--cui-error` |
+| `--cui-warning-hover` | `--cui-warning` |
+| `--cui-info-strong` | `--cui-info` |
+| `--cui-info-strong-hover` | `--cui-info` |
+| `--cui-secondary-hover` | `--cui-bg-3` |
+| `--cui-surface` | `--cui-bg-1` |
+| `--cui-surface-2` | `--cui-bg-2` |
+| `--cui-surface-hover` | `--cui-bg-2` |
+| `--cui-accent-gradient` | `--cui-accent` |
+| `--cui-brand-gradient` | `--cui-accent` |
+
+Both gradient tokens now resolve to a flat `--cui-accent` fill rather than the retired purple-to-blue sweep. All sixteen go away in 1.0; move off them.
 
 ## The rules the palettes follow
 
@@ -472,7 +495,7 @@ Useful if you are building a theme of your own, or wondering why a colour you ex
 
 **Warm dark grounds have a mud band.** At Lab hue 60 to 85, a dark surface with chroma above roughly 5.5 stops reading as "warm dark" and starts reading as mud. Fall's ground sits deliberately under that line. This is a chroma limit, not a lightness limit; darkening does not rescue it.
 
-**Complementary hues cannot composite.** Layering a translucent tint of one hue over its complement passes through grey on the way. Five of the nine themes therefore use pre-composited opaque values where a naive system would use `rgba()`.
+**Complementary hues cannot composite.** Layering a translucent tint of one hue over its complement passes through grey on the way. Summer and Candyland therefore carry pre-composited opaque tints where a naive system would use `rgba()`; the other seven keep enough hue distance for alpha to composite cleanly.
 
 **Bright colours are fills in light flavors, never text.** A colour bright enough to feel seasonal on a white ground cannot also be legible on it. Light flavors keep the bright value for fills and pair it with a separately deepened text value. This is why `--cui-support` and `--cui-support-text` diverge sharply on light and barely at all on dark.
 
@@ -666,7 +689,7 @@ None of this existed before 0.4.0. The alert keeps a neutral fill and carries th
 ```html
 <div class="cui-stack-h">
   <span class="cui-toast"><span class="cui-spinner"></span>Publishing to the store</span>
-  <span class="cui-tooltip">Shortcut: Ctrl S</span>
+  <span class="cui-tooltip" data-tooltip="Ctrl S">Save</span>
 </div>
 <div style="max-width:280px;margin-top:12px">
   <div class="cui-progress"><span class="cui-progress__bar" style="width:62%"></span></div>
@@ -976,7 +999,7 @@ Key tokens (most-reached-for):
 Primitive classes (compose these into your UI):
 <!-- AUTOGEN:primitives -->
 - Layout helpers: `cui-stack-v`, `cui-stack-h`, `cui-stack-h--between`
-- Card: `cui-card`, `cui-card--interactive`, `cui-card--hero`
+- Card: `cui-card`, `cui-card--interactive`, `cui-card--hero`, `cui-muted`, `cui-dim`
 - Button: `cui-button`, `cui-button--primary`, `cui-button--ghost`, `cui-button--pill`, `cui-button--secondary`, `cui-button--danger`, `cui-button--warning`, `cui-button--info`, `cui-button--link`
 - Pill (status / tag): `cui-pill`, `cui-pill--success`, `cui-pill--warn`, `cui-pill--error`, `cui-pill--danger`, `cui-pill--info`, `cui-pill--support`, `cui-pill--third`, `cui-pill--neutral`, `cui-pill--plain`
 - Chip (interactive tag, e.g. filter selection): `cui-chip`, `cui-chip--active`
@@ -992,7 +1015,7 @@ Primitive classes (compose these into your UI):
 - Tooltip: `cui-tooltip`
 - Modal: `cui-modal-backdrop`, `cui-modal`
 - Button size + icon variants: `cui-button--sm`, `cui-button--lg`, `cui-button--icon`
-- Button group: `cui-button-group`
+- Button group: `cui-button-group`, `cui-button`
 - Textarea: `cui-textarea`
 - Checkbox + radio: `cui-choice`, `cui-checkbox`, `cui-radio`
 - Help text: `cui-help`, `cui-help--error`, `cui-input--error`, `cui-textarea--error`, `cui-select--error`
@@ -1006,7 +1029,7 @@ Primitive classes (compose these into your UI):
 - Stat: `cui-stat`
 - Breadcrumb: `cui-breadcrumb`
 - Menu: `cui-menu`, `cui-menu-item`, `cui-menu-item--active`, `cui-menu-sep`, `cui-menu-key`
-- Pagination: `cui-pagination`
+- Pagination: `cui-pagination`, `cui-is-current`
 - Tile: `cui-tile`, `cui-card--hero`
 - Empty state: `cui-empty`
 <!-- /AUTOGEN -->
