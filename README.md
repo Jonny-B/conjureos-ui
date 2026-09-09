@@ -137,13 +137,15 @@ Same as `build` but re-runs on source changes for round-trips during local dev.
 
 The major version is reflected in the built filename ConjureOS serves: `/_conjureos/ui/v1.css`. Breaking changes ship as a parallel `v2.css` so existing apps don't regress. Minor and patch updates land within the same major-version URL.
 
-The npm package follows standard semver. Note that a caret on a `0.x` version locks the minor: `^0.4.0` gets every `0.4.x` patch but will not move to `0.5.0`.
+The npm package follows standard semver. Pin with `^1.0.0` to take every 1.x release; those are additive by contract.
 
-Pre-1.0, a minor bump can break. 0.4.0 retired the purple brand gradient and changed which token supplies a filled control's label, so it is not a drop-in for markup that hardcoded colours. Read the changelog before bumping the minor.
+Upgrading from 0.3.x is a breaking change. 1.0.0 retired the purple brand gradient, split the accent into separate fill and text tokens, and changed which token supplies a filled control's label, so it is not a drop-in for markup that hardcoded colours. Read the changelog first.
 
 ## Stability
 
-Pre-1.0. The token names and primitive classes are stable for v1 but not yet contractually guaranteed. Any breaking change will ship as v2 at a parallel URL, never silently inside an existing major version.
+1.0 makes the token names and primitive classes a contract. A breaking change to either ships as 2.0 at a parallel `v2.css` URL, never silently inside 1.x.
+
+What that does not cover: the palette values themselves. A colour may be retuned in a minor release when it fails a contrast check, which is a fix, not a break. Depend on the token, never on the hex it happens to resolve to today.
 
 ## Roadmap
 

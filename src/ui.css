@@ -147,8 +147,8 @@
   color: var(--cui-fg);
 }
 .cui-ui .cui-button--secondary:hover {
-  background: var(--cui-secondary-hover);
-  border-color: var(--cui-secondary-hover);
+  background: var(--cui-bg-3);
+  border-color: var(--cui-bg-3);
 }
 
 .cui-ui .cui-button--danger {
@@ -202,10 +202,10 @@
   align-items: center;
   gap: var(--cui-space-1);
   padding: 2px var(--cui-space-3);
-  background: var(--cui-accent-mute);
-  border: var(--cui-border-width) solid var(--cui-accent-tint);
+  background: var(--cui-support-tint);
+  border: var(--cui-border-width) solid var(--cui-support-line);
   border-radius: var(--cui-radius-pill);
-  color: var(--cui-accent-soft);
+  color: var(--cui-support-text);
   font-size: var(--cui-text-xs);
   font-weight: var(--cui-weight-medium);
   line-height: 1.4;
@@ -439,7 +439,7 @@
 }
 
 .cui-ui .cui-slider:hover::-webkit-slider-thumb { transform: scale(1.1); }
-.cui-ui .cui-slider:focus::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--cui-accent-tint); }
+.cui-ui .cui-slider:focus::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--cui-support-tint); }
 
 /* ---- Toggle ---- */
 
@@ -501,7 +501,7 @@
 }
 
 .cui-ui .cui-toggle input:focus-visible + .cui-toggle__track {
-  box-shadow: 0 0 0 2px var(--cui-accent-tint);
+  box-shadow: 0 0 0 2px var(--cui-support-tint);
 }
 
 /* ---- Tabs ---- */

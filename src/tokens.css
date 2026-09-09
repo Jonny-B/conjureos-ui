@@ -486,7 +486,7 @@
   --cui-info: var(--cui-d, var(--cui-info-d)) var(--cui-l, var(--cui-info-l));
   --cui-onstatus: var(--cui-d, var(--cui-onstatus-d)) var(--cui-l, var(--cui-onstatus-l));
 
-  /* Deprecated, removed in 1.0. They live in this block rather than a bare
+  /* Deprecated, removed in 2.0. They live in this block rather than a bare
      :root so they re-resolve per theme; declared once at the root they would
      substitute against Conjure and inherit that frozen value everywhere. */
   --cui-accent-soft:       var(--cui-link);

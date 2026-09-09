@@ -2,9 +2,13 @@
 
 All notable changes to `@conjureos/ui` are documented here. The format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.4.0 (2026-09-07)
+## 1.0.0 (2026-09-09)
 
-Nine themes across two flavors, replacing the single dark purple palette. The largest change since 0.1.0 and the first with breaking behavior: markup that hardcoded a colour will now be wrong in most themes.
+Nine themes across two flavors, replacing the single dark purple palette. Developed as 0.4.0 and released as 1.0.0 without an intermediate publish: the change is breaking, and shipping it under a 0.x minor would have let consumers take it through a caret range that promises compatibility.
+
+1.0 also makes the token names and primitive classes a contract. The deprecated aliases were originally scheduled for removal here; they now go in 2.0, because the ConjureOS shell still reads eight of them and has not been migrated.
+
+Markup that hardcoded a colour will be wrong in most themes. See Migration at the end of this entry.
 
 ### Added
 
@@ -48,7 +52,7 @@ Found by a scoped agent sweep of this release before it shipped, then verified a
 
 ### Deprecated
 
-Still resolving, mapped onto their nearest successor, to be removed in 1.0: `--cui-accent-soft` (use `--cui-link`), `--cui-accent-mute` and `--cui-accent-tint` (use `--cui-support-tint` / `-line`), `--cui-accent-gradient`, `--cui-warn` (use `--cui-warning`), `--cui-danger` (use `--cui-error`), `--cui-info-strong` (use `--cui-info`), `--cui-surface-hover` (use `--cui-bg-2`).
+Still resolving, mapped onto their nearest successor, to be removed in 2.0: `--cui-accent-soft` (use `--cui-link`), `--cui-accent-mute` and `--cui-accent-tint` (use `--cui-support-tint` / `-line`), `--cui-accent-gradient`, `--cui-warn` (use `--cui-warning`), `--cui-danger` (use `--cui-error`), `--cui-info-strong` (use `--cui-info`), `--cui-surface-hover` (use `--cui-bg-2`).
 
 ### Migration
 

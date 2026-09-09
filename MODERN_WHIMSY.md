@@ -483,7 +483,7 @@ Sixteen aliases still resolve, mapped onto their nearest successor, so 0.3.x mar
 | `--cui-accent-gradient` | `--cui-accent` |
 | `--cui-brand-gradient` | `--cui-accent` |
 
-Both gradient tokens now resolve to a flat `--cui-accent` fill rather than the retired purple-to-blue sweep. All sixteen go away in 1.0; move off them.
+Both gradient tokens now resolve to a flat `--cui-accent` fill rather than the retired purple-to-blue sweep. All sixteen go away in 2.0. They were originally scheduled for 1.0, but the ConjureOS shell still reads eight of them and has not been migrated, so removing them now would break the thing the library exists to style. Move off them.
 
 ## The rules the palettes follow
 
