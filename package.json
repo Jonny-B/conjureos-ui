@@ -1,6 +1,6 @@
 {
   "name": "@conjureos/ui",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "ConjureOS design tokens and primitive UI classes. Modern Whimsy visual language packaged as a versioned CSS bundle, in nine themes across light and dark.",
   "main": "dist/ui.css",
   "files": [

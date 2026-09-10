@@ -2,6 +2,16 @@
 
 All notable changes to `@conjureos/ui` are documented here. The format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.3 (2026-09-10)
+
+Contrast fixes found by a second, independent design review (9 themes x 2 flavors, screenshots plus a structural grep of the shell, cross-checked by hand against real contrast math before anything was applied).
+
+### Fixed
+
+- **`--cui-accent-hover` failed AA as a button label on two dark themes.** Both darken on hover while keeping a dark on-accent label, so darkening cost contrast: Winter dropped to 3.88:1, Spring to 4.23:1 (floor 4.5:1). Winter's hover is now `#5a9fc6` (6.61:1), Spring's `#5f9427` (5.23:1); same hue, one step lighter instead of darker.
+- **Summer dark's `--cui-bg-3` was roughly twice as bright as any sibling's**, the root of several Summer-only failures on that surface: `fg-mute` 3.45:1, `link` 3.68:1, `warning`/`info` 4.00:1. Deepened to `#2b5b5d` (same hue), and `fg-mute` (`#b3cdcc`) and `link`/`link-hover` (`#7cd6d3`) deepened alongside it; all now clear 4.5:1 on every Summer dark ground.
+- **Summer dark's error red failed as text on its own grounds** (2.75-3.99:1 across bg through bg-3) even after the bg-3 fix, because the status reds are one shared hex across all nine themes and Summer's grounds are brighter than the value was set against. Summer dark alone now gets `#fca5a5` (5.82-4.60:1 across its grounds); every other theme is unchanged.
+
 ## 1.0.0 (2026-09-09)
 
 Nine themes across two flavors, replacing the single dark purple palette. Developed as 0.4.0 and released as 1.0.0 without an intermediate publish: the change is breaking, and shipping it under a 0.x minor would have let consumers take it through a caret range that promises compatibility.
