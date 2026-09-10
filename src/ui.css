@@ -143,7 +143,11 @@
    info for neutral-positive callouts. */
 .cui-ui .cui-button--secondary {
   background: var(--cui-secondary);
-  border-color: var(--cui-secondary);
+  /* Was border-color: var(--cui-secondary), a fill-as-border. In most themes
+     --cui-secondary equals --cui-bg-2, and a modal or card is often mounted
+     on bg-2 too, so the button had no visible edge at all wherever it landed
+     on its own fill's twin. A real hairline survives that. */
+  border-color: var(--cui-border-strong);
   color: var(--cui-fg);
 }
 .cui-ui .cui-button--secondary:hover {
@@ -321,7 +325,11 @@
 
 .cui-ui .cui-field__hint {
   font-size: var(--cui-text-xs);
-  color: var(--cui-fg-dim);
+  /* Was --cui-fg-dim, the tertiary/disabled tier, which every theme tunes
+     near 3:1 by design (a nine-theme review measured it 2.2 to 3.4:1 on the
+     raised surfaces this hint actually sits on). A hint is copy someone is
+     meant to read, not disabled text; that is --cui-fg-mute's job. */
+  color: var(--cui-fg-mute);
   line-height: var(--cui-leading-normal);
 }
 
@@ -368,7 +376,10 @@
   display: block;
   width: 100%;
   padding: var(--cui-space-2) calc(var(--cui-space-3) + 18px) var(--cui-space-2) var(--cui-space-3);
-  background: var(--cui-bg);
+  /* Was --cui-bg, the deepest ground rung. Inputs are documented to sit on
+     --cui-bg-2, the same as .cui-input/.cui-textarea; on a raised card
+     already at bg-2, a select painted at bg reads as a hole cut into it. */
+  background: var(--cui-bg-2);
   border: var(--cui-border-width) solid var(--cui-border);
   border-radius: var(--cui-radius-sm);
   color: var(--cui-fg);
@@ -377,6 +388,10 @@
   line-height: var(--cui-leading-normal);
   outline: none;
   cursor: pointer;
+  /* The chevron's stroke is a literal: a native <select> cannot host a
+     pseudo-element in most browsers, so there is no CSS-variable-aware way
+     to paint this SVG per theme without replacing the control entirely.
+     Known, minor, cosmetic-only limitation; left as-is. */
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='none' stroke='%239ca3af' stroke-width='1.5' d='M3 4.5l3 3 3-3'/></svg>");
   background-repeat: no-repeat;
   background-position: right var(--cui-space-3) center;
