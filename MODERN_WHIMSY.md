@@ -86,7 +86,7 @@ Apps run in an iframe, and CSS custom properties do not inherit across an iframe
 </script>
 ```
 
-That single call does all of it: reads the user's saved choice, listens for the OS theme, falls back to your default, and writes the attributes onto `<html>`. Put the `<script>` in `<head>` so the attributes land before first paint and the page does not flash the wrong palette.
+That single call does all of it: reads the user's saved choice, picks up the OS theme ConjureOS injected at `window.__conjureos.appearance`, listens for later changes, falls back to your default, and writes the attributes onto `<html>`. Put the `<script>` in `<head>` so the attributes land before first paint and the page does not flash the wrong palette.
 
 > **Status:** both halves ship. ConjureOS broadcasts its theme and answers the subscribe, so `ConjureTheme.init()` resolves against a live OS layer inside the shell. Outside the shell nothing answers and the OS layer is simply silent, which is exactly how a standalone app should behave.
 

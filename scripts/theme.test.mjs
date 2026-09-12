@@ -165,6 +165,43 @@ const tests = {
     ok(seen?.theme === null, "and the resolved theme did not move");
   },
 
+  "the OS value ConjureOS injects is applied before any message arrives"() {
+    // The flash this prevents: without it the app paints its own default and
+    // only repaints once the subscribe round-trip returns.
+    const e = makeEnv();
+    e.g.__conjureos = { appearance: { theme: "xms", flavor: "light" } };
+    const T = load(e);
+    const r = T.init({ theme: "spr" });
+    ok(e.attrs["data-theme"] === "xms", "injected theme wins over the app default at boot");
+    ok(r.source === "os", "and is reported as the OS layer");
+  },
+
+  "a URL parameter stands in when there is nothing injected"() {
+    const e = makeEnv();
+    e.g.location.search = "?cui-theme=fal&cui-flavor=dark";
+    load(e).init({ theme: "spr" });
+    ok(e.attrs["data-theme"] === "fal", "URL theme read");
+    ok(e.attrs["data-flavor"] === "dark", "URL flavor read");
+  },
+
+  "a stored choice still outranks what the host injected"() {
+    const e = makeEnv();
+    e.store["conjureos.theme"] = JSON.stringify({ theme: "cnd", flavor: null });
+    e.g.__conjureos = { appearance: { theme: "xms", flavor: "light" } };
+    load(e).init({ theme: "spr" });
+    ok(e.attrs["data-theme"] === "cnd", "the user's own override holds");
+    ok(e.attrs["data-flavor"] === "light", "while the unset axis still follows the OS");
+  },
+
+  "a locked app ignores the injected value too"() {
+    const e = makeEnv();
+    e.g.__conjureos = { appearance: { theme: "xms", flavor: "light" } };
+    const T = load(e);
+    T.init({ theme: "win", flavor: "dark", lock: true });
+    ok(e.attrs["data-theme"] === "win", "boot value does not slip past the lock");
+    ok(T.get().osTheme === "xms", "but is still reported");
+  },
+
   "an unknown theme id falls through instead of being written out"() {
     const e = makeEnv();
     const T = load(e);

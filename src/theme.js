@@ -14,7 +14,9 @@
  *
  * Precedence, highest first:
  *   1. what the user chose in THIS app's settings (localStorage)
- *   2. what ConjureOS says the OS theme is (postMessage, or URL parameters)
+ *   2. what ConjureOS says the OS theme is (its injected window.__conjureos
+ *      .appearance at boot, then postMessage on every change; a host that
+ *      cannot inject may pass ?cui-theme= / ?cui-flavor= instead)
  *   3. the default the app passed to init()
  *
  * Choosing "System" in an app's settings clears level 1, which lets level 2
@@ -86,7 +88,27 @@
       } catch (e) { /* storage blocked. The choice still applies this session. */ }
     }
 
-    function readUrl() {
+    /*
+     * The OS layer as it stands at boot, before any message has arrived.
+     *
+     * This matters because the subscribe is a round-trip: without a starting
+     * value an app following ConjureOS paints once in its own default and
+     * then repaints, which is a full-page colour flash on every launch.
+     *
+     * Two sources, both optional. ConjureOS injects window.__conjureos
+     * .appearance into the app's page, which is the accurate one and needs no
+     * cooperation from the app. A host that cannot inject can pass the same
+     * two values as ?cui-theme= / ?cui-flavor= instead. Neither overwrites a
+     * value a message has already set, since a message is always fresher.
+     */
+    function readBoot() {
+      try {
+        var injected = global.__conjureos && global.__conjureos.appearance;
+        if (injected) {
+          state.osTheme = valid(injected.theme) || state.osTheme;
+          state.osFlavor = validFlavor(injected.flavor) || state.osFlavor;
+        }
+      } catch (e) { /* no host bridge. The URL and postMessage still work. */ }
       try {
         var q = new global.URLSearchParams(global.location.search);
         state.osTheme = valid(q.get("cui-theme")) || state.osTheme;
@@ -208,7 +230,7 @@
         // one. That also means it leaves no half-applied state behind if the
         // lock is lifted in a later release: level 1 starts empty.
         if (!state.locked) readStore();
-        readUrl();
+        readBoot();
 
         if (!state.started) {
           state.started = true;
