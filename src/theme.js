@@ -20,6 +20,13 @@
  * Choosing "System" in an app's settings clears level 1, which lets level 2
  * through. An app opened outside ConjureOS gets no level 2, so it falls to
  * its own default and behaves exactly like a normal standalone site.
+ *
+ * An app that must not change appearance passes `lock: true` to init(), which
+ * collapses the ladder to level 3 alone: levels 1 and 2 are still RECEIVED and
+ * readable through get(), so the app can see what the OS is wearing, but
+ * neither is ever applied and setTheme/setFlavor do nothing. Locking is for
+ * apps whose design only works in one palette; it is not a way to opt out of
+ * the handshake, which is why a locked app still subscribes.
  */
 (function (global) {
   "use strict";
@@ -52,6 +59,8 @@
       osFlavor: null,
       userTheme: null,    // level 1, null means "follow the OS"
       userFlavor: null,
+      locked: false,      // when true, only level 3 is ever applied
+      warnedLocked: false,
       started: false
     };
     var listeners = [];
@@ -86,6 +95,22 @@
     }
 
     function resolved() {
+      // A locked app resolves to its own default and nothing else. The OS and
+      // user layers are still reported below so it can show what it is
+      // ignoring, but they never reach `theme` / `flavor`.
+      if (state.locked) {
+        return {
+          theme: state.appTheme,
+          flavor: state.appFlavor,
+          source: "app",
+          userTheme: null,
+          userFlavor: null,
+          following: false,
+          locked: true,
+          osTheme: state.osTheme,
+          osFlavor: state.osFlavor
+        };
+      }
       return {
         theme: state.userTheme || state.osTheme || state.appTheme || null,
         flavor: state.userFlavor || state.osFlavor || state.appFlavor || null,
@@ -95,7 +120,13 @@
         // resolved value. null on either means "following the level above".
         userTheme: state.userTheme,
         userFlavor: state.userFlavor,
-        following: state.userTheme === null
+        following: state.userTheme === null,
+        locked: false,
+        // What ConjureOS last said, regardless of whether it won. An app that
+        // wants to show "ConjureOS is on Winter" next to its own override
+        // reads these rather than guessing from `source`.
+        osTheme: state.osTheme,
+        osFlavor: state.osFlavor
       };
     }
 
@@ -131,6 +162,23 @@
       apply();
     }
 
+    /*
+     * A set call on a locked app does nothing, which looks identical to a
+     * broken picker from the outside. Say so once — a developer who wired a
+     * picker into a locked app needs to know it was the lock, and a warning
+     * per click would be noise.
+     */
+    function lockedNoop(fnName) {
+      if (!state.warnedLocked && global.console && global.console.warn) {
+        state.warnedLocked = true;
+        global.console.warn(
+          "[ConjureTheme] " + fnName + " ignored: this app called init({ lock: true }). " +
+          "Read get().locked and hide the picker."
+        );
+      }
+      return resolved();
+    }
+
     var api = {
       THEMES: THEMES.slice(),
       FLAVORS: FLAVORS.slice(),
@@ -143,6 +191,10 @@
        *              to "conjureos.theme". Give each app its own key if you
        *              do not want the choice shared across same-origin apps.
        * opts.root    element to write the attributes on. Defaults to <html>.
+       * opts.lock    true pins the app to opts.theme / opts.flavor. ConjureOS
+       *              and any stored user choice are received but never
+       *              applied, and setTheme / setFlavor become no-ops. For an
+       *              app whose design only works in one palette.
        */
       init: function (opts) {
         opts = opts || {};
@@ -150,8 +202,12 @@
         state.key = opts.storageKey === null ? null : (opts.storageKey || "conjureos.theme");
         state.appTheme = valid(opts.theme);
         state.appFlavor = validFlavor(opts.flavor);
+        state.locked = opts.lock === true;
 
-        readStore();
+        // A locked app can never act on a stored choice, so it never reads
+        // one. That also means it leaves no half-applied state behind if the
+        // lock is lifted in a later release: level 1 starts empty.
+        if (!state.locked) readStore();
         readUrl();
 
         if (!state.started) {
@@ -170,6 +226,7 @@
 
       /* null means "follow ConjureOS", which is the System option in a picker. */
       setTheme: function (id) {
+        if (state.locked) return lockedNoop("setTheme");
         state.userTheme = id === null ? null : valid(id);
         writeStore();
         return apply();
@@ -177,6 +234,7 @@
 
       /* null means "follow the browser's light or dark preference". */
       setFlavor: function (f) {
+        if (state.locked) return lockedNoop("setFlavor");
         state.userFlavor = f === null ? null : validFlavor(f);
         writeStore();
         return apply();
