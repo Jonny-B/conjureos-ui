@@ -210,6 +210,85 @@ const tests = {
     ok(e.attrs["data-theme"] === "spr", "the app default still holds");
     ok(T.get().userTheme === null, "the junk id did not become the user layer");
   },
+
+  // The three cases below all re-init the SAME loaded instance. Every case
+  // above this point either inits once, or simulates a page reload with a
+  // fresh load(e) — neither exercises a live init() called twice, which is
+  // exactly the gap a second, unrelated init() call fell into.
+
+  "a second init() cannot unlock an app that locked itself"() {
+    const e = makeEnv();
+    e.store["conjureos.theme"] = JSON.stringify({ theme: "cnd", flavor: "light" });
+    const T = load(e);
+    let warnCount = 0;
+    e.g.console.warn = () => { warnCount++; };
+    T.init({ theme: "win", flavor: "dark", lock: true });
+    T.init({ theme: "win", flavor: "dark" });
+    ok(T.get().locked === true, "get().locked stays true across a re-init that omits lock");
+    ok(e.attrs["data-theme"] === "win", "the stored user choice still does not apply");
+    ok(e.attrs["data-flavor"] === "dark", "nor the stored flavor");
+    ok(warnCount === 1, "the re-init's attempt to unlock warns once");
+    T.setTheme("hal"); // triggers the unrelated, already-tested lockedNoop warning
+    ok(e.attrs["data-theme"] === "win", "setTheme is still a no-op after the re-init");
+    const beforeThirdInit = warnCount;
+    T.init({ theme: "win", flavor: "dark" });
+    ok(warnCount === beforeThirdInit, "a further re-init does not warn again");
+  },
+
+  "a second init() does not revert an OS value a message already updated"() {
+    const e = makeEnv();
+    e.g.location.search = "?cui-theme=win";
+    const T = load(e);
+    T.init({ theme: "spr" });
+    ok(e.attrs["data-theme"] === "win", "the URL value applies at boot");
+    e.embed();
+    e.fromShell({ type: "conjureos:theme", theme: "spr", flavor: null });
+    ok(e.attrs["data-theme"] === "spr", "a message updates the OS theme");
+    T.init({ theme: "spr" });
+    ok(e.attrs["data-theme"] === "spr", "a second init() does not revert to the stale URL value");
+    ok(T.get().osTheme === "spr", "get().osTheme still reflects the message, not the boot snapshot");
+  },
+
+  "a second init() with no storage key clears a previously stored user theme"() {
+    const e = makeEnv();
+    e.store["conjureos.theme"] = JSON.stringify({ theme: "hal", flavor: null });
+    const T = load(e);
+    T.init({ theme: "spr" });
+    ok(T.get().userTheme === "hal", "the stored choice is read on the first init");
+    T.init({ theme: "spr", storageKey: null });
+    ok(T.get().userTheme === null, "a re-init with no storage key clears the previous user theme");
+    ok(e.attrs["data-theme"] === "spr", "so the app default applies again");
+  },
+
+  // A message is the shell's complete state, not one merged from several
+  // sources (see the comment in onMessage), so an explicit null is not
+  // "invalid" the way an unrecognised id is - it is the shell's own picker
+  // telling the app to clear back to its default. Nothing above sent one.
+
+  "a null broadcast clears the OS theme back to the app default"() {
+    const e = makeEnv();
+    const T = load(e);
+    T.init({ theme: "spr" });
+    e.embed();
+    e.fromShell({ type: "conjureos:theme", theme: "hal", flavor: "dark" });
+    ok(e.attrs["data-theme"] === "hal", "the OS theme applies first");
+    e.fromShell({ type: "conjureos:theme", theme: null, flavor: null });
+    ok(e.attrs["data-theme"] === "spr", "an explicit null clears back to the app default");
+    ok(!("data-flavor" in e.attrs), "the flavor axis clears too, with no app default to fall back to");
+    ok(T.get().osTheme === null, "get().osTheme reports the clear, not the abandoned palette");
+  },
+
+  "a null broadcast with no app default removes the attributes entirely"() {
+    const e = makeEnv();
+    const T = load(e);
+    T.init({});
+    e.embed();
+    e.fromShell({ type: "conjureos:theme", theme: "hal", flavor: "dark" });
+    ok(e.attrs["data-theme"] === "hal", "the OS theme applies first");
+    e.fromShell({ type: "conjureos:theme", theme: null, flavor: null });
+    ok(!("data-theme" in e.attrs), "no attribute means the Conjure default");
+    ok(!("data-flavor" in e.attrs), "and the browser's light/dark preference");
+  },
 };
 
 for (const [name, fn] of Object.entries(tests)) {

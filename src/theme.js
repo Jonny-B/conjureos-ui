@@ -63,11 +63,17 @@
       userFlavor: null,
       locked: false,      // when true, only level 3 is ever applied
       warnedLocked: false,
+      warnedRelock: false,
       started: false
     };
     var listeners = [];
 
     function readStore() {
+      // Always start from "nothing stored," then let a hit repopulate it.
+      // Without this, a second init() with no storage key (or one whose
+      // stored value was removed) kept the previous instance's user layer.
+      state.userTheme = null;
+      state.userFlavor = null;
       if (!state.key) return;
       try {
         var raw = global.localStorage.getItem(state.key);
@@ -90,6 +96,9 @@
 
     /*
      * The OS layer as it stands at boot, before any message has arrived.
+     * Called once, from the first init() only (see init()'s own comment) —
+     * never again on a later init() on the same page — so there is no
+     * later moment where it could run after a message and revert it.
      *
      * This matters because the subscribe is a round-trip: without a starting
      * value an app following ConjureOS paints once in its own default and
@@ -176,6 +185,15 @@
       // Only the embedder can drive the OS layer. A message from anywhere
       // else is a page trying to restyle an app it does not own.
       if (global.parent && ev.source !== global.parent) return;
+      // Unlike readBoot(), this does NOT preserve the previous value on an
+      // invalid id. A message is the shell's complete current state, not a
+      // value merged from several sources, so every field is authoritative
+      // - including an explicit null, which is what the shell's own picker
+      // sends to clear a user's choice back to this app's default. readBoot()
+      // preserves on invalid only because it merges two independent optional
+      // sources, where a missing second one must not erase a first one
+      // already read; a message has no second source to merge with, so there
+      // is nothing to preserve.
       var t = valid(d.theme);
       var f = validFlavor(d.flavor);
       if (t === state.osTheme && f === state.osFlavor) return;
@@ -201,6 +219,22 @@
       return resolved();
     }
 
+    /*
+     * The lock is a decision about the app's design, not a per-call option:
+     * once init({ lock: true }) has run, no later init() can unlock it, even
+     * one that simply omits `lock` for some unrelated reason. Say so once,
+     * same cadence as lockedNoop above.
+     */
+    function warnRelock() {
+      if (!state.warnedRelock && global.console && global.console.warn) {
+        state.warnedRelock = true;
+        global.console.warn(
+          "[ConjureTheme] init() cannot unlock this app: lock is permanent " +
+          "once set with init({ lock: true }). Staying locked."
+        );
+      }
+    }
+
     var api = {
       THEMES: THEMES.slice(),
       FLAVORS: FLAVORS.slice(),
@@ -224,15 +258,22 @@
         state.key = opts.storageKey === null ? null : (opts.storageKey || "conjureos.theme");
         state.appTheme = valid(opts.theme);
         state.appFlavor = validFlavor(opts.flavor);
-        state.locked = opts.lock === true;
+
+        // Locking is one-way: once set, a later init() cannot unlock it,
+        // even by simply omitting `lock`. Only a call that itself asks for
+        // the lock may change state.locked while it is already true.
+        if (state.locked && opts.lock !== true) warnRelock();
+        else state.locked = opts.lock === true;
 
         // A locked app can never act on a stored choice, so it never reads
         // one. That also means it leaves no half-applied state behind if the
         // lock is lifted in a later release: level 1 starts empty.
         if (!state.locked) readStore();
-        readBoot();
 
         if (!state.started) {
+          // The boot snapshot is read only here, on the first init() — see
+          // readBoot()'s own comment for why it must never run again.
+          readBoot();
           state.started = true;
           global.addEventListener("message", onMessage);
           // Announce to the shell that this app follows the OS theme. If
