@@ -2,6 +2,20 @@
 
 All notable changes to `@conjureos/ui` are documented here. The format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.0 (2026-09-12)
+
+The resolver learns that some apps must not follow the OS, and reports what the OS said either way. CSS is unchanged; this release is `theme.js` only.
+
+### Added
+
+- **`init({ lock: true })`** pins an app to the `theme` / `flavor` it passed and collapses the precedence ladder to that one level. ConjureOS and any stored user choice are still received, so `get().osTheme` / `get().osFlavor` report them, but neither is applied. `setTheme` / `setFlavor` become no-ops and warn once, because a silently dead picker is indistinguishable from a broken one. For an app whose design only works in one palette; read `get().locked` and do not render a picker.
+- **The OS layer is now read at boot from `window.__conjureos.appearance`**, which ConjureOS injects into every app's page. The resolver previously learned the OS theme only from the `conjureos:theme` message, which is a round-trip, so an app following the OS painted once in its own default and then repainted — a full-page colour flash on every launch. `?cui-theme=` / `?cui-flavor=` still work as the fallback for a host that cannot inject, and a message always outranks both because it is fresher.
+- **`get()` now also returns `locked`, `osTheme` and `osFlavor`.** The OS layer was previously only observable through `source === "os"`, which could not answer "what is ConjureOS wearing while I override it?" — the question a settings panel needs to label its own "Use ConjureOS appearance" option.
+
+### Changed
+
+- A locked app does not read `localStorage` at all. It could never act on a stored choice, and skipping the read means lifting the lock in a later release starts from an empty user layer rather than resurrecting a preference set years earlier.
+
 ## 1.0.3 (2026-09-10)
 
 Contrast fixes found by a second, independent design review (9 themes x 2 flavors, screenshots plus a structural grep of the shell, cross-checked by hand against real contrast math before anything was applied).
