@@ -1,6 +1,6 @@
 {
   "name": "@conjureos/ui",
-  "version": "1.0.4",
+  "version": "1.1.1",
   "description": "ConjureOS design tokens and primitive UI classes. Modern Whimsy visual language packaged as a versioned CSS bundle, in nine themes across light and dark.",
   "main": "dist/ui.css",
   "files": [
@@ -14,6 +14,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "dev": "node scripts/build.mjs --watch",
+    "test": "node scripts/build.mjs && node scripts/theme.test.mjs",
     "prepublishOnly": "node scripts/build.mjs"
   },
   "keywords": [

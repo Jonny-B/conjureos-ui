@@ -17,7 +17,8 @@ The token names and primitive classes became a contract at 1.0.0. Everything sin
 - **1.0.1**: two library bugs (a hint colour and a button border that were both invisible in specific themes), and small same-hue palette nudges where a contrast check had a razor-thin margin.
 - **1.0.2**: Summer light's ground redesigned from warm sand to an oceanic teal, so the light flavor tells the same "deep sea" story as Summer dark instead of a different one.
 - **1.0.3**: three more contrast fixes surfaced by a second, independent review: Winter and Spring dark's button-hover label, and Summer dark's elevated surface tier plus the tokens measured against it.
-- **1.0.4**: this documentation pass, the "Common mistakes" section below, `design-system.html`, and a `Known drift` refresh.
+- **1.1.0**: `theme.js` only, CSS unchanged. `init({ lock: true })` pins an app to one palette; the OS layer is now read at boot from `window.__conjureos.appearance` instead of only from a round-trip message, killing a colour flash on launch; `get()` reports `locked` / `osTheme` / `osFlavor`.
+- **1.1.1**: this documentation pass, the "Common mistakes" section below, `design-system.html`, and a `Known drift` refresh.
 
 If you are chasing a specific hex value and it does not match what is printed below, you are probably looking at a pre-1.0.1 memory of this doc. The tables here are current as of the version in this file's own `package.json`.
 
@@ -98,9 +99,9 @@ Apps run in an iframe, and CSS custom properties do not inherit across an iframe
 </script>
 ```
 
-That single call does all of it: reads the user's saved choice, listens for the OS theme, falls back to your default, and writes the attributes onto `<html>`. Put the `<script>` in `<head>` so the attributes land before first paint and the page does not flash the wrong palette.
+That single call does all of it: reads the user's saved choice, picks up the OS theme ConjureOS injected at `window.__conjureos.appearance`, listens for later changes, falls back to your default, and writes the attributes onto `<html>`. Put the `<script>` in `<head>` so the attributes land before first paint and the page does not flash the wrong palette.
 
-> **Status:** the app half ships in 0.4.0 and is safe to adopt today. The shell half (ConjureOS actually broadcasting the theme) is **not built yet**. Until it is, `ConjureTheme` resolves to the user's choice or your default and the OS layer is simply silent, which is exactly how a standalone app should behave. Adopting it now means your app lights up the day the shell ships its side, with no code change.
+> **Status:** both halves ship. ConjureOS broadcasts its theme and answers the subscribe, so `ConjureTheme.init()` resolves against a live OS layer inside the shell. Outside the shell nothing answers and the OS layer is simply silent, which is exactly how a standalone app should behave.
 
 ### The settings section your app should have
 
@@ -161,14 +162,26 @@ The important detail is that **"follow ConjureOS" is a real, selectable state**,
 
 | Call | Does |
 | --- | --- |
-| `init({ theme, flavor, storageKey, root })` | Resolve and apply. All options optional. Returns the resolved state. |
+| `init({ theme, flavor, storageKey, root, lock })` | Resolve and apply. All options optional. Returns the resolved state. |
 | `setTheme(id \| null)` | User picks a palette. `null` means follow ConjureOS. Persists. |
 | `setFlavor("dark" \| "light" \| null)` | `null` means follow the browser. Persists. |
-| `get()` | `{ theme, flavor, source, following }`. `source` is `"user"`, `"os"`, or `"app"`. |
+| `get()` | `{ theme, flavor, source, following, locked, userTheme, userFlavor, osTheme, osFlavor }`. `source` is `"user"`, `"os"`, or `"app"`; `osTheme` / `osFlavor` are what ConjureOS last said, whether or not it won. |
 | `subscribe(fn)` | Called on every change. Returns an unsubscribe function. |
 | `THEMES` | `[{ id, label }]` for the nine, in canonical order. Build your picker from this. |
 
 Choices persist to `localStorage` under `conjureos.theme` by default. Pass `storageKey` to give your app its own slot, or `storageKey: null` to not persist at all.
+
+### If your app must not change appearance
+
+Some apps only work in one palette. Pass `lock: true` and the ladder collapses to your default:
+
+```js
+ConjureTheme.init({ theme: "win", flavor: "dark", lock: true });
+```
+
+ConjureOS and any stored user choice are still **received** — `get().osTheme` and `get().osFlavor` tell you what the shell is wearing — but neither is ever applied, and `setTheme` / `setFlavor` do nothing and warn once. Read `get().locked` and do not render a picker.
+
+Lock because the design genuinely needs one palette, not to avoid the work: a locked app is the one place a user's ConjureOS theme visibly does not apply, and they have no control that explains why. Say so in your settings copy.
 
 ### Doing it without the helper
 

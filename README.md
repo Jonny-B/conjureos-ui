@@ -92,6 +92,12 @@ To follow the ConjureOS theme and offer users a picker in your own settings, loa
 <script>ConjureTheme.init({ theme: "spr" });</script>
 ```
 
+An app whose design only works in one palette pins itself instead, and ConjureOS is received but never applied:
+
+```html
+<script>ConjureTheme.init({ theme: "win", flavor: "dark", lock: true });</script>
+```
+
 See [MODERN_WHIMSY.md](MODERN_WHIMSY.md) for the precedence rules, the settings-panel pattern, and the full token reference.
 
 ## Token reference

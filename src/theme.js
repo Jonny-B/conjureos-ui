@@ -14,12 +14,21 @@
  *
  * Precedence, highest first:
  *   1. what the user chose in THIS app's settings (localStorage)
- *   2. what ConjureOS says the OS theme is (postMessage, or URL parameters)
+ *   2. what ConjureOS says the OS theme is (its injected window.__conjureos
+ *      .appearance at boot, then postMessage on every change; a host that
+ *      cannot inject may pass ?cui-theme= / ?cui-flavor= instead)
  *   3. the default the app passed to init()
  *
  * Choosing "System" in an app's settings clears level 1, which lets level 2
  * through. An app opened outside ConjureOS gets no level 2, so it falls to
  * its own default and behaves exactly like a normal standalone site.
+ *
+ * An app that must not change appearance passes `lock: true` to init(), which
+ * collapses the ladder to level 3 alone: levels 1 and 2 are still RECEIVED and
+ * readable through get(), so the app can see what the OS is wearing, but
+ * neither is ever applied and setTheme/setFlavor do nothing. Locking is for
+ * apps whose design only works in one palette; it is not a way to opt out of
+ * the handshake, which is why a locked app still subscribes.
  */
 (function (global) {
   "use strict";
@@ -52,11 +61,19 @@
       osFlavor: null,
       userTheme: null,    // level 1, null means "follow the OS"
       userFlavor: null,
+      locked: false,      // when true, only level 3 is ever applied
+      warnedLocked: false,
+      warnedRelock: false,
       started: false
     };
     var listeners = [];
 
     function readStore() {
+      // Always start from "nothing stored," then let a hit repopulate it.
+      // Without this, a second init() with no storage key (or one whose
+      // stored value was removed) kept the previous instance's user layer.
+      state.userTheme = null;
+      state.userFlavor = null;
       if (!state.key) return;
       try {
         var raw = global.localStorage.getItem(state.key);
@@ -77,7 +94,30 @@
       } catch (e) { /* storage blocked. The choice still applies this session. */ }
     }
 
-    function readUrl() {
+    /*
+     * The OS layer as it stands at boot, before any message has arrived.
+     * Called once, from the first init() only (see init()'s own comment) —
+     * never again on a later init() on the same page — so there is no
+     * later moment where it could run after a message and revert it.
+     *
+     * This matters because the subscribe is a round-trip: without a starting
+     * value an app following ConjureOS paints once in its own default and
+     * then repaints, which is a full-page colour flash on every launch.
+     *
+     * Two sources, both optional. ConjureOS injects window.__conjureos
+     * .appearance into the app's page, which is the accurate one and needs no
+     * cooperation from the app. A host that cannot inject can pass the same
+     * two values as ?cui-theme= / ?cui-flavor= instead. Neither overwrites a
+     * value a message has already set, since a message is always fresher.
+     */
+    function readBoot() {
+      try {
+        var injected = global.__conjureos && global.__conjureos.appearance;
+        if (injected) {
+          state.osTheme = valid(injected.theme) || state.osTheme;
+          state.osFlavor = validFlavor(injected.flavor) || state.osFlavor;
+        }
+      } catch (e) { /* no host bridge. The URL and postMessage still work. */ }
       try {
         var q = new global.URLSearchParams(global.location.search);
         state.osTheme = valid(q.get("cui-theme")) || state.osTheme;
@@ -86,6 +126,22 @@
     }
 
     function resolved() {
+      // A locked app resolves to its own default and nothing else. The OS and
+      // user layers are still reported below so it can show what it is
+      // ignoring, but they never reach `theme` / `flavor`.
+      if (state.locked) {
+        return {
+          theme: state.appTheme,
+          flavor: state.appFlavor,
+          source: "app",
+          userTheme: null,
+          userFlavor: null,
+          following: false,
+          locked: true,
+          osTheme: state.osTheme,
+          osFlavor: state.osFlavor
+        };
+      }
       return {
         theme: state.userTheme || state.osTheme || state.appTheme || null,
         flavor: state.userFlavor || state.osFlavor || state.appFlavor || null,
@@ -95,7 +151,13 @@
         // resolved value. null on either means "following the level above".
         userTheme: state.userTheme,
         userFlavor: state.userFlavor,
-        following: state.userTheme === null
+        following: state.userTheme === null,
+        locked: false,
+        // What ConjureOS last said, regardless of whether it won. An app that
+        // wants to show "ConjureOS is on Winter" next to its own override
+        // reads these rather than guessing from `source`.
+        osTheme: state.osTheme,
+        osFlavor: state.osFlavor
       };
     }
 
@@ -123,12 +185,54 @@
       // Only the embedder can drive the OS layer. A message from anywhere
       // else is a page trying to restyle an app it does not own.
       if (global.parent && ev.source !== global.parent) return;
+      // Unlike readBoot(), this does NOT preserve the previous value on an
+      // invalid id. A message is the shell's complete current state, not a
+      // value merged from several sources, so every field is authoritative
+      // - including an explicit null, which is what the shell's own picker
+      // sends to clear a user's choice back to this app's default. readBoot()
+      // preserves on invalid only because it merges two independent optional
+      // sources, where a missing second one must not erase a first one
+      // already read; a message has no second source to merge with, so there
+      // is nothing to preserve.
       var t = valid(d.theme);
       var f = validFlavor(d.flavor);
       if (t === state.osTheme && f === state.osFlavor) return;
       state.osTheme = t;
       state.osFlavor = f;
       apply();
+    }
+
+    /*
+     * A set call on a locked app does nothing, which looks identical to a
+     * broken picker from the outside. Say so once — a developer who wired a
+     * picker into a locked app needs to know it was the lock, and a warning
+     * per click would be noise.
+     */
+    function lockedNoop(fnName) {
+      if (!state.warnedLocked && global.console && global.console.warn) {
+        state.warnedLocked = true;
+        global.console.warn(
+          "[ConjureTheme] " + fnName + " ignored: this app called init({ lock: true }). " +
+          "Read get().locked and hide the picker."
+        );
+      }
+      return resolved();
+    }
+
+    /*
+     * The lock is a decision about the app's design, not a per-call option:
+     * once init({ lock: true }) has run, no later init() can unlock it, even
+     * one that simply omits `lock` for some unrelated reason. Say so once,
+     * same cadence as lockedNoop above.
+     */
+    function warnRelock() {
+      if (!state.warnedRelock && global.console && global.console.warn) {
+        state.warnedRelock = true;
+        global.console.warn(
+          "[ConjureTheme] init() cannot unlock this app: lock is permanent " +
+          "once set with init({ lock: true }). Staying locked."
+        );
+      }
     }
 
     var api = {
@@ -143,6 +247,10 @@
        *              to "conjureos.theme". Give each app its own key if you
        *              do not want the choice shared across same-origin apps.
        * opts.root    element to write the attributes on. Defaults to <html>.
+       * opts.lock    true pins the app to opts.theme / opts.flavor. ConjureOS
+       *              and any stored user choice are received but never
+       *              applied, and setTheme / setFlavor become no-ops. For an
+       *              app whose design only works in one palette.
        */
       init: function (opts) {
         opts = opts || {};
@@ -151,10 +259,21 @@
         state.appTheme = valid(opts.theme);
         state.appFlavor = validFlavor(opts.flavor);
 
-        readStore();
-        readUrl();
+        // Locking is one-way: once set, a later init() cannot unlock it,
+        // even by simply omitting `lock`. Only a call that itself asks for
+        // the lock may change state.locked while it is already true.
+        if (state.locked && opts.lock !== true) warnRelock();
+        else state.locked = opts.lock === true;
+
+        // A locked app can never act on a stored choice, so it never reads
+        // one. That also means it leaves no half-applied state behind if the
+        // lock is lifted in a later release: level 1 starts empty.
+        if (!state.locked) readStore();
 
         if (!state.started) {
+          // The boot snapshot is read only here, on the first init() — see
+          // readBoot()'s own comment for why it must never run again.
+          readBoot();
           state.started = true;
           global.addEventListener("message", onMessage);
           // Announce to the shell that this app follows the OS theme. If
@@ -170,6 +289,7 @@
 
       /* null means "follow ConjureOS", which is the System option in a picker. */
       setTheme: function (id) {
+        if (state.locked) return lockedNoop("setTheme");
         state.userTheme = id === null ? null : valid(id);
         writeStore();
         return apply();
@@ -177,6 +297,7 @@
 
       /* null means "follow the browser's light or dark preference". */
       setFlavor: function (f) {
+        if (state.locked) return lockedNoop("setFlavor");
         state.userFlavor = f === null ? null : validFlavor(f);
         writeStore();
         return apply();
