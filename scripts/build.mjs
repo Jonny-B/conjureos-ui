@@ -28,6 +28,8 @@ const distFile = resolve(distDir, "ui.css");
 const themeSrc = resolve(srcDir, "theme.js");
 const themeOut = resolve(distDir, "theme.js");
 const styleGuideFile = resolve(repo, "MODERN_WHIMSY.md");
+const designSystemSrc = resolve(repo, "design-system.html");
+const designSystemOut = resolve(distDir, "design-system.html");
 
 const pkg = JSON.parse(await readFile(resolve(repo, "package.json"), "utf-8"));
 
@@ -154,6 +156,28 @@ const build = async () => {
 `;
     await writeFile(themeOut, themeHeader + theme, "utf-8");
     console.log(`[conjureos-ui] built theme.js → ${themeOut} (${theme.length} bytes)`);
+  }
+
+  // The interactive design-system reference. The source file, opened
+  // directly from the repo root, links `dist/ui.css` and `dist/theme.js`
+  // so it works with zero server, same as demo.html. The build rewrites
+  // those two hrefs to `v1.css` / `theme.js` (no `dist/` prefix), because
+  // the emitted copy ships beside those files at ConjureOS's served
+  // /_conjureos/ui/ path rather than beside a dist/ folder. Also stamps the
+  // version into the page's own header.
+  let designSystem = null;
+  try {
+    designSystem = await readFile(designSystemSrc, "utf-8");
+  } catch {
+    console.warn("[conjureos-ui] design-system.html not found; skipping.");
+  }
+  if (designSystem !== null) {
+    const rewritten = designSystem
+      .replace('href="dist/ui.css"', 'href="v1.css"')
+      .replace('src="dist/theme.js"', 'src="theme.js"')
+      .replace("%%CUI_VERSION%%", pkg.version);
+    await writeFile(designSystemOut, rewritten, "utf-8");
+    console.log(`[conjureos-ui] built design-system.html → ${designSystemOut} (${rewritten.length} bytes)`);
   }
 
   // A primitive that exists but never reaches the list is exactly the bug

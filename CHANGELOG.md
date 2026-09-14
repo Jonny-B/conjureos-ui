@@ -2,6 +2,22 @@
 
 All notable changes to `@conjureos/ui` are documented here. The format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.4 (2026-09-13)
+
+Documentation pass. No token, class, or behavior changes; this is a patch bump purely so the served `design-system.html` and `MODERN_WHIMSY.md` carry an accurate version stamp.
+
+### Added
+
+- **`design-system.html`**, a new interactive reference page shipped in `dist/` and, inside ConjureOS, served at `/_conjureos/ui/design-system.html` and mounted as a built-in "Design System" app (launcher, next to Developer Docs). Live theme and flavor switcher, every token shown as a swatch computed from the page's own resolved styles rather than typed in by hand, a side-by-side gallery of all nine palettes, a condensed component gallery, and a dedicated "Common mistakes" section with live before/after contrast comparisons plus a try-it-yourself contrast checker.
+- `MODERN_WHIMSY.md`: a new **Common mistakes** section, the on-accent-over-a-wash pattern named and explained for the first time (the single pattern behind nearly every "this theme looks wrong" report in the ConjureOS shell review that motivated it), alongside the hardcoded-literal, third-overused, and fill-versus-text mistakes.
+- `MODERN_WHIMSY.md`: a new **Since 1.0** section summarizing every patch release so a reader does not have to reconstruct it from the changelog.
+- The build script now also emits `dist/design-system.html` from the repo-root source, rewriting its stylesheet link from the repo-relative `dist/ui.css` to the served-relative `v1.css` and stamping the running version into the page header.
+
+### Changed
+
+- `MODERN_WHIMSY.md`'s **Known drift** section rewritten: the original list (retired purple, white-wash surfaces) is now mostly fixed as of shell `0.59.6` and moved to a "largely cleared" note; replaced with what a second, independent review actually found still outstanding (a large status-colour literal family, two hardcoded chat-response cards, built-in app templates).
+- `MODERN_WHIMSY.md`'s Summer dark token table corrected to the values 1.0.3 actually shipped (`--cui-fg-mute-d` and `--cui-link-d` were still showing their pre-1.0.3 hex).
+
 ## 1.0.3 (2026-09-10)
 
 Contrast fixes found by a second, independent design review (9 themes x 2 flavors, screenshots plus a structural grep of the shell, cross-checked by hand against real contrast math before anything was applied).
@@ -11,6 +27,29 @@ Contrast fixes found by a second, independent design review (9 themes x 2 flavor
 - **`--cui-accent-hover` failed AA as a button label on two dark themes.** Both darken on hover while keeping a dark on-accent label, so darkening cost contrast: Winter dropped to 3.88:1, Spring to 4.23:1 (floor 4.5:1). Winter's hover is now `#5a9fc6` (6.61:1), Spring's `#5f9427` (5.23:1); same hue, one step lighter instead of darker.
 - **Summer dark's `--cui-bg-3` was roughly twice as bright as any sibling's**, the root of several Summer-only failures on that surface: `fg-mute` 3.45:1, `link` 3.68:1, `warning`/`info` 4.00:1. Deepened to `#2b5b5d` (same hue), and `fg-mute` (`#b3cdcc`) and `link`/`link-hover` (`#7cd6d3`) deepened alongside it; all now clear 4.5:1 on every Summer dark ground.
 - **Summer dark's error red failed as text on its own grounds** (2.75-3.99:1 across bg through bg-3) even after the bg-3 fix, because the status reds are one shared hex across all nine themes and Summer's grounds are brighter than the value was set against. Summer dark alone now gets `#fca5a5` (5.82-4.60:1 across its grounds); every other theme is unchanged.
+
+## 1.0.2 (2026-09-10)
+
+Two follow-up fixes from a user looking at what 1.0.0/0.59.0 had just shipped.
+
+### Changed
+
+- **Summer light's ground redesigned from warm sand to an oceanic teal.** Summer dark's ground genuinely is a deep teal sea (Lab hue 197); Summer light's ground was warm sand (hue 84) with the theme's own teal living only in the lead and link tokens, so the two flavors told a different story about what "Summer" means, and on screen light read as tan-pink rather than beachy. The whole ground ladder (`bg` through `bg-3`) redesigned around the same hue family the lead already uses (176-183, echoing lead's own 192), keeping the old ladder's lightness and chroma magnitude so only the hue changed, not the brightness or density. Every foreground token reverified against all four new grounds; `--cui-support-text-l` deepened (`#a4482c` to `#8f3d24`, same hue) to clear the now more saturated `bg-2`/`bg-3`, and `--cui-secondary-l` moves with the new `bg-2` rather than being the one orphaned sand-colored control left in an ocean UI.
+
+### Fixed (shell-facing)
+
+- **Six shell tile surfaces built their background as a hand-rolled `linear-gradient(support, accent)`.** On a theme where those two hues sit far apart (Spring's magenta into green, Summer's own coral into teal) the diagonal reads as two clashing colors rather than one tile. All six now read `--cui-third-tint` / `--cui-third-line` / `--cui-third-text`, a single hue, matching the library's own `.cui-tile` convention. This is a ConjureOS shell fix, not a library change, recorded here because the same pattern is exactly the kind of thing this library's docs warn against.
+
+## 1.0.1 (2026-09-09)
+
+A 9-theme x 2-flavor review (36 model passes: independent capture, then independent reverification, before anything was proposed) found the palette sound in 12 of 18 combos. The other 6 needed small, single-hue-family nudges, each reverified against real contrast math before landing.
+
+### Fixed
+
+- **Six palettes had a token with a razor-thin or failing contrast margin**, always fixed by moving the SAME token's value along its own hue, never by introducing a new hue: Conjure light (`--cui-bg-2-l` had almost no lift off the ground; `--cui-link-l`/`-hover` darkened to hold headroom once `bg-2` tightened), Halloween light (`--cui-secondary-l` equaled `--cui-bg-2-l`, no visible boundary between a quiet button and the card under it; `--cui-fg-mute-l` lacked headroom on `bg-2`/`bg-3`), Fall dark (`--cui-bg-2-d`/`--cui-bg-3-d` sat more than double this doc's own mud-band chroma limit; `--cui-secondary-d` moved with `bg-2`; `--cui-accent-hover-d` dropped its label under AA), Fall light (`--cui-fg-mute-l`/`--cui-link-l` were only ever checked against the page ground and failed on the `bg-2` modal surface where Settings actually renders them), Winter dark and Spring dark (`--cui-secondary-d` equaled `--cui-bg-2-d`, the same boundary problem as Halloween), Summer dark (`--cui-fg-dim-d` was the only one of nine dark themes under the tertiary tier's own 3:1 floor on `bg-2`), Christmas light (`--cui-fg-mute-l` failed on this theme's own `bg-3`), Easter dark (`--cui-fg-dim-d` sat under 4.5:1 on `bg-1`; `--cui-accent-hover-d` had darkened under a dark on-accent label, which is backwards: a dark label needs a LIGHTER hover, not a darker one).
+- **`.cui-field__hint` used `--cui-fg-dim`**, the tertiary/disabled tier, for real informational copy: 2.2 to 3.4:1 across every theme, by the tier's own design. Now reads `--cui-fg-mute`.
+- **`.cui-button--secondary` used its own fill as its border.** Wherever `--cui-secondary` equals `--cui-bg-2` (eight of nine themes) and a modal is also mounted on `bg-2`, the button had no visible edge at all. Now reads `--cui-border-strong`.
+- **`.cui-select`'s background moved from `--cui-bg` to `--cui-bg-2`**, matching every other form control. Its chevron stroke stays a hardcoded grey; a native `<select>` cannot host a themed pseudo-element, a known, deliberately accepted cosmetic limitation, not an oversight.
 
 ## 1.0.0 (2026-09-09)
 

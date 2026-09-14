@@ -10,14 +10,26 @@ Modern Whimsy is accent-led and lightly playful. Translucent surfaces sit on hai
 
 As of 0.4.0 it is **nine palettes across two flavors**, not one dark purple theme. The purple-to-blue brand gradient is retired. Every colour a component paints now comes from a token that resolves per theme and per flavor, so the same markup renders as Halloween dark or Summer light without touching a class name.
 
+## Since 1.0
+
+The token names and primitive classes became a contract at 1.0.0. Everything since has been contrast fixes and consuming-app bugs, never a renamed token or a changed class. Full detail, every value, in [CHANGELOG.md](CHANGELOG.md); the shape of it:
+
+- **1.0.1**: two library bugs (a hint colour and a button border that were both invisible in specific themes), and small same-hue palette nudges where a contrast check had a razor-thin margin.
+- **1.0.2**: Summer light's ground redesigned from warm sand to an oceanic teal, so the light flavor tells the same "deep sea" story as Summer dark instead of a different one.
+- **1.0.3**: three more contrast fixes surfaced by a second, independent review: Winter and Spring dark's button-hover label, and Summer dark's elevated surface tier plus the tokens measured against it.
+- **1.0.4**: this documentation pass, the "Common mistakes" section below, `design-system.html`, and a `Known drift` refresh.
+
+If you are chasing a specific hex value and it does not match what is printed below, you are probably looking at a pre-1.0.1 memory of this doc. The tables here are current as of the version in this file's own `package.json`.
+
 ## Seeing it
 
-Prose cannot show you a palette. Two places can:
+Prose cannot show you a palette. Three places can:
 
-- **`demo.html`** in this repo. Open it directly, no build step, no server. It loads the real `dist/ui.css`, so what renders is exactly what your app gets. There is a theme dropdown and a dark/light toggle at the top, and every primitive below with its markup in a collapsible block.
-- Run `npm run build` first if `dist/` is stale.
+- **[`design-system.html`](design-system.html)** in this repo, or open it inside ConjureOS itself (launcher → **Design System**, next to Developer Docs). This is the one to start with if you are new: it walks the theming contract with live, switchable examples, shows every token as a swatch that updates when you change theme, and has a dedicated, illustrated "Common mistakes" section with a live contrast checker. It is also what ships as `dist/design-system.html` and gets served by ConjureOS at `/_conjureos/ui/design-system.html`, so it is never more than one build behind what is actually deployed.
+- **`demo.html`** in this repo. A denser, no-frills component gallery: every primitive, in all nine themes and both flavors, markup beside each one in a collapsible block. Open it directly, no build step, no server. It loads the real `dist/ui.css`, so what renders is exactly what your app gets.
+- Run `npm run build` first if `dist/` is stale, for either page.
 
-Read this doc for the rules; open `demo.html` to see the result.
+Read this doc for the rules; open `design-system.html` to learn the system, or `demo.html` for a fast component reference once you already know it.
 
 ## The theming contract
 
@@ -293,15 +305,15 @@ The one dark flavor that is not near-black: a deep teal sea. The featured card i
 | Ground | `--cui-bg` | `#123434` | `#f7edde` |
 | Card | `--cui-bg-1` | `#1a4242` | `#fdf8f0` |
 | Text | `--cui-fg` | `#eaf7f6` | `#1a1610` |
-| Secondary text | `--cui-fg-mute` | `#a3c0bf` | `#5a5346` |
+| Secondary text | `--cui-fg-mute` | `#b3cdcc` | `#5a5346` |
 | Lead | `--cui-accent` | `#43b5b2` | `#1d6764` |
 | On lead | `--cui-on-accent` | `#04161a` | `#fff` |
-| Link | `--cui-link` | `#6fd0cd` | `#175553` |
+| Link | `--cui-link` | `#7cd6d3` | `#175553` |
 | Support | `--cui-support` | `#e88b6f` | `#a4482c` |
 | Third | `--cui-third` | `#0f7ec1` | `#035996` |
 | Featured card | `--cui-hero-bg` | `#c67d66` | `#e8cfbe` |
 
-Contrast: Dark: text 12.2:1, secondary 6.9:1, link 6.1:1, button label 7.5:1. Light: text 15.5:1, secondary 6.6:1, link 8.1:1, button label 6.6:1.
+Contrast: Dark: text 12.2:1, secondary 8.0:1, link 7.9:1, button label 7.5:1. Light: text 15.5:1, secondary 6.6:1, link 8.1:1, button label 6.6:1.
 
 ### Christmas  `data-theme="xms"`
 
@@ -500,6 +512,36 @@ Useful if you are building a theme of your own, or wondering why a colour you ex
 **Bright colours are fills in light flavors, never text.** A colour bright enough to feel seasonal on a white ground cannot also be legible on it. Light flavors keep the bright value for fills and pair it with a separately deepened text value. This is why `--cui-support` and `--cui-support-text` diverge sharply on light and barely at all on dark.
 
 **Contrast is checked, not eyeballed.** Every one of the eighteen sets was computed: 4.5:1 for text per WCAG 2.1 AA, 3:1 for interactive boundaries per 1.4.11. Several palettes that looked right failed and were retuned.
+
+## Common mistakes
+
+Every one of these actually shipped, in the ConjureOS shell, more than once. They read as obvious once named; none of them were obvious in a diff. If you are new to this system, read this section twice, it will save you a bug report.
+
+**`--cui-on-accent` painted over a wash instead of a fill.** This is the single most common bug in the whole system, and it explains most "this looks a little off" reports. `--cui-on-accent` is calibrated against ONE thing: the fully opaque `--cui-accent` fill. That is the only surface it is tested on.
+
+```css
+/* WRONG: on-accent calibrated for an opaque fill, used on a 30% wash */
+.tab--active {
+  background: color-mix(in srgb, var(--cui-accent) 30%, transparent);
+  color: var(--cui-on-accent);   /* fails contrast: this token never saw this background */
+}
+
+/* RIGHT: a wash keeps reading as a wash. Use the TEXT-weight token instead. */
+.tab--active {
+  background: color-mix(in srgb, var(--cui-accent) 30%, transparent);
+  color: var(--cui-link);        /* --cui-link is calibrated to read as text on the page */
+}
+```
+
+Why it happens: a wash *looks* like a lighter version of the fill, so painting the fill's label token onto it feels correct at a glance. It is not. The wash composites toward whatever it sits on, so its effective colour is never the one `--cui-on-accent` was calibrated against, and the two colours can end up close enough to fail 4.5:1 outright. The rule that actually holds: **if the background is a `color-mix()` or `rgba()` wash, the foreground is a TEXT token (`--cui-link`, `--cui-support-text`, `--cui-third-text`). If the background is the opaque `--cui-accent` fill itself, the foreground is `--cui-on-accent`.** Never mix the two.
+
+**A hardcoded colour survives a "complete" cleanup.** Hunting a specific hex value only proves *that* value is gone. Real sweeps found new, previously-unknown hardcoded colours on the second, third, and even fourth pass, each time a value-specific search that had already "finished." What actually catches every instance: search by SHAPE, not by value. Grep for any `#hex` or `rgba(`/`rgb(` literal sitting inside a `background`, `border`, or `color` declaration that is not wrapped in `var()` or `color-mix()`. A single low-opacity literal buried in a 4-stop animated gradient is nearly invisible to the eye and survives visual review after visual review; it is trivial to catch structurally.
+
+**A hue used as a dominant colour instead of a sparing note.** `--cui-third` exists for a tag, a secondary stat, one accent on one card. Painting it as the background of something that renders constantly and everywhere (every app icon, say) makes the theme's THIRD hue read as the app's identity, which is backwards, and on some palettes it is a completely unrelated colour from the theme's lead. If a treatment needs to run on every instance of something, it should be built from `--cui-accent` (a soft tint of it, not the solid fill), never from `--cui-support` or `--cui-third`.
+
+**Two translucent hues that are far apart in hue angle, layered.** A gradient or overlapping-wash effect that blends `--cui-accent` and `--cui-support` looks fine on the seven themes where those hues sit close together, and turns to mud on the two where they are near-complementary (Summer, Candyland; see "Complementary hues cannot composite" above). Test a multi-hue composite against the theme with the widest hue gap between its two colours, not just against Conjure.
+
+**A fill-weight token used as text, or a text-weight token used as a fill.** `--cui-accent` and `--cui-link` are the same hue and different values on purpose (see "Lead" above). Using `--cui-accent` as a text colour is usually still legible, which is exactly what makes the mistake easy to miss: it reads fine on the one theme you tested and fails contrast on three others where the lead hue was tuned bright specifically to work as a *fill*, not as text.
 
 ## Type
 
@@ -936,14 +978,16 @@ For the full distribution model, see [PHASE_21_DESIGN.md](../ConjureOS/PHASE_21_
 
 ## Known drift
 
-The ConjureOS shell predates the token system and deviates from it in known ways. Listed so contributors do not propagate them.
+The ConjureOS shell predates the token system and deviates from it in known ways. Listed so contributors do not propagate them. This list lives in the library repo as a courtesy and is not automatically kept in sync with the shell; ConjureOS's own `DECISIONS.md` is the authoritative, dated record of what has actually been fixed there.
 
-- **Hard-coded dark hex** (`#14161e`, `#16161c`, `#0a0a0c`) in older shell components instead of the ground tokens. These pin those components to a dark purple that no longer exists in any palette.
-- **Hand-rolled `rgba(124,106,247,X)` opacities** appear 50+ times across the shell. That purple is the retired brand accent; every one of them is now a literal with no theme behind it.
-- **`rgba(255,255,255,0.025)` surfaces** work on dark and vanish on light.
+Largely cleared as of shell `0.59.6`: the original `rgba(124,106,247,X)` retired-purple family (50+ sites), the two-hue lead-into-support gradient painted with `--cui-on-accent` on top (the single pattern behind nearly every "this theme looks wrong" report across a 9-theme x 2-flavor review), the Tailwind indigo-500/400/200 family (48 sites), and `rgba(255,255,255,0.025)` white-wash surfaces that vanished on light flavors. Each round of cleanup, hunting a specific known-bad value, turned up MORE instances of the same class on the next pass; see "A hardcoded colour survives a 'complete' cleanup" above.
+
+Still open, deliberately scoped out rather than forgotten:
+
+- **A large family of status-colour literals** (`rgba(248,113,113,…)` red, `rgba(251,191,36,…)` amber, `rgba(74,222,128,…)` green, and siblings) used instead of `color-mix(in srgb, var(--cui-error|warning|success|info) N%, transparent)`. Roughly 100+ sites, spanning far beyond the shell's core surfaces (App Store, billing, admin). Real, same bug class as everything else here, large enough to be its own pass.
+- **Two chat response cards** (`.conjureos-wm-chat-response-error` / `-info`) with a hand-rolled, fully hardcoded background and a multi-hue gradient border, explicitly commented as an intentional decorative treatment rather than a leftover. The background does not adapt to light flavor; worth a deliberate look, not a silent re-token.
+- **Built-in app HTML templates** (report/ticket/automation/icon-generator apps) ship their own hardcoded `#6366f1` and a literal two-hue gradient. These do not load `@conjureos/ui` at all, so this is a narrower "fix the literal" question, separate from the standing decision to defer full built-in-app theming.
 - **Hero negative-margin magic number** (`-24px -24px 16px`) repeated across at least three hero headers. A `--cui-hero-inset` token would let the inset adapt to a panel's real padding.
-
-The first two are now migration work rather than tidying: the shell will not theme correctly until they are tokenized. Tracked separately; do not add to the list.
 
 ## For agents
 
