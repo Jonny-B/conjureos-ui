@@ -6,7 +6,7 @@ This doc is the single source of truth for what Modern Whimsy is, what it looks 
 
 ## The brief
 
-Modern Whimsy is accent-led and lightly playful. Translucent surfaces sit on hairline borders, active states go pill-shaped, hovers lift 120ms, and personality is reserved for the moments that warrant it: a wand glyph instead of a warning triangle on an error banner, a gentle bounce-in on an empty state. It avoids heavy chrome, favors generous radii (10px default, 999px for pills), and keeps three text tiers rather than five.
+Modern Whimsy is accent-led and lightly playful. Translucent surfaces sit on hairline borders, active states go pill-shaped, hovers lift 120ms, and personality is reserved for the moments that warrant it: the Open O glyph instead of a warning triangle on an error banner, a gentle bounce-in on an empty state. It avoids heavy chrome, favors generous radii (10px default, 999px for pills), and keeps three text tiers rather than five.
 
 As of 0.4.0 it is **nine palettes across two flavors**, not one dark purple theme. The purple-to-blue brand gradient is retired. Every colour a component paints now comes from a token that resolves per theme and per flavor, so the same markup renders as Halloween dark or Summer light without touching a class name.
 
@@ -19,6 +19,7 @@ The token names and primitive classes became a contract at 1.0.0. Everything sin
 - **1.0.3**: three more contrast fixes surfaced by a second, independent review: Winter and Spring dark's button-hover label, and Summer dark's elevated surface tier plus the tokens measured against it.
 - **1.1.0**: `theme.js` only, CSS unchanged. `init({ lock: true })` pins an app to one palette; the OS layer is now read at boot from `window.__conjureos.appearance` instead of only from a round-trip message, killing a colour flash on launch; `get()` reports `locked` / `osTheme` / `osFlavor`.
 - **1.1.1**: this documentation pass, the "Common mistakes" section below, `design-system.html`, and a `Known drift` refresh.
+- **1.1.2**: the wand is retired. Error cards carry the Open O glyph, ConjureOS's mark, with its inline SVG in the agents section, and the guide says never to draw a wand.
 
 If you are chasing a specific hex value and it does not match what is printed below, you are probably looking at a pre-1.0.1 memory of this doc. The tables here are current as of the version in this file's own `package.json`.
 
@@ -951,7 +952,7 @@ When an option is selected, switch its radius to `var(--cui-radius-pill)` and fi
 
 What Modern Whimsy sounds and feels like, beyond the palette.
 
-**Wand glyph, not warning triangle.** Errors surface as soft rounded cards with a gentle bounce-in and a small wand icon. The error is still legible and dismissible; the framing is "something went sideways" rather than "DANGER."
+**The Open O, not a warning triangle.** Errors surface as soft rounded cards with a gentle bounce-in and a small Open O glyph, ConjureOS's mark: a ring with a doorway at the top. (It used to be a wand. ConjureOS retired the wand everywhere, so never draw one.) The error is still legible and dismissible; the framing is "something went sideways" rather than "DANGER."
 
 **Friendly empty states.** An empty state is an invitation, not a status report. "Nothing here yet, start a chat" beats "No items to display." Pair it with a single call to action, not a wall of help text.
 
@@ -1100,7 +1101,7 @@ Signature idioms (reach for these when the situation fits):
 - Hover and focus transitions: 120ms with `var(--cui-ease)`. Faster feels cheap; slower feels sluggish.
 
 Voice:
-- Errors are soft rounded cards with a wand glyph, not warning triangles.
+- Errors are soft rounded cards with the Open O glyph (ConjureOS's mark: a ring with a doorway at the top), never a wand and not warning triangles. Inline it: `<svg viewBox="36 36 440 440" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M312 37.25A220 220 0 1 1 200 37.25L200 126.06A136 136 0 1 0 312 126.06Z"/></svg>`
 - Empty states are invitations ("Nothing here yet, start a chat"), not status reports.
 - Icons are Font Awesome solid SVG paths, inlined. Never emoji.
 - Reserve bouncy easing (`cubic-bezier(0.34, 1.56, 0.64, 1)`) for moments that need character. Default to `var(--cui-ease)`.

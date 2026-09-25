@@ -2,6 +2,14 @@
 
 All notable changes to `@conjureos/ui` are documented here. The format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.2 (2026-09-25)
+
+The wand is retired. ConjureOS replaced its old logo, a magic wand, with the Open O, and retired the wand everywhere, including the one this guide put on an AI-built app's error card.
+
+### Changed
+
+- `MODERN_WHIMSY.md`: error cards carry the **Open O glyph** (ConjureOS's mark, a ring with a doorway at the top) instead of a wand, in the intro, the Voice section and the "For agents" section. The agents line inlines the glyph's SVG, so a model can draw it without an icon font, and says never to draw a wand. ConjureOS applies the same line to its Dev prompts until it installs this release. No token, class or behavior changes.
+
 ## 1.1.1 (2026-09-13)
 
 Documentation pass, merged alongside 1.1.0's `theme.js` work below. No token, class, or behavior changes; this is a patch bump purely so the served `design-system.html` and `MODERN_WHIMSY.md` carry an accurate version stamp.
