@@ -20,6 +20,7 @@ The token names and primitive classes became a contract at 1.0.0. Everything sin
 - **1.1.0**: `theme.js` only, CSS unchanged. `init({ lock: true })` pins an app to one palette; the OS layer is now read at boot from `window.__conjureos.appearance` instead of only from a round-trip message, killing a colour flash on launch; `get()` reports `locked` / `osTheme` / `osFlavor`.
 - **1.1.1**: this documentation pass, the "Common mistakes" section below, `design-system.html`, and a `Known drift` refresh.
 - **1.1.2**: the wand is retired. Error cards carry the Open O glyph, ConjureOS's mark, with its inline SVG in the agents section, and the guide says never to draw a wand.
+- **1.1.3**: six library bugs. Status buttons keep their fill on hover, sized primitives are border-box, a textarea no longer zooms on iOS, active items keep their look on hover, the two flavor-aware shadows follow a nested flavor, and `theme.js` subscribers no longer miss a change.
 
 If you are chasing a specific hex value and it does not match what is printed below, you are probably looking at a pre-1.0.1 memory of this doc. The tables here are current as of the version in this file's own `package.json`.
 
@@ -484,7 +485,7 @@ Status colours are theme-aware, not fixed. The core green at `#34d399` fails as 
 
 ### Everything else
 
-Type, space, radius, motion and shadow tokens are theme-independent. They are defined once on `.cui-tokens` and `.cui-ui` and never change with the palette.
+Type, space, radius, motion and shadow tokens are theme-independent. They are defined once on `.cui-tokens` and `.cui-ui` and never change with the palette. Two shadows, `--cui-shadow-accent` and `--cui-shadow-lg`, follow the flavor (light gets a softer drop), so they resolve in the same block as the palette tokens and track a `data-flavor` set anywhere down the tree.
 
 ### Deprecated aliases
 

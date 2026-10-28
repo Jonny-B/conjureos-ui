@@ -2,6 +2,19 @@
 
 All notable changes to `@conjureos/ui` are documented here. The format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.3 (2026-10-28)
+
+Bug fixes only, from a bug-finding swarm. No token or class is renamed or added. [#7](https://github.com/Jonny-B/conjureos-ui/issues/7)
+
+### Fixed
+
+- **Status buttons keep their fill on hover.** `.cui-button--danger`, `--warning` and `--info` swapped to the neutral hover grey under a label chosen for the status colour, so the label became unreadable. Each hover now keeps its own fill, slightly darker.
+- **Sized primitives use border-box.** Nothing set `box-sizing`, so on a bare `<input>`, `<textarea>` or `<a>` a `width: 100%` input overflowed its container by its padding and border, and the 36x20 toggle track measured 38x22. Input, textarea, select, toggle track, checkbox, radio, tile, avatar, pagination items, modal and icon button now set `box-sizing: border-box`; nothing else in an app changes.
+- **No iOS zoom on a textarea.** `.cui-textarea` was left at 14px on touch screens, so iOS Safari zoomed in on focus; it gets 16px there, like inputs and selects.
+- **Active items keep their look on hover.** An active chip, menu item or pagination page took the generic hover fill and label colour.
+- **Shadows follow a nested flavor.** `--cui-shadow-accent` and `--cui-shadow-lg` were resolved once on `.cui-ui`, so a `data-flavor` set further down kept the outer flavor's shadow. They now resolve with the palette tokens.
+- **`theme.js` subscribers.** A listener that unsubscribed itself during a change made the next listener miss it. A listener that another one unsubscribed in the same change is not called.
+
 ## 1.1.2 (2026-09-25)
 
 The wand is retired. ConjureOS replaced its old logo, a magic wand, with the Open O, and retired the wand everywhere, including the one this guide put on an AI-built app's error card.

@@ -13,6 +13,27 @@
  * `.conjureos-*` and we want zero collision risk.
  */
 
+/* Every primitive that fixes a size AND carries padding or a border is drawn
+   for border-box: a 36x20 toggle track, a 16px checkbox, a width:100% input.
+   Nothing in the library set it, so a bare <input>, <textarea> or <a> (content-
+   box by default) overflowed its container by padding + border, while a
+   <select> or <button> (border-box by default) beside it did not. Named per
+   primitive rather than as `.cui-ui *`, so an app's own elements keep the box
+   model they chose. */
+.cui-ui .cui-input,
+.cui-ui .cui-textarea,
+.cui-ui .cui-select,
+.cui-ui .cui-toggle__track,
+.cui-ui .cui-checkbox,
+.cui-ui .cui-radio,
+.cui-ui .cui-tile,
+.cui-ui .cui-avatar,
+.cui-ui .cui-pagination > *,
+.cui-ui .cui-modal,
+.cui-ui .cui-button--icon {
+  box-sizing: border-box;
+}
+
 /* ---- Layout helpers ---- */
 
 .cui-ui .cui-stack-v {
@@ -140,7 +161,9 @@
    light one. They share the base button's shape, padding, and motion. Use
    them by altitude of intent: secondary for the quiet alternative next to
    primary, danger for destructive actions, warning for "are you sure,"
-   info for neutral-positive callouts. */
+   info for neutral-positive callouts. Each :hover restates the fill: the base
+   `.cui-button:hover` ties it on specificity and would otherwise swap the fill
+   for a neutral grey under a label chosen to sit on the status colour. */
 .cui-ui .cui-button--secondary {
   background: var(--cui-secondary);
   /* Was border-color: var(--cui-secondary), a fill-as-border. In most themes
@@ -161,6 +184,9 @@
   color: var(--cui-onstatus);
 }
 .cui-ui .cui-button--danger:hover {
+  background: var(--cui-error);
+  border-color: var(--cui-error);
+  color: var(--cui-onstatus);
   filter: brightness(0.92);
 }
 
@@ -170,6 +196,9 @@
   color: var(--cui-onstatus);
 }
 .cui-ui .cui-button--warning:hover {
+  background: var(--cui-warning);
+  border-color: var(--cui-warning);
+  color: var(--cui-onstatus);
   filter: brightness(0.92);
 }
 
@@ -179,6 +208,9 @@
   color: var(--cui-onstatus);
 }
 .cui-ui .cui-button--info:hover {
+  background: var(--cui-info);
+  border-color: var(--cui-info);
+  color: var(--cui-onstatus);
   filter: brightness(0.92);
 }
 
@@ -265,6 +297,12 @@
 .cui-ui .cui-chip--active {
   background: var(--cui-support-tint);
   border-color: var(--cui-support-line);
+  color: var(--cui-support-text);
+}
+
+/* Ties .cui-chip:hover at (0,3,0) and wins on source order, so keep it below. */
+.cui-ui .cui-chip--active:hover {
+  background: var(--cui-support-tint);
   color: var(--cui-support-text);
 }
 
@@ -411,7 +449,8 @@
    14px does NOT avoid that (an earlier comment claimed it did). Bump inputs and
    selects to 16px on touch only, so desktop keeps its denser 14px and pinch-zoom
    stays available (no user-scalable=no, which would fail WCAG). Placed after both
-   base rules so it wins on source order without !important. */
+   base rules so it wins on source order without !important. The textarea's base
+   rule is further down, so it has its own block after it (see Textarea). */
 @media (pointer: coarse) {
   .cui-ui .cui-input,
   .cui-ui .cui-select {
@@ -703,6 +742,14 @@
   outline: none;
   border-color: var(--cui-accent);
   box-shadow: 0 0 0 3px var(--cui-support-tint);
+}
+
+/* Same iOS focus-zoom rule as the input and select above. It has to sit after the
+   base rule: both are (0,2,0), so an earlier block would lose on source order. */
+@media (pointer: coarse) {
+  .cui-ui .cui-textarea {
+    font-size: 16px;
+  }
 }
 
 /* ---- Checkbox + radio ---- */
@@ -997,6 +1044,11 @@
   color: var(--cui-support-text);
 }
 
+/* Ties .cui-menu-item:hover and :focus-visible at (0,3,0); wins on source order. */
+.cui-ui .cui-menu-item--active:hover {
+  background: var(--cui-support-tint);
+}
+
 .cui-ui .cui-menu-sep {
   height: var(--cui-border-width);
   margin: var(--cui-space-1) 0;
@@ -1033,6 +1085,12 @@
 }
 
 .cui-ui .cui-pagination > *:hover { background: var(--cui-bg-2); color: var(--cui-fg); }
+
+/* One class deeper than the rule above, so it wins whatever the order. */
+.cui-ui .cui-pagination > .cui-is-current:hover {
+  background: var(--cui-accent);
+  color: var(--cui-on-accent);
+}
 
 .cui-ui .cui-pagination > *:focus-visible {
   outline: none;

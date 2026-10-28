@@ -289,6 +289,32 @@ const tests = {
     ok(!("data-theme" in e.attrs), "no attribute means the Conjure default");
     ok(!("data-flavor" in e.attrs), "and the browser's light/dark preference");
   },
+
+  "a listener that unsubscribes itself does not starve the next one"() {
+    const e = makeEnv();
+    const T = load(e);
+    T.init({});
+    const calls = [];
+    const offA = T.subscribe(() => { calls.push("A"); offA(); });
+    T.subscribe(() => { calls.push("B"); });
+    T.setTheme("win");
+    ok(calls.join() === "A,B", `both listeners ran in the same pass (got ${calls.join()})`);
+    calls.length = 0;
+    T.setTheme("hal");
+    ok(calls.join() === "B", `A stays unsubscribed on the next change (got ${calls.join()})`);
+  },
+
+  "a listener another listener unsubscribed in the same pass is not called"() {
+    const e = makeEnv();
+    const T = load(e);
+    T.init({});
+    const calls = [];
+    let offB = () => {};
+    T.subscribe(() => { calls.push("A"); offB(); });
+    offB = T.subscribe(() => { calls.push("B"); });
+    T.setTheme("win");
+    ok(calls.join() === "A", `B is not called after A unsubscribed it (got ${calls.join()})`);
+  },
 };
 
 for (const [name, fn] of Object.entries(tests)) {

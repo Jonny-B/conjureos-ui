@@ -38,9 +38,9 @@
  *      or a flavor, collapses each pair to the half this flavor wants.
  *
  * Because step 2 re-runs wherever either attribute appears, changing just
- * the flavor on a nested element re-resolves all 35 tokens against the
- * palette it inherited. The deprecated aliases live in that block for the
- * same reason.
+ * the flavor on a nested element re-resolves all 35 tokens, and the two
+ * flavor-aware shadows, against the palette it inherited. The deprecated
+ * aliases live in that block for the same reason.
  *
  * Buckets, in order:
  *
@@ -485,6 +485,11 @@
   --cui-error: var(--cui-d, var(--cui-error-d)) var(--cui-l, var(--cui-error-l));
   --cui-info: var(--cui-d, var(--cui-info-d)) var(--cui-l, var(--cui-info-l));
   --cui-onstatus: var(--cui-d, var(--cui-onstatus-d)) var(--cui-l, var(--cui-onstatus-l));
+
+  /* Flavor-aware shadows. Not palette pairs (same in every theme), but they
+     read the flavor, so they re-resolve here rather than in .cui-ui. */
+  --cui-shadow-accent: var(--cui-d, 0 6px 20px rgba(0,0,0,0.45)) var(--cui-l, 0 6px 20px rgba(0,0,0,0.12));
+  --cui-shadow-lg: var(--cui-d, 0 10px 40px rgba(0,0,0,0.45)) var(--cui-l, 0 10px 40px rgba(0,0,0,0.16));
 
   /* Deprecated, removed in 2.0. They live in this block rather than a bare
      :root so they re-resolve per theme; declared once at the root they would
@@ -1243,14 +1248,13 @@
 
   --cui-border-width:     1px;
 
-  /* Shadows. The accent shadow is flavor-aware: an accent-tinted glow
-     reads as a smudge on a light ground, so light gets a neutral drop. */
+  /* Shadows. --cui-shadow-accent and --cui-shadow-lg are flavor-aware (an
+     accent-tinted glow reads as a smudge on a light ground, so light gets a
+     neutral drop), which is why they are resolved in the 1b block and not
+     here: declared in this block they would be frozen on the .cui-ui element
+     and ignore a data-flavor set further down the tree. */
   --cui-shadow-sm:        0 1px 2px rgba(0,0,0,0.3);
   --cui-shadow:           0 4px 12px rgba(0,0,0,0.4);
-  --cui-shadow-accent:    var(--cui-d, 0 6px 20px rgba(0,0,0,0.45))
-                          var(--cui-l, 0 6px 20px rgba(0,0,0,0.12));
-  --cui-shadow-lg:        var(--cui-d, 0 10px 40px rgba(0,0,0,0.45))
-                          var(--cui-l, 0 10px 40px rgba(0,0,0,0.16));
 
   /* ---- 4. Motion ---- */
 

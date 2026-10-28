@@ -173,8 +173,13 @@
       if (r.flavor) el.setAttribute("data-flavor", r.flavor);
       else el.removeAttribute("data-flavor");
 
-      for (var i = 0; i < listeners.length; i++) {
-        try { listeners[i](r); } catch (e) { /* one bad listener must not stop the rest */ }
+      // Walk a copy: a listener that unsubscribes itself splices the live
+      // array, and the shift would make the next listener miss this update.
+      // One that an earlier listener unsubscribed in this pass is skipped.
+      var snapshot = listeners.slice();
+      for (var i = 0; i < snapshot.length; i++) {
+        if (listeners.indexOf(snapshot[i]) < 0) continue;
+        try { snapshot[i](r); } catch (e) { /* one bad listener must not stop the rest */ }
       }
       return r;
     }
