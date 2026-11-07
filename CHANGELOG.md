@@ -4,7 +4,9 @@ All notable changes to `@conjureos/ui` are documented here. The format loosely f
 
 ## 1.1.3 (2026-10-28)
 
-Bug fixes only, from a bug-finding swarm. No token or class is renamed or added. [#7](https://github.com/Jonny-B/conjureos-ui/issues/7)
+Bug fixes only, from the 2026-10-28 bug-finding swarm. No token or class is renamed or added. [#7](https://github.com/Jonny-B/conjureos-ui/issues/7)
+
+Merged to `main` on 2026-10-29 and **not on npm yet**: npm's `latest` is 1.0.3 (checked 2026-10-29). 1.1.0 to 1.1.3 were never published and go out together on the owner's manual `npm publish` (CI's npm token is refused; ConjureOS `NPM_PACKAGES.md`). ConjureOS and its app host still serve 1.0.3 at `/_conjureos/ui/`.
 
 ### Fixed
 
@@ -15,7 +17,13 @@ Bug fixes only, from a bug-finding swarm. No token or class is renamed or added.
 - **Shadows follow a nested flavor.** `--cui-shadow-accent` and `--cui-shadow-lg` were resolved once on `.cui-ui`, so a `data-flavor` set further down kept the outer flavor's shadow. They now resolve with the palette tokens.
 - **`theme.js` subscribers.** A listener that unsubscribed itself during a change made the next listener miss it. A listener that another one unsubscribed in the same change is not called.
 
+### Tests
+
+- `npm test` now also runs `scripts/ui-css.test.mjs` (which rules exist, what they declare, and which of two rules wins the cascade) and `scripts/tokens-resolution.test.mjs` (the shadows resolve with the palette tokens). Plain Node, no browser, each seen failing on the old CSS.
+
 ## 1.1.2 (2026-09-25)
+
+Not published to npm (see 1.1.3).
 
 The wand is retired. ConjureOS replaced its old logo, a magic wand, with the Open O, and retired the wand everywhere, including the one this guide put on an AI-built app's error card.
 
@@ -24,6 +32,8 @@ The wand is retired. ConjureOS replaced its old logo, a magic wand, with the Ope
 - `MODERN_WHIMSY.md`: error cards carry the **Open O glyph** (ConjureOS's mark, a ring with a doorway at the top) instead of a wand, in the intro, the Voice section and the "For agents" section. The agents line inlines the glyph's SVG, so a model can draw it without an icon font, and says never to draw a wand. ConjureOS applies the same line to its Dev prompts until it installs this release. No token, class or behavior changes.
 
 ## 1.1.1 (2026-09-13)
+
+Not published to npm (see 1.1.3).
 
 Documentation pass, merged alongside 1.1.0's `theme.js` work below. No token, class, or behavior changes; this is a patch bump purely so the served `design-system.html` and `MODERN_WHIMSY.md` carry an accurate version stamp.
 
@@ -40,6 +50,8 @@ Documentation pass, merged alongside 1.1.0's `theme.js` work below. No token, cl
 - `MODERN_WHIMSY.md`'s Summer dark token table corrected to the values 1.0.3 actually shipped (`--cui-fg-mute-d` and `--cui-link-d` were still showing their pre-1.0.3 hex).
 
 ## 1.1.0 (2026-09-12)
+
+Not published to npm (see 1.1.3).
 
 The resolver learns that some apps must not follow the OS, and reports what the OS said either way. CSS is unchanged; this release is `theme.js` only.
 
@@ -76,6 +88,8 @@ Two follow-up fixes from a user looking at what 1.0.0/0.59.0 had just shipped.
 - **Six shell tile surfaces built their background as a hand-rolled `linear-gradient(support, accent)`.** On a theme where those two hues sit far apart (Spring's magenta into green, Summer's own coral into teal) the diagonal reads as two clashing colors rather than one tile. All six now read `--cui-third-tint` / `--cui-third-line` / `--cui-third-text`, a single hue, matching the library's own `.cui-tile` convention. This is a ConjureOS shell fix, not a library change, recorded here because the same pattern is exactly the kind of thing this library's docs warn against.
 
 ## 1.0.1 (2026-09-09)
+
+Not published on its own (npm has no 1.0.1); 1.0.2 carries it.
 
 A 9-theme x 2-flavor review (36 model passes: independent capture, then independent reverification, before anything was proposed) found the palette sound in 12 of 18 combos. The other 6 needed small, single-hue-family nudges, each reverified against real contrast math before landing.
 

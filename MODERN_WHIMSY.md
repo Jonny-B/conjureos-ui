@@ -8,7 +8,7 @@ This doc is the single source of truth for what Modern Whimsy is, what it looks 
 
 Modern Whimsy is accent-led and lightly playful. Translucent surfaces sit on hairline borders, active states go pill-shaped, hovers lift 120ms, and personality is reserved for the moments that warrant it: the Open O glyph instead of a warning triangle on an error banner, a gentle bounce-in on an empty state. It avoids heavy chrome, favors generous radii (10px default, 999px for pills), and keeps three text tiers rather than five.
 
-As of 0.4.0 it is **nine palettes across two flavors**, not one dark purple theme. The purple-to-blue brand gradient is retired. Every colour a component paints now comes from a token that resolves per theme and per flavor, so the same markup renders as Halloween dark or Summer light without touching a class name.
+As of 1.0.0 it is **nine palettes across two flavors**, not one dark purple theme. The purple-to-blue brand gradient is retired. Every colour a component paints now comes from a token that resolves per theme and per flavor, so the same markup renders as Halloween dark or Summer light without touching a class name.
 
 ## Since 1.0
 
@@ -228,12 +228,12 @@ The default, and the only one that is not a season. Deep blue-black ground, teal
 | Secondary text | `--cui-fg-mute` | `#9ca3af` | `#5b6472` |
 | Lead | `--cui-accent` | `#0f766e` | `#0f766e` |
 | On lead | `--cui-on-accent` | `#fff` | `#fff` |
-| Link | `--cui-link` | `#38bdf8` | `#0f766e` |
+| Link | `--cui-link` | `#38bdf8` | `#0c6660` |
 | Support | `--cui-support` | `#60a5fa` | `#075985` |
 | Third | `--cui-third` | `#34d399` | `#036348` |
 | Featured card | `--cui-hero-bg` | `#243b59` | `#dae4ea` |
 
-Contrast: Dark: text 15.9:1, secondary 7.6:1, link 8.5:1, button label 5.5:1. Light: text 15.8:1, secondary 5.4:1, link 5.5:1, button label 5.5:1.
+Contrast: Dark: text 15.9:1, secondary 7.6:1, link 8.5:1, button label 5.5:1. Light: text 15.8:1, secondary 5.4:1, link 6.8:1, button label 5.5:1.
 
 ### Halloween  `data-theme="hal"`
 
@@ -244,7 +244,7 @@ Burnt orange lead on a near-black warm ground, purple carrying the featured card
 | Ground | `--cui-bg` | `#0c0b09` | `#d9d1bd` |
 | Card | `--cui-bg-1` | `#15140f` | `#e7e0cf` |
 | Text | `--cui-fg` | `#f0ece2` | `#1a1813` |
-| Secondary text | `--cui-fg-mute` | `#a8a294` | `#55503f` |
+| Secondary text | `--cui-fg-mute` | `#a8a294` | `#46412f` |
 | Lead | `--cui-accent` | `#c2410c` | `#a8380a` |
 | On lead | `--cui-on-accent` | `#fff` | `#fff` |
 | Link | `--cui-link` | `#e8934f` | `#8f3208` |
@@ -252,7 +252,7 @@ Burnt orange lead on a near-black warm ground, purple carrying the featured card
 | Third | `--cui-third` | `#5f7a3a` | `#445f29` |
 | Featured card | `--cui-hero-bg` | `#4a2f56` | `#c7b4a8` |
 
-Contrast: Dark: text 16.7:1, secondary 7.7:1, link 7.7:1, button label 5.2:1. Light: text 11.7:1, secondary 5.3:1, link 6.1:1, button label 6.5:1.
+Contrast: Dark: text 16.7:1, secondary 7.7:1, link 7.7:1, button label 5.2:1. Light: text 11.7:1, secondary 6.7:1, link 6.1:1, button label 6.5:1.
 
 ### Fall  `data-theme="fal"`
 
@@ -263,15 +263,15 @@ Goldenrod lead over dark cocoa, rust support, deep pine third. The ground is war
 | Ground | `--cui-bg` | `#19140f` | `#f0dab0` |
 | Card | `--cui-bg-1` | `#231d17` | `#faeeda` |
 | Text | `--cui-fg` | `#f5efe3` | `#211a11` |
-| Secondary text | `--cui-fg-mute` | `#bbae98` | `#655b40` |
+| Secondary text | `--cui-fg-mute` | `#bbae98` | `#585038` |
 | Lead | `--cui-accent` | `#c2820a` | `#a35207` |
 | On lead | `--cui-on-accent` | `#14100c` | `#fff` |
-| Link | `--cui-link` | `#e8b53f` | `#994d06` |
+| Link | `--cui-link` | `#e8b53f` | `#7f3e04` |
 | Support | `--cui-support` | `#b04728` | `#8a3418` |
 | Third | `--cui-third` | `#2f5d3f` | `#245036` |
 | Featured card | `--cui-hero-bg` | `#5b2a1a` | `#e0bf98` |
 
-Contrast: Dark: text 16.0:1, secondary 8.4:1, link 8.8:1, button label 5.9:1. Light: text 12.6:1, secondary 4.9:1, link 5.4:1, button label 5.6:1.
+Contrast: Dark: text 16.0:1, secondary 8.4:1, link 8.8:1, button label 5.9:1. Light: text 12.6:1, secondary 5.9:1, link 7.1:1, button label 5.6:1.
 
 ### Winter  `data-theme="win"`
 
@@ -317,8 +317,8 @@ The one dark flavor that is not near-black: a deep teal sea. The featured card i
 
 | Role | Token | Dark | Light |
 | --- | --- | --- | --- |
-| Ground | `--cui-bg` | `#123434` | `#f7edde` |
-| Card | `--cui-bg-1` | `#1a4242` | `#fdf8f0` |
+| Ground | `--cui-bg` | `#123434` | `#dff3ef` |
+| Card | `--cui-bg-1` | `#1a4242` | `#f0faf7` |
 | Text | `--cui-fg` | `#eaf7f6` | `#1a1610` |
 | Secondary text | `--cui-fg-mute` | `#b3cdcc` | `#5a5346` |
 | Lead | `--cui-accent` | `#43b5b2` | `#1d6764` |
@@ -328,7 +328,7 @@ The one dark flavor that is not near-black: a deep teal sea. The featured card i
 | Third | `--cui-third` | `#0f7ec1` | `#035996` |
 | Featured card | `--cui-hero-bg` | `#c67d66` | `#e8cfbe` |
 
-Contrast: Dark: text 12.2:1, secondary 8.0:1, link 7.9:1, button label 7.5:1. Light: text 15.5:1, secondary 6.6:1, link 8.1:1, button label 6.6:1.
+Contrast: Dark: text 12.2:1, secondary 8.0:1, link 6.5:1, button label 7.5:1. Light: text 15.6:1, secondary 6.6:1, link 8.0:1, button label 6.6:1.
 
 ### Christmas  `data-theme="xms"`
 
@@ -339,7 +339,7 @@ Fir green holds the ground so red reads as ornament rather than alarm. Lead and 
 | Ground | `--cui-bg` | `#0e1f14` | `#d6e5cf` |
 | Card | `--cui-bg-1` | `#16291c` | `#eaf2e5` |
 | Text | `--cui-fg` | `#f2f5ef` | `#131a10` |
-| Secondary text | `--cui-fg-mute` | `#a8bcac` | `#4e5949` |
+| Secondary text | `--cui-fg-mute` | `#a8bcac` | `#44503f` |
 | Lead | `--cui-accent` | `#ce2229` | `#ce2229` |
 | On lead | `--cui-on-accent` | `#fff` | `#fff` |
 | Link | `--cui-link` | `#f89a86` | `#9e2318` |
@@ -347,7 +347,7 @@ Fir green holds the ground so red reads as ornament rather than alarm. Lead and 
 | Third | `--cui-third` | `#a0c356` | `#a0c356` |
 | Featured card | `--cui-hero-bg` | `#7d1a18` | `#f0bcb2` |
 
-Contrast: Dark: text 15.6:1, secondary 8.5:1, link 7.3:1, button label 5.4:1. Light: text 13.5:1, secondary 5.6:1, link 6.8:1, button label 5.4:1.
+Contrast: Dark: text 15.6:1, secondary 8.5:1, link 7.3:1, button label 5.4:1. Light: text 13.5:1, secondary 6.5:1, link 6.8:1, button label 5.4:1.
 
 ### Easter  `data-theme="est"`
 
@@ -510,7 +510,7 @@ Sixteen aliases still resolve, mapped onto their nearest successor, so 0.3.x mar
 | `--cui-accent-gradient` | `--cui-accent` |
 | `--cui-brand-gradient` | `--cui-accent` |
 
-Both gradient tokens now resolve to a flat `--cui-accent` fill rather than the retired purple-to-blue sweep. All sixteen go away in 2.0. They were originally scheduled for 1.0, but the ConjureOS shell still reads eight of them and has not been migrated, so removing them now would break the thing the library exists to style. Move off them.
+Both gradient tokens now resolve to a flat `--cui-accent` fill rather than the retired purple-to-blue sweep. All sixteen go away in 2.0. They were originally scheduled for 1.0, but the ConjureOS shell still reads twelve of them (counted in its source on 2026-10-29) and has not been migrated, so removing them now would break the thing the library exists to style. Move off them.
 
 ## The rules the palettes follow
 
@@ -618,7 +618,7 @@ Default `gap` on `cui-stack-v` and `cui-stack-h` is `--cui-space-3` (12px). Defa
 | Token | Value | Use |
 | --- | --- | --- |
 | `--cui-duration-fast` | `120ms` | The dominant case. Hover, focus, colour change. |
-| `--cui-duration` | `200ms` | Panel and disclosure transitions |
+| `--cui-duration` | `180ms` | Panel and disclosure transitions |
 | `--cui-duration-slow` | `320ms` | Entrances, modal open |
 | `--cui-ease` | `cubic-bezier(0.2, 0.7, 0.3, 1)` | Default |
 | `--cui-ease-out` | `cubic-bezier(0.16, 1, 0.3, 1)` | Entrances and exits |
@@ -665,7 +665,7 @@ Every variant reads `--cui-accent` and `--cui-on-accent`. Six of the nine themes
 </div>
 ```
 
-*Size, icon and group (new in 0.4.0)*
+*Size, icon and group (new in 1.0.0)*
 
 ```html
 <div class="cui-stack-h">
@@ -726,7 +726,7 @@ Input, select, slider, toggle, label and field already shipped. Textarea, checkb
 
 ### Feedback
 
-None of this existed before 0.4.0. The alert keeps a neutral fill and carries the status colour on a left stripe, so the text keeps full contrast on any of the nine grounds.
+None of this existed before 1.0.0. The alert keeps a neutral fill and carries the status colour on a left stripe, so the text keeps full contrast on any of the nine grounds.
 
 **When to use.** `cui-alert` is inline and persistent, `cui-toast` is floating and transient. `cui-spinner` is for an unknown wait, `cui-progress` for a known one, and `cui-skeleton` for content whose shape you already know.
 
@@ -784,7 +784,7 @@ The status variants shipped already. `--support` and `--third` are new: they car
 
 ### Navigation
 
-Tabs shipped already, though its active state was two hardcoded purple literals until 0.4.0. Breadcrumb, menu and pagination are new.
+Tabs shipped already, though its active state was two hardcoded purple literals until 1.0.0. Breadcrumb, menu and pagination are new.
 
 **When to use.** Tabs for switching views inside one surface, breadcrumb for depth, menu for a command list, pagination for long results.
 
@@ -815,7 +815,7 @@ Tabs shipped already, though its active state was two hardcoded purple literals 
 
 ### Data display
 
-Table, avatar, avatar stack and stat are all new in 0.4.0.
+Table, avatar, avatar stack and stat are all new in 1.0.0.
 
 **When to use.** `cui-stat` is the big-number moment and the one place 700 weight belongs. `cui-table` stays hairline-ruled; do not add vertical rules.
 
@@ -997,12 +997,12 @@ The ConjureOS shell predates the token system and deviates from it in known ways
 
 Largely cleared as of shell `0.59.6`: the original `rgba(124,106,247,X)` retired-purple family (50+ sites), the two-hue lead-into-support gradient painted with `--cui-on-accent` on top (the single pattern behind nearly every "this theme looks wrong" report across a 9-theme x 2-flavor review), the Tailwind indigo-500/400/200 family (48 sites), and `rgba(255,255,255,0.025)` white-wash surfaces that vanished on light flavors. Each round of cleanup, hunting a specific known-bad value, turned up MORE instances of the same class on the next pass; see "A hardcoded colour survives a 'complete' cleanup" above.
 
-Still open, deliberately scoped out rather than forgotten:
+Still open, deliberately scoped out rather than forgotten (re-checked against the shell source on 2026-10-29):
 
-- **A large family of status-colour literals** (`rgba(248,113,113,…)` red, `rgba(251,191,36,…)` amber, `rgba(74,222,128,…)` green, and siblings) used instead of `color-mix(in srgb, var(--cui-error|warning|success|info) N%, transparent)`. Roughly 100+ sites, spanning far beyond the shell's core surfaces (App Store, billing, admin). Real, same bug class as everything else here, large enough to be its own pass.
-- **Two chat response cards** (`.conjureos-wm-chat-response-error` / `-info`) with a hand-rolled, fully hardcoded background and a multi-hue gradient border, explicitly commented as an intentional decorative treatment rather than a leftover. The background does not adapt to light flavor; worth a deliberate look, not a silent re-token.
-- **Built-in app HTML templates** (report/ticket/automation/icon-generator apps) ship their own hardcoded `#6366f1` and a literal two-hue gradient. These do not load `@conjureos/ui` at all, so this is a narrower "fix the literal" question, separate from the standing decision to defer full built-in-app theming.
-- **Hero negative-margin magic number** (`-24px -24px 16px`) repeated across at least three hero headers. A `--cui-hero-inset` token would let the inset adapt to a panel's real padding.
+- **A family of status-colour literals** (`rgba(248,113,113,…)` red, `rgba(251,191,36,…)` amber, `rgba(74,222,128,…)` green, and siblings) used instead of `color-mix(in srgb, var(--cui-error|warning|success|info) N%, transparent)`. About 50 sites for those three alone, mostly in the shell's stylesheet (admin, billing, App Store). Real, same bug class as everything else here, large enough to be its own pass.
+- **Hero negative-margin magic number** (`-24px -24px 16px`), still in the shell's hero header rule. A `--cui-hero-inset` token would let the inset adapt to a panel's real padding.
+
+No longer in the shell source: the two hand-rolled chat response cards (`.conjureos-wm-chat-response-*`), and the hardcoded `#6366f1` in the built-in app templates (the built-ins now link `@conjureos/ui` and `theme.js` themselves).
 
 ## For agents
 
